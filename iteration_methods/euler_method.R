@@ -1,52 +1,110 @@
-# Particle in Earth's gravitational field
-# (g varies with r)
+# Load physical constants
+source("constants.R")
+
 # Euler method
 
 Euler = function(a, b, y0, v0, theta, N) {
+  # Particle trajectory in a static (constant) gravitational field
+  
+  # Args:
+  # a: initial x coordinate
+  # b: final x coordinate
+  # y0: initial y coordinate
+  # v0: initial speed
+  # theta: angle of initial trajectory (between the horizontal and initial velocity)
+  # N: number of steps between a and b
+  
+  # Energy conservation test: energy is conserved if the ratio of initial to final energies equals 1
+  h = (b - a) / N
+  r = R_EARTH + y0  # Initial height above Earth's center
+  g = G * M_EARTH / r^2  # Constant gravitational acceleration (calculated at initial height)
+  
+  l = c(y0)  # Sequence of approximated y-values
+  s = seq(a + h, b, by = h)  # Sequence of x-values
+  
+  # Initial energy (kinetic + potential) per unit mass
+  Ea = 0.5 * v0^2 - G * M_EARTH / r
+  
   yprime = function(x) {
     tan(theta) + (g * (x - a)) / (v0 * cos(theta))^2
   }
-
-  # Energy conservation test: energy is conserved if the ratio of initial to final energies equals 1
-  h = (b - a) / N
-  r = R + y0
-  g = -G * M / r^2  # Initial value of g
-
-  l = c(y0)
-  s = seq(a + h, b, by = h)
-  Ea = 0.5 * v0^2 - G * M / r  # Initial energy per unit mass
-
-  for (i in 0:N - 1) {
+  
+  # Run Euler method
+  for (i in 1:N) {
     l = c(l, l[i] + h * yprime(s[i]))
-    r = R + l[i + 1]
-    g = -G * M / r^2
+  }
+  
+  # Final position and energy per unit mass calculation
+  r_final = R_EARTH + l[N + 1]  # Final height above Earth's center
+  
+  # Final speed calculation
+  v_final = sqrt(
+    (v0 * cos(theta))^2 + 
+    (v0 * sin(theta) + g * (b - a))^2
+  )
+  
+  # Final energy per unit mass
+  Eb = 0.5 * v_final^2 - G * M_EARTH / r_final
+
+  # Create images directory if it doesn't exist
+  if (!dir.exists("images")) {
+    dir.create("images")
+  }
+  filename = sprintf("euler_trajectory_%s.png")
+
+  # Ensure filename has .png extension
+  if (!grepl("\\.png$", filename, ignore.case = TRUE)) {
+    filename = paste0(filename, ".png")
   }
 
-  v = sqrt(
-    (v0 * cos(theta))^2 +
-    (v0 * sin(theta) + g * (b - a) / (v0 * cos(theta)))^2
-  )
-  Eb = 0.5 * v^2 - G * M / r  # Final energy per unit mass
+  # Full path to save the plot
+  filepath = file.path("images", filename)
 
+  # Open PNG device
+  png(filepath, width = 800, height = 600, res = 100)
+  
+  # Plot the numerical approximation
   plot(
-    s, l, type = "l", col = "red",
-    xlab = "x", ylab = "y",
-    main = "Simulated trajectory of a particle in a gravitational field using the Euler method"
+    c(a, s), l, type = "l", col = "red", lwd = 2,
+    xlab = "Horizontal distance (m)", ylab = "Height (m)",
+    main = "Projectile Trajectory: Euler Method vs Analytical Solution"
   )
-  lines(
-    s,
-    y0 + (s - a - h) * tan(theta) +
-    (g * (s - a - h)^2) / (2 * (v0 * cos(theta))^2)
-  )
+  
+  # Plot the analytical trajectory
+  x = c(a, s)
+  y = y0 + (x - a) * tan(theta) + (g * (x - a)^2) / (2 * (v0 * cos(theta))^2)
+  lines(x, y, col = "blue", lwd = 2, lty = 2)
+  
+  # Add legend
   legend(
-    "bottomleft",
-    legend = c("Calculated", "Simulated"),
-    lty = c("solid", "solid"),
-    col = c("black", "red")
+    "topright",
+    legend = c("Euler Method", "Analytical Solution"),
+    lty = c("solid", "dashed"),
+    col = c("red", "blue"),
+    lwd = c(2, 2)
   )
+  
+  # Add grid for better readability
+  grid(col = "gray", lty = "dotted")
 
+  # Close the PNG device
+  dev.off()
+  cat(sprintf("Plot saved to: %s\n", filepath))
+  
+  # Print some useful information
+  cat("Simulation Results:\n")
+  cat(sprintf("Initial height: %.1f m\n", y0))
+  cat(sprintf("Launch angle: %.1f degrees\n", theta * 180 / pi))
+  cat(sprintf("Initial velocity: %.1f m/s\n", v0))
+  cat(sprintf("Constant gravity: %.3f m/s²\n", abs(g)))
+  cat(sprintf("Maximum height (Euler): %.1f m\n", max(l)))
+  cat(sprintf("Range: %.1f m\n", b - a))
+  cat(sprintf("Energy conservation ratio: %.6f\n", Eb / Ea))
+  cat("\n")
+  
   return(Eb / Ea)
 }
 
-# Example call
-Euler(1, 50, -1000000, 10, pi / 4, 30)
+# Example low-altitude projectile
+cat("=== Example Low Altitude Artillery Shell Example ===\n")
+result = Euler(0, 10000, 0, 200, pi/4, 100)
