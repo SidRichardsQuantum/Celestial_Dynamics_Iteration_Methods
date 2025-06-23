@@ -10,7 +10,7 @@ Then the new acceleration is $a_1 = G * m / r_1^2$.
 
 ## Midpoint Method
 
-## Modified Euler Method
+## Heun's Method
 
 ## Runge-Kutta Method
 
@@ -18,5 +18,5 @@ Then the new acceleration is $a_1 = G * m / r_1^2$.
 
 - [Euler Method](https://en.m.wikipedia.org/wiki/Euler_method)
 - [Midpoint Method](https://en.m.wikipedia.org/wiki/Midpoint_method)
-- [Modified Euler Method](
+- [Heun's Method](https://en.wikipedia.org/wiki/Heun%27s_method)
 - [Runge-Kutta Method](https://en.m.wikipedia.org/wiki/Runge–Kutta_methods)
