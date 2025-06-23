@@ -5,7 +5,7 @@ Coded entirely in R.
 Iteration techniques include:
 - Euler method
 - Midpoint method
-- Modified Euler method
+- Heun's method
 - Runge-Kutta method
 
 Given an initial set of parameters, these iteration methods can be used to calculate the next coordinates after a short time step.
