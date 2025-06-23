@@ -8,6 +8,15 @@ For position $x_0$ and velocity $v_0$, the successive position is written as $x_
 Similarly, $v_1 = v_0 + a_0 * dt$, where $a_0$ is the acceleration at coordinate $(x_0, y_0)$.
 Then the new acceleration is $a_1 = G * m / r_1^2$.
 
-## Verlet Method
+## Midpoint Method
+
+## Modified Euler Method
 
 ## Runge-Kutta Method
+
+## References
+
+- [Euler Method](https://en.m.wikipedia.org/wiki/Euler_method)
+- [Midpoint Method](https://en.m.wikipedia.org/wiki/Midpoint_method)
+- [Modified Euler Method](
+- [Runge-Kutta Method](https://en.m.wikipedia.org/wiki/Runge–Kutta_methods)
