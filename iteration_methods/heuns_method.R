@@ -1,10 +1,10 @@
 # Load physical constants
 source("constants.R")
 
-# Runge-Kutta (RK4) method
+# Heun's method
 
-RungeKutta = function(a, b, y0, v0, theta, N) {
-  # Particle trajectory in a static (constant) gravitational field using RK4
+Heun = function(a, b, y0, v0, theta, N) {
+  # Particle trajectory in a static (constant) gravitational field using Heun's method
  
   # Args:
   # a: initial x coordinate
@@ -41,51 +41,26 @@ RungeKutta = function(a, b, y0, v0, theta, N) {
   # Initial energy (kinetic + potential) per unit mass
   Ea = 0.5 * v0^2 - G * M_EARTH / r
  
-  # Run Runge-Kutta method
+  # Run Heun's method
   for (i in 1:N) {
-    # Current state
-    x_i = x[i]
-    y_i = y[i]
-    vx_i = vx[i]
-    vy_i = vy[i]
+    # Predictor step (Euler)
+    x_pred = x[i] + dt * vx[i]
+    y_pred = y[i] + dt * vy[i]
+    vx_pred = vx[i]
+    vy_pred = vy[i] - dt * g
    
-    # Calculate the four slopes for each variable
-    # k1 values
-    k1_x = dt * vx_i
-    k1_y = dt * vy_i
-    k1_vx = 0
-    k1_vy = -dt * g
-   
-    # k2 values
-    k2_x = dt * (vx_i + k1_vx/2)
-    k2_y = dt * (vy_i + k1_vy/2)
-    k2_vx = 0
-    k2_vy = -dt * g
-   
-    # k3 values
-    k3_x = dt * (vx_i + k2_vx/2)
-    k3_y = dt * (vy_i + k2_vy/2)
-    k3_vx = 0
-    k3_vy = -dt * g
-   
-    # k4 values
-    k4_x = dt * (vx_i + k3_vx)
-    k4_y = dt * (vy_i + k3_vy)
-    k4_vx = 0
-    k4_vy = -dt * g
-   
-    # Update using weighted average
-    x[i+1] = x_i + (k1_x + 2*k2_x + 2*k3_x + k4_x) / 6
-    y[i+1] = y_i + (k1_y + 2*k2_y + 2*k3_y + k4_y) / 6
-    vx[i+1] = vx_i + (k1_vx + 2*k2_vx + 2*k3_vx + k4_vx) / 6
-    vy[i+1] = vy_i + (k1_vy + 2*k2_vy + 2*k3_vy + k4_vy) / 6
+    # Corrector step (average of derivatives)
+    x[i+1] = x[i] + dt * (vx[i] + vx_pred) / 2
+    y[i+1] = y[i] + dt * (vy[i] + vy_pred) / 2
+    vx[i+1] = vx[i]
+    vy[i+1] = vy[i] - dt * g
    
     l = c(l, y[i+1])
     s = c(s, x[i+1])
   }
  
-  # Final position and energy per unit mass calculation
-  r_final = R_EARTH + l[N + 1]  # Final height above Earth's center
+  # Final height above Earth's center
+  r_final = R_EARTH + l[N + 1]
  
   # Final speed calculation
   v_final = sqrt(vx[N+1]^2 + vy[N+1]^2)
@@ -98,7 +73,7 @@ RungeKutta = function(a, b, y0, v0, theta, N) {
     dir.create("images")
   }
  
-  filename = sprintf("runge_kutta_trajectory.png")
+  filename = sprintf("heun_trajectory.png")
 
   # Ensure filename has .png extension
   if (!grepl("\\.png$", filename, ignore.case = TRUE)) {
@@ -110,23 +85,23 @@ RungeKutta = function(a, b, y0, v0, theta, N) {
 
   # Open PNG device
   png(filepath, width = 800, height = 600, res = 100)
- 
+  
   # Plot the numerical approximation
   plot(
     s, l, type = "l", col = "red", lwd = 2,
     xlab = "Horizontal distance (m)", ylab = "Height (m)",
-    main = "Projectile Trajectory: Runge-Kutta 4th Order vs Analytical Solution"
+    main = "Projectile Trajectory: Heun's Method vs Analytical Solution"
   )
   
   # Plot the analytical trajectory
   x_analytical = s
   y_analytical = y0 + (x_analytical - a) * tan(theta) - (g * (x_analytical - a)^2) / (2 * (v0 * cos(theta))^2)
   lines(x_analytical, y_analytical, col = "blue", lwd = 2, lty = 2)
- 
+  
   # Add legend
   legend(
     "topright",
-    legend = c("Runge-Kutta 4th Order", "Analytical Solution"),
+    legend = c("Heun's Method", "Analytical Solution"),
     lty = c("solid", "dashed"),
     col = c("red", "blue"),
     lwd = c(2, 2)
@@ -145,7 +120,7 @@ RungeKutta = function(a, b, y0, v0, theta, N) {
   cat(sprintf("Launch angle: %.1f degrees\n", theta * 180 / pi))
   cat(sprintf("Initial velocity: %.1f m/s\n", v0))
   cat(sprintf("Constant gravity: %.3f m/s²\n", abs(g)))
-  cat(sprintf("Maximum height (RK4): %.1f m\n", max(l)))
+  cat(sprintf("Maximum height (Heun): %.1f m\n", max(l)))
   cat(sprintf("Range: %.1f m\n", b - a))
   cat(sprintf("Energy conservation ratio: %.6f\n", Eb / Ea))
   cat("\n")
@@ -154,5 +129,5 @@ RungeKutta = function(a, b, y0, v0, theta, N) {
 }
 
 # Example low-altitude projectile
-cat("=== Example Low Altitude Artillery Shell Example ===\n")
-result = RungeKutta(0, 10000, 0, 200, pi/4, 100)
+cat("=== Example Low Altitude Artillery Shell Example (Heun's Method) ===\n")
+result = Heun(0, 10000, 0, 200, pi/4, 100)
