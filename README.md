@@ -38,3 +38,11 @@ We will briefly introduce a third celestial to illustrate the chaos of the three
     ├── modified_euler_method.R   # Modified Euler method
     └── runge_kutta_method.R      # (Fourth-order) Runge-Kutta method
 ```
+
+---
+
+📘 Author: [Sid Richards]
+
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" width="20" /> LinkedIn: [https://www.linkedin.com/in/sid-richards-21374b30b/]
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
