@@ -17,26 +17,30 @@ We will briefly introduce a third celestial to illustrate the chaos of the three
 ## Project Structure
 
 ```
-├── LICENSE                       # Project license
-├── README.md                     # This file
-├── THEORY.md                     # Theoretical background and equations
-├── constants.R                   # Physical constants and parameters
-├── celestial_systems/            # Gravitational system simulation
-│   ├── three_body_problem.R      # Three massive celestials
-│   └── two_body_system.R         # Two massive celestials
+├── LICENSE                         # Project license
+├── README.md                       # This file
+├── THEORY.md                       # Theoretical background and equations
+├── constants.R                     # Physical constants and parameters
+├── celestial_systems/              # Gravitational system simulation
+│   ├── three_body_problem.R        # Three massive celestials
+│   └── two_body_system.R           # Two massive celestials
 ├── examples/
-│   ├── earth_mars_sun.R          # Earth, Mars and Sun example
-│   ├── earth_moon.R              # Earth and Moon example
-│   └── sun_earth.R               # Sun and Earth example
+│   ├── earth_mars_sun.R            # Earth, Mars and Sun example
+│   ├── earth_moon.R                # Earth and Moon example
+│   └── sun_earth.R                 # Sun and Earth example
 ├── images/
-│   ├── earth_mars_sun.png        # Earth, Mars and Sun saved plot
-│   ├── earth_moon.png            # Earth and Moon saved plot
-│   └── sun_earth.png             # Sun and Earth saved plot
-└── iteration_methods/            # Trajectories of particles in a gravitational field
-    ├── euler_method.R            # Euler method
-    ├── midpoint_method.R         # Midpoint method
-    ├── modified_euler_method.R   # Modified Euler method
-    └── runge_kutta_method.R      # (Fourth-order) Runge-Kutta method
+│   ├── earth_mars_sun.png          # Earth, Mars and Sun saved plot
+│   ├── earth_moon.png              # Earth and Moon saved plot
+│   ├── sun_earth.png               # Sun and Earth saved plot
+│   ├── euler_trajectory.png        # Sun and Earth saved plot
+│   ├── midpoint_trajectory.png     # Sun and Earth saved plot
+│   ├── heun_trajectory.png         # Sun and Earth saved plot
+│   └── runge_kutta_trajectory.png  # Sun and Earth saved plot
+└── iteration_methods/              # Trajectories of particles in a static gravitational field
+    ├── euler_method.R              # Euler method
+    ├── midpoint_method.R           # Midpoint method
+    ├── heuns_method.R              # Heun's method
+    └── runge_kutta_method.R        # Runge-Kutta (RK4) method
 ```
 
 ---
