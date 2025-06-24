@@ -1,4 +1,4 @@
-# Comparing Iteration Methods Through Celestial Dynamics
+# Comparing Iteration Methods Via Celestial Dynamics
 Comparing different numerical iteration techniques by tracing out gravitational dynamics of objects.
 Coded entirely in R.
 
