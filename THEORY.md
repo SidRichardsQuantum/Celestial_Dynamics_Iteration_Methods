@@ -5,14 +5,21 @@ The acceleration of one body is $a = G * m / r^2$, where $G = 6.6743 * 10^{-11} 
 ## Euler Method
 
 For position $x_0$ and velocity $v_0$, the successive position is written as $x_1 = x_0 + v_0 * dt$, where $dt$ is a small time-increment.
-Similarly, $v_1 = v_0 + a_0 * dt$, where $a_0$ is the acceleration at coordinate $(x_0, y_0)$.
-Then the new acceleration is $a_1 = G * m / r_1^2$.
+In the code files, $dt$ is written as $h$ which is set to be equal to $(b - a) / N$.
+Here, $a$ and $b$ are the initial and final $x$-coordinates, and $N$ is the number of steps between them.
+
+Similarly, the successive velocity $v_1 = v_0 + a_0 * dt$ is also calculated, where $a_0$ is the acceleration at coordinate $(x_0, y_0)$.
+Then the acceleration is updated akin to the new position: $a_1 = G * m / r_1^2$.
 
 ## Midpoint Method
+
+Similar to the Euler method, but an intermediate $h$-value is also implemented.
 
 ## Heun's Method
 
 ## Runge-Kutta Method
+
+Four intermediate steps are calculated and their weighted average is used to more-accurately determine the succesive positions and velocities.
 
 ## References
 
