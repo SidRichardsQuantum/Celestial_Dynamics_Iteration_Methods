@@ -9,10 +9,10 @@ Iteration techniques include:
 - Runge-Kutta method
 
 Given an initial set of parameters, these iteration methods can be used to calculate the next coordinates after a short time step.
-Repeating this thousands of times, while tracing the coordinates, maps the trajectories/orbits of the particles/celestials.
-When plotting orbits for every method, eventually the bodies spiral outwards - hence the plots directly compare the different iteration techniques.
+Repeating this thousands of times, while tracing the coordinates, maps the trajectories/orbits of the projectiles/celestials.
+When plotting orbits for every method, eventually the bodies spiral outwards - hence the plots (and ratio of initial to final energies) directly compare the different iteration techniques.
 
-We will briefly introduce a third celestial to illustrate the chaos of the three-body-problem.
+We adapt the two-body system by introducing a third celestial, to illustrate the chaos of the three-body-problem for masses of similar sizes.
 
 ## Project Structure
 
