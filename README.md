@@ -2,7 +2,9 @@
 Comparing different numerical iteration techniques by tracing out gravitational dynamics of objects.
 Coded entirely in R.
 
-Iteration techniques include:
+## Overview
+
+**Iteration techniques include**:
 - Euler method
 - Midpoint method
 - Heun's method
@@ -13,6 +15,8 @@ Repeating this thousands of times, while tracing the coordinates, maps the traje
 When plotting orbits for every method, eventually the bodies spiral outwards - hence the plots (and ratio of initial to final energies) directly compare the different iteration techniques.
 
 We adapt the two-body system by introducing a third celestial, to illustrate the chaos of the three-body-problem for masses of similar sizes.
+
+## Example Usage
 
 ## Project Structure
 
