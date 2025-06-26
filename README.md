@@ -2,21 +2,28 @@
 Comparing different numerical iteration techniques by tracing out gravitational dynamics of objects.
 Coded entirely in R.
 
+See [THEORY.md](THEORY.md) for complete descriptions of each iteration technique.
+
 ## Overview
 
-**Iteration techniques include**:
+**Iteration Techniques Include**:
 - Euler method
 - Midpoint method
 - Heun's method
 - Runge-Kutta method
 
-Given an initial set of parameters, these iteration methods can be used to calculate the next coordinates after a short time step.
-Repeating this thousands of times, while tracing the coordinates, maps the trajectories/orbits of the projectiles/celestials.
+Given an initial set of parameters, these iteration methods can be used to approximate the next coordinates after a short time step.
+Repeating this thousands of times, while tracing the coordinates, we illustrate the trajectories/orbits of the projectiles/celestials.
 When plotting orbits for every method, eventually the bodies spiral outwards - hence the plots (and ratio of initial to final energies) directly compare the different iteration techniques.
+
+An example for a projectile being fired on Earth's surface is given - with anaysis on the accuracies of different iteration methods.
+More examples include the Sun and Earth's orbital plot, and similarly a Earth and Moon system plot.
 
 We adapt the two-body system by introducing a third celestial, to illustrate the chaos of the three-body-problem for masses of similar sizes.
 
 ## Example Usage
+
+
 
 ## Project Structure
 
