@@ -31,7 +31,7 @@ We adapt the two-body system by introducing a third celestial, to illustrate the
 ├── LICENSE                         # Project license
 ├── README.md                       # This file
 ├── THEORY.md                       # Theoretical background and equations
-├── constants.R                     # Physical constants and parameters
+├── constants.R                     # Physical constants
 ├── celestial_systems/              # Gravitational system simulation
 │   ├── three_body_problem.R        # Three massive celestials
 │   └── two_body_system.R           # Two massive celestials
@@ -56,8 +56,8 @@ We adapt the two-body system by introducing a third celestial, to illustrate the
 
 ---
 
-📘 Author: [Sid Richards]
+📘 Author: Sid Richards (SidRichardsQuantum)
 
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" width="20" /> LinkedIn: [https://www.linkedin.com/in/sid-richards-21374b30b/]
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" width="20" /> LinkedIn: https://www.linkedin.com/in/sid-richards-21374b30b/
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
