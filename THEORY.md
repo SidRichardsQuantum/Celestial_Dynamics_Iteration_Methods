@@ -19,12 +19,12 @@ This method is a second-order Runge-Kutta (RK2) method, that provides significan
 Calculate midpoint estimates:
 	•	$x_{0.5} = x_0 + v_{x0} * dt / 2$
 	•	$v_{x0.5} = v_{x0} + a_{x0} * dt / 2$
-    •   $a_{r0.5} = G * m / r_{0.5}^2$
+ • $a_{r0.5} = G * m / r_{0.5}^2$
 
 These are then used to find the successive parameters:
 	•	$x_1 = x_0 + v_{x0.5} * dt$
 	•	$v_{x1} = v_{x0} + a_{x0.5} * dt$
-    •   $a_{r1} = G * m / r_1^2$
+ • $a_{r1} = G * m / r_1^2$
 
 Only coordinates $(x_i, y_i)$ are plotted for **integers** $i \in [0, N]$.
 (The intermediate midpoint coordinates aren't plotted.)
@@ -36,18 +36,41 @@ This is also an RK2 method, which is more accurate than the Euler method because
 Euler's method predicts:
 	•	$x_pred = x_0 + v_{x0} * dt$
 	•	$v_{xpred} = v_{x0} + a_{x0} * dt$
-    •   $a_{rpred} = G * m / r_1^2$
+ • $a_{rpred} = G * m / r_1^2$
 
 Average the above with the initial parameters to get:
 	•	$x_1 = x_0 + (v_{xpred} + v_{0}) * dt / 2$
 	•	$v_{x1} = v_{x0} + (a_{xpred} + a_{0}) * dt / 2$
-    •   $a_{r1} = G * m / r_1^2$
+ • $a_{r1} = G * m / r_1^2$
 
 ## Runge-Kutta (RK4) Method
 
 Four intermediate steps are calculated and their weighted average is used to more-accurately determine the succesive positions and velocities.
 
+Startpoint gradients:
+• $k_{1x} = v_{x0} * dt$
+• $k_{1v_x} = a_{x0} * dt$
 
+Second intermediate gradients:
+• $x_{mid1} = x_0 + k_{1x} / 2$
+• $v_{midx1} = v_{x0} + k_{1v_x} / 2$
+• $a_{midr1} = G * m / r_{mid1}^2$
+• $k_{2x} = v_{midx1} * dt$
+• $k_{2v_x} = a_{midr1} * dt$
+
+Third intermediate gradients:
+• $x_{mid2} = x_0 + k_{2x} / 2$
+• $v_{midx2} = v_{x0} + k_{2v_x} / 2$
+• $a_{midr2} = G * m / r_{mid2}^2$
+• $k_{3x} = v_{midx2} * dt$
+• $k_{3v_x} = a_{midr2} * dt$
+
+Endpoint gradients:
+• $x_{end} = x_0 + k_{3x}$
+• $v_{endx} = v_{x0} + k_{3v_x}$
+• $a_{endr} = G * m / r_{end}^2$
+• $k_{4x} = v_{endx} * dt$
+• $k_{4v_x} = a_{endr} * dt$
 
 ## References
 
