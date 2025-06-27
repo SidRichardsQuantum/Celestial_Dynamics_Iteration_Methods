@@ -10,16 +10,44 @@ Similarly, the successive velocity $v_{x1} = v_{x0} + a_{x0} * dt$ is also calcu
 
 Then the acceleration is updated akin to the new approximated coordinates, for the next iteration.
 For our projectile example, there is only acceleration in the $y$-direction; such that $a_{x1} = a_{x0}$ and $a_{y1} = G * m / r_1^2$, where $r = R + y_1$ for radius of the celestial $R$.
+For our celestial system, the acceleration depends on the distance $r = (x^2 + y^2)^{0.5}$ between them, hence the acceleration is $a_{r1} = G * m / r_1^2$.
 
 ## Midpoint Method
 
-Similar to the Euler method, but an intermediate time-increment $(dt/2)$ is also implemented.
+This method is a second-order Runge-Kutta (RK2) method, that provides significantly better accuracy than the Euler method, by evaluating the derivative at the midpoint of each time step.
+
+Calculate midpoint estimates:
+	•	$x_{0.5} = x_0 + v_{x0} * dt / 2$
+	•	$v_{x0.5} = v_{x0} + a_{x0} * dt / 2$
+    •   $a_{r0.5} = G * m / r_{0.5}^2$
+
+These are then used to find the successive parameters:
+	•	$x_1 = x_0 + v_{x0.5} * dt$
+	•	$v_{x1} = v_{x0} + a_{x0.5} * dt$
+    •   $a_{r1} = G * m / r_1^2$
+
+Only coordinates $(x_i, y_i)$ are plotted for **integers** $i \in [0, N]$.
+(The intermediate midpoint coordinates aren't plotted.)
 
 ## Heun's Method
 
-## Runge-Kutta Method
+This is also an RK2 method, which is more accurate than the Euler method because it averages the initial gradient with the predicted gradient (by Euler's method).
+
+Euler's method predicts:
+	•	$x_pred = x_0 + v_{x0} * dt$
+	•	$v_{xpred} = v_{x0} + a_{x0} * dt$
+    •   $a_{rpred} = G * m / r_1^2$
+
+Average the above with the initial parameters to get:
+	•	$x_1 = x_0 + (v_{xpred} + v_{0}) * dt / 2$
+	•	$v_{x1} = v_{x0} + (a_{xpred} + a_{0}) * dt / 2$
+    •   $a_{r1} = G * m / r_1^2$
+
+## Runge-Kutta (RK4) Method
 
 Four intermediate steps are calculated and their weighted average is used to more-accurately determine the succesive positions and velocities.
+
+
 
 ## References
 
