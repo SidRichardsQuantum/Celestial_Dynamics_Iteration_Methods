@@ -8,7 +8,7 @@ For position $x_0$ and velocity $v_{x0}$, the successive position is written as 
 We use $dt = T / N$, where $T$ is the total time and $N$ is the number of steps.
 Similarly, the successive velocity $v_{x1} = v_{x0} + a_{x0} * dt$ is also calculated, where $a_{x0}$ is the acceleration at coordinate $x_0$.
 
-Then the acceleration is updated akin to the new approximated coordinates.
+Then the acceleration is updated akin to the new approximated coordinates, for the next iteration.
 For our projectile example, there is only acceleration in the $y$-direction; such that $a_{x1} = a_{x0}$ and $a_{y1} = G * m / r_1^2$, where $r = R + y_1$ for radius of the celestial $R$.
 
 ## Midpoint Method
