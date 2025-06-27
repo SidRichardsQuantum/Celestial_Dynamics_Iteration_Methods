@@ -16,7 +16,7 @@ Only coordinates $(x_i, y_i)$ are plotted for **integers** $i \in [0, N]$.
 Let $x_0$ be the initial $x$-coordinate, $v_{x0} = \frac{dx_0}{dt}$ be the $x$-component of the initial velocity, and $a_{x0} = \frac{dv_{x0}}{dt}$ be the $x$-component of the initial acceleration. Then the Euler method approximates these parameters at the next step:
 - $x_1 = x_0 + v_{x0} dt$
 - $v_{x1} = v_{x0} + a_{x0} dt$
-- $a_{r1} = G m / r_1^2$
+- $a_{x1} = G m / x_1^2$
 
 For our projectile example, there is only acceleration in the $y$-direction; such that $a_{x1} = a_{x0}$ and $a_{y1} = G m / r_1^2$, where $r = R + y_1$ for radius of the celestial $R$.
 For our celestial system, the acceleration depends on the distance $r = (x^2 + y^2)^{0.5}$ between them, hence the acceleration is $a_{r1} = G m / r_1^2$.
@@ -28,12 +28,12 @@ This method is a second-order Runge-Kutta (RK2) method, that provides significan
 Calculate midpoint estimates:
 - $x_{0.5} = x_0 + v_{x0} dt / 2$
 - $v_{x0.5} = v_{x0} + a_{x0} dt / 2$
-- $a_{r0.5} = G m / r_{0.5}^2$
+- $a_{x0.5} = G m / x_{0.5}^2$
 
 These are then used to find the successive parameters:
 - $x_1 = x_0 + v_{x0.5} dt$
 - $v_{x1} = v_{x0} + a_{x0.5} dt$
-- $a_{r1} = G m / r_1^2$
+- $a_{x1} = G m / x_1^2$
 
 ## Heun's Method
 
@@ -42,12 +42,12 @@ This is also an RK2 method, which is more accurate than the Euler method because
 Euler's method predicts:
 - $x_pred = x_0 + v_{x0} dt$
 - $v_{xpred} = v_{x0} + a_{x0} dt$
-- $a_{rpred} = G m / r_1^2$
+- $a_{xpred} = G m / x_1^2$
 
 Average the above with the initial parameters to get:
 - $x_1 = x_0 + (v_{xpred} + v_{0}) dt / 2$
 - $v_{x1} = v_{x0} + (a_{xpred} + a_{0}) dt / 2$
-- $a_{r1} = G m / r_1^2$
+- $a_{x1} = G m / x_1^2$
 
 ## Runge-Kutta (RK4) Method
 
@@ -60,28 +60,28 @@ Startpoint gradients:
 Second intermediate gradients:
 - $x_{1mid} = x_0 + k_{1x} / 2$
 - $v_{1midx} = v_{x0} + k_{1vx} / 2$
-- $a_{1midr} = G m / r_{1mid}^2$
+- $a_{1midx} = G m / x_{1mid}^2$
 - $k_{2x} = v_{1midx} dt$
 - $k_{2vx} = a_{1midr} dt$
 
 Third intermediate gradients:
 - $x_{2mid} = x_0 + k_{2x} / 2$
 - $v_{2midx} = v_{x0} + k_{2vx} / 2$
-- $a_{2midr} = G m / r_{2mid}^2$
+- $a_{2midx} = G m / x_{2mid}^2$
 - $k_{3x} = v_{2midx} dt$
 - $k_{3vx} = a_{2midr} dt$
 
 Endpoint gradients:
 - $x_{end} = x_0 + k_{3x}$
 - $v_{endx} = v_{x0} + k_{3vx}$
-- $a_{endr} = G m / r_{end}^2$
+- $a_{endx} = G m / x_{end}^2$
 - $k_{4x} = v_{endx} dt$
 - $k_{4vx} = a_{endr} dt$
 
 Taking weighted averages of all the gradients:
 - $x_1 = x_0 + (k_{1x} + 2k_{2x} + 2k_{3x} + k_{4x}) / 6$
 - $v_{x1} = v_{x0} + (k_{1vx} + 2k_{2vx} + 2k_{3vx} + k_{4vx}) / 6$
-- $a_{r1} = G m / r_1^2$
+- $a_{x1} = G m / x_1^2$
 
 ## References
 
