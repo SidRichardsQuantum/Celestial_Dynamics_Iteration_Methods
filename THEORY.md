@@ -45,13 +45,13 @@ Euler's method predicts:
 - $a_{xpred} = G m / x_{pred}^2$
 
 Average the above with the initial parameters to get:
-- $x_1 = x_0 + (v_{xpred} + v_{0}) dt / 2$
+- $x_1 = x_0 + (v_{xpred} + v_{x0}) dt / 2$
 - $v_{x1} = v_{x0} + (a_{xpred} + a_{x0}) dt / 2$
 - $a_{x1} = G m / x_1^2$
 
 ## Runge-Kutta (RK4) Method
 
-Four intermediate steps are calculated and their weighted average is used to more-accurately determine the succesive positions and velocities.
+Four intermediate steps are calculated and their weighted average is used to more-accurately determine the successive positions and velocities.
 
 Startpoint gradients:
 - $k_{1x} = v_{x0} dt$
@@ -62,21 +62,21 @@ Second intermediate gradients:
 - $v_{1midx} = v_{x0} + k_{1vx} / 2$
 - $a_{1midx} = G m / x_{1mid}^2$
 - $k_{2x} = v_{1midx} dt$
-- $k_{2vx} = a_{1midr} dt$
+- $k_{2vx} = a_{1midx} dt$
 
 Third intermediate gradients:
 - $x_{2mid} = x_0 + k_{2x} / 2$
 - $v_{2midx} = v_{x0} + k_{2vx} / 2$
 - $a_{2midx} = G m / x_{2mid}^2$
 - $k_{3x} = v_{2midx} dt$
-- $k_{3vx} = a_{2midr} dt$
+- $k_{3vx} = a_{2midx} dt$
 
 Endpoint gradients:
 - $x_{end} = x_0 + k_{3x}$
 - $v_{endx} = v_{x0} + k_{3vx}$
 - $a_{endx} = G m / x_{end}^2$
 - $k_{4x} = v_{endx} dt$
-- $k_{4vx} = a_{endr} dt$
+- $k_{4vx} = a_{endx} dt$
 
 Taking weighted averages of all the gradients:
 - $x_1 = x_0 + (k_{1x} + 2k_{2x} + 2k_{3x} + k_{4x}) / 6$
