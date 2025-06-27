@@ -16,14 +16,10 @@ Given an initial set of parameters, these iteration methods can be used to appro
 Repeating this thousands of times, while tracing the coordinates, we illustrate the trajectories/orbits of the projectiles/celestials.
 When plotting orbits for every method, eventually the bodies spiral outwards - hence the plots (and ratio of initial to final energies) directly compare the different iteration techniques.
 
-An example for a projectile being fired on Earth's surface is given - with anaysis on the accuracies of different iteration methods.
+An example for a projectile being fired on Earth's surface is given - with analysis on the accuracies of different iteration methods.
 More examples include the Sun and Earth's orbital plot, and similarly a Earth and Moon system plot.
 
 We adapt the two-body system by introducing a third celestial, to illustrate the chaos of the three-body-problem for masses of similar sizes.
-
-## Example Usage
-
-
 
 ## Project Structure
 
@@ -53,6 +49,30 @@ We adapt the two-body system by introducing a third celestial, to illustrate the
     ├── heuns_method.R              # Heun's method
     └── runge_kutta_method.R        # Runge-Kutta (RK4) method
 ```
+
+## Installation
+
+```bash
+# Clone and run
+git clone https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods.git
+cd Celestial_Dynamics_Iteration_Methods
+```
+
+### Example Usages
+
+```r
+# Euler method: projectile trajectory on Earth
+source("Lorem_Ipsum.R")
+```
+
+![Euler Method Trajectory](images/euler_trajectory.png)
+
+```r
+# Compare methods for Earth-Moon system
+source("examples/earth_moon.R")
+```
+
+![Earth and Moon](images/earth_moon.png)
 
 ---
 
