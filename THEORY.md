@@ -18,7 +18,7 @@ Let $x_0$ be the initial $x$-coordinate, $v_{x0} = \frac{dx_0}{dt}$ be the $x$-c
 - $v_{x1} = v_{x0} + a_{x0} dt$
 - $a_{x1} = G m / x_1^2$
 
-For our projectile example, there is only acceleration in the $y$-direction; such that $a_{x1} = a_{x0}$ and $a_{y1} = G m / r_1^2$, where $r = R + y_1$ for radius of the celestial $R$.
+For our projectile example, there is only acceleration in the $y$-direction; such that $a_{xN} = ... = a_{x0} = 0$ and $a_{y1} = G m / r_1^2$, where $r = R + y_1$ for radius of the celestial $R$.
 For our celestial system, the acceleration depends on the distance $r = (x^2 + y^2)^{0.5}$ between them, hence the acceleration is $a_{r1} = G m / r_1^2$.
 
 ## Midpoint Method
@@ -40,13 +40,13 @@ These are then used to find the successive parameters:
 This is also an RK2 method, which is more accurate than the Euler method because it averages the initial gradient with the gradient predicted by Euler's method.
 
 Euler's method predicts:
-- $x_pred = x_0 + v_{x0} dt$
+- $x_{pred} = x_0 + v_{x0} dt$
 - $v_{xpred} = v_{x0} + a_{x0} dt$
-- $a_{xpred} = G m / x_1^2$
+- $a_{xpred} = G m / x_{pred}^2$
 
 Average the above with the initial parameters to get:
 - $x_1 = x_0 + (v_{xpred} + v_{0}) dt / 2$
-- $v_{x1} = v_{x0} + (a_{xpred} + a_{0}) dt / 2$
+- $v_{x1} = v_{x0} + (a_{xpred} + a_{x0}) dt / 2$
 - $a_{x1} = G m / x_1^2$
 
 ## Runge-Kutta (RK4) Method
