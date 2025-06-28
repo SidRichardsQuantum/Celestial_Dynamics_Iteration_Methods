@@ -1,6 +1,6 @@
 # THEORY
 
-The acceleration of one body is $a = G * m / r^2$, where $G = -6.6743 * 10^{-11} m^3Kg^{-1}s^{-2}$ is the gravitational constant, $m$ is the mass of the other body and $r$ is the distance between them.
+The acceleration of one body is $g = G * m / r^2$, where $G = -6.6743 * 10^{-11} m^3Kg^{-1}s^{-2}$ is the gravitational constant, $m$ is the mass of the other body and $r$ is the distance between them.
 
 These iteration techniques approximate the successive positions and time-derivatives after each small time increment $dt$.
 Here, we use $dt = T / N$, where $T$ is the total time and $N$ is the number of steps.
@@ -37,7 +37,7 @@ These are then used to find the successive parameters:
 
 ### Heun's Method
 
-This is also an RK2 method, which is more accurate than the Euler method because it averages the initial gradient with the gradient predicted by Euler's method.
+This is also the RK2 method, which is more accurate than the Euler method because it averages the initial gradient with the gradient predicted by Euler's method.
 
 Euler's method predicts:
 - $x_{pred} = x_0 + v_{x0} dt$
