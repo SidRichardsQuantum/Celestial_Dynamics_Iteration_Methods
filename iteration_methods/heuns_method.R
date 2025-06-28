@@ -2,132 +2,117 @@
 source("constants.R")
 
 # Heun's method
-
-Heun = function(a, b, y0, v0, theta, N) {
-  # Particle trajectory in a static (constant) gravitational field using Heun's method
- 
+Heun = function(T, y_0, v_0, theta, N) {
+  # Particle trajectory in a constant gravitational field
   # Args:
-  # a: initial x coordinate
-  # b: final x coordinate
-  # y0: initial y coordinate
-  # v0: initial speed
-  # theta: angle of initial trajectory (between the horizontal and initial velocity)
-  # N: number of steps between a and b
- 
-  # Energy conservation test: energy is conserved if the ratio of initial to final energies equals 1
- 
-  # Calculate time step based on horizontal motion
-  t_total = (b - a) / (v0 * cos(theta))
-  dt = t_total / N
- 
-  r = R_EARTH + y0  # Initial height above Earth's center
-  g = -G * M_EARTH / r^2  # Constant gravitational acceleration (calculated at initial height)
- 
+  # T: total time of simulation
+  # y_0: initial y coordinate
+  # v_0: initial speed
+  # theta: angle of initial trajectory (between the horizontal and initial velocity direction)
+  # N: number of steps over time T
+
+  r = R_EARTH + y_0       # Initial height above Earth's center
+  g_x = 0                 # No acceleration in the x-direction
+  g_y = G * M_EARTH / r^2 # Initial gravitational acceleration
+  
+  # Calculate incremental time step
+  dt = T / N
+  
   # Initialize arrays
   x = numeric(N + 1)
   y = numeric(N + 1)
-  vx = numeric(N + 1)
-  vy = numeric(N + 1)
- 
-  # Initial conditions
-  x[1] = a
-  y[1] = y0
-  vx[1] = v0 * cos(theta)
-  vy[1] = v0 * sin(theta)
- 
-  l = c(y0)  # Sequence of approximated y-values
-  s = c(a)  # Sequence of x-values
- 
+  v_x = numeric(N + 1)
+  v_y = numeric(N + 1)
+
+  # Initial parameters
+  # Initial x-coordinate is 0
+  x[1] = 0
+  y[1] = y_0
+  v_x[1] = v_0 * cos(theta)
+  v_y[1] = v_0 * sin(theta)
+  
+  # Log the approximated coordinates for plotting
+  s = c(x[1]) # x-values
+  l = c(y[1]) # y-values
+
+  # Energy conservation test: energy is conserved if the ratio of initial to final energies equals 1
   # Initial energy (kinetic + potential) per unit mass
-  Ea = 0.5 * v0^2 - G * M_EARTH / r
- 
+  E_0 = 0.5 * v_0^2 - G * M_EARTH / r
+
   # Run Heun's method
   for (i in 1:N) {
-    # Predictor step (Euler)
-    x_pred = x[i] + dt * vx[i]
-    y_pred = y[i] + dt * vy[i]
-    vx_pred = vx[i]
-    vy_pred = vy[i] - dt * g
-   
-    # Corrector step (average of derivatives)
-    x[i+1] = x[i] + dt * (vx[i] + vx_pred) / 2
-    y[i+1] = y[i] + dt * (vy[i] + vy_pred) / 2
-    vx[i+1] = vx[i]
-    vy[i+1] = vy[i] - dt * g
-   
+    # Predictor step (Euler estimate)
+    x_pred = x[i] + dt * v_x[i]
+    y_pred = y[i] + dt * v_y[i]
+    v_xpred = v_x[i] + dt * g_x
+    v_ypred = v_y[i] + dt * g_y
+    
+    # Corrector step (average of slopes)
+    x[i+1] = x[i] + (dt/2) * (v_x[i] + v_xpred)
+    y[i+1] = y[i] + (dt/2) * (v_y[i] + v_ypred)
+    v_x[i+1] = v_x[i] + (dt/2) * (g_x + g_x)
+    v_y[i+1] = v_y[i] + (dt/2) * (g_y + g_y)
     l = c(l, y[i+1])
     s = c(s, x[i+1])
   }
- 
+
   # Final height above Earth's center
   r_final = R_EARTH + l[N + 1]
- 
-  # Final speed calculation
-  v_final = sqrt(vx[N+1]^2 + vy[N+1]^2)
- 
+  
+  # Final speed^2 calculation
+  v_final_squared = v_x[N+1]^2 + v_y[N+1]^2
+  
   # Final energy per unit mass
-  Eb = 0.5 * v_final^2 - G * M_EARTH / r_final
-
+  E_N = 0.5 * v_final_squared - G * M_EARTH / r_final
+  
   # Create images directory if it doesn't exist
   if (!dir.exists("images")) {
     dir.create("images")
   }
- 
-  filename = sprintf("heun_trajectory.png")
-
+  
   # Ensure filename has .png extension
+  filename = sprintf("heun_trajectory.png")
   if (!grepl("\\.png$", filename, ignore.case = TRUE)) {
     filename = paste0(filename, ".png")
   }
-
+  
   # Full path to save the plot
   filepath = file.path("images", filename)
-
+  
   # Open PNG device
   png(filepath, width = 800, height = 600, res = 100)
   
   # Plot the numerical approximation
-  plot(
-    s, l, type = "l", col = "red", lwd = 2,
-    xlab = "Horizontal distance (m)", ylab = "Height (m)",
-    main = "Projectile Trajectory: Heun's Method vs Analytical Solution"
-  )
+  plot(s, l, type = "l", col = "red", lwd = 2,
+       xlab = "Horizontal distance (m)", ylab = "Height (m)",
+       main = "Projectile Trajectory: Heun's Method vs Analytical Solution")
   
-  # Plot the analytical trajectory
+  # Plot the analytical trajectory assuming constant gravitational acceleration
   x_analytical = s
-  y_analytical = y0 + (x_analytical - a) * tan(theta) - (g * (x_analytical - a)^2) / (2 * (v0 * cos(theta))^2)
+  y_analytical = y_0 + x_analytical * tan(theta) + (g_y * x_analytical^2) / (2 * (v_0 * cos(theta))^2)
   lines(x_analytical, y_analytical, col = "blue", lwd = 2, lty = 2)
   
   # Add legend
-  legend(
-    "topright",
-    legend = c("Heun's Method", "Analytical Solution"),
-    lty = c("solid", "dashed"),
-    col = c("red", "blue"),
-    lwd = c(2, 2)
-  )
- 
+  legend("topright", legend = c("Heun's Method", "Analytical Solution"),
+         lty = c("solid", "dashed"), col = c("red", "blue"), lwd = c(2, 2))
+  
   # Add grid for better readability
   grid(col = "gray", lty = "dotted")
-
+  
   # Close the PNG device
   dev.off()
+  
   cat(sprintf("Plot saved to: %s\n", filepath))
- 
+
   # Print some useful information
   cat("Simulation Results:\n")
-  cat(sprintf("Initial height: %.1f m\n", y0))
+  cat(sprintf("Initial height: %.1f m\n", y_0))
   cat(sprintf("Launch angle: %.1f degrees\n", theta * 180 / pi))
-  cat(sprintf("Initial velocity: %.1f m/s\n", v0))
-  cat(sprintf("Constant gravity: %.3f m/s²\n", abs(g)))
+  cat(sprintf("Initial velocity: %.1f m/s\n", v_0))
   cat(sprintf("Maximum height (Heun): %.1f m\n", max(l)))
-  cat(sprintf("Range: %.1f m\n", b - a))
-  cat(sprintf("Energy conservation ratio: %.6f\n", Eb / Ea))
+  cat(sprintf("Total time: %.2f s\n", T))
+  cat(sprintf("Energy conservation ratio: %.6f\n", E_N / E_0))
   cat("\n")
- 
-  return(Eb / Ea)
+  
+  return(E_N / E_0)
 }
-
-# Example low-altitude projectile
-cat("=== Example Low Altitude Artillery Shell Example (Heun's Method) ===\n")
-result = Heun(0, 10000, 0, 200, pi/4, 100)
