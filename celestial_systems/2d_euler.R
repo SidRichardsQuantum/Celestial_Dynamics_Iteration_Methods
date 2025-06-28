@@ -31,7 +31,7 @@ euler_2d = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_ay0, v_
   # Numerical integration using Euler method
   for(i in 1:N) {
     # Calculate current separation vector and distance
-    r_ab = r_a - r_b  # Vector from b to a
+    r_ab = r_a - r_b # Vector from b to a
     mag_r_ab = sqrt(sum(r_ab^2))
     
     # Calculate accelerations
@@ -59,46 +59,6 @@ euler_2d = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_ay0, v_
   U_N = G * m_a * m_b / r_abN
   E_N = KE_N + U_N
   
-  # Create images directory if it doesn't exist
-  if (!dir.exists("images")) {
-    dir.create("images")
-  }
-  
-  # Create filename and save plot
-  filename = "two_body_euler.png"
-  filepath = file.path("images", filename)
-  
-  # Open PNG device
-  png(filepath, width = 800, height = 600, res = 100)
-  
-  # Convert to AU for plotting
-  x_a_au = x_a / AU
-  y_a_au = y_a / AU
-  x_b_au = x_b / AU
-  y_b_au = y_b / AU
-  
-  # Create single 2D plot showing both orbits
-  plot(x_b_au, y_b_au, type="l", col="blue", lwd=2,
-       xlab="x (AU)", ylab="y (AU)", 
-       main="Two-Body Gravitational System (Euler Method)")
-  lines(x_a_au, y_a_au, col="red", lwd=2)
-  
-  # Add starting positions
-  points(r_ax0 / AU, r_ay0 / AU, pch=19, col="red", cex=1.5)
-  points(r_bx0 / AU, r_by0 / AU, pch=19, col="blue", cex=1.5)
-  
-  # Add legend
-  legend("topright", legend=c("Body a", "Body b"), 
-         lty=c("solid", "solid"), col=c("red", "blue"), lwd=c(2, 2))
-  
-  # Add grid for better readability
-  grid(col = "gray", lty = "dotted")
-  
-  # Close the PNG device
-  dev.off()
-  
-  cat(sprintf("Plot saved to: %s\n", filepath))
-  
   # Print simulation results
   cat("Two-Body System Simulation Results:\n")
   cat(sprintf("Body a mass: %.2e kg\n", m_a))
@@ -111,5 +71,17 @@ euler_2d = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_ay0, v_
   cat(sprintf("Energy conservation ratio: %.6f\n", E_N / E_0))
   cat("\n")
   
-  return(E_N / E_0)
+  # Return results as a list
+  return(list(
+    x_a = x_a,
+    y_a = y_a,
+    x_b = x_b,
+    y_b = y_b,
+    energy_ratio = E_N / E_0,
+    initial_conditions = list(
+      r_ax0 = r_ax0, r_ay0 = r_ay0,
+      r_bx0 = r_bx0, r_by0 = r_by0,
+      m_a = m_a, m_b = m_b
+    )
+  ))
 }
