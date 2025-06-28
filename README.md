@@ -29,25 +29,30 @@ We adapt the two-body system by introducing a third celestial, to illustrate the
 ├── THEORY.md                       # Theoretical background and equations
 ├── constants.R                     # Physical constants
 ├── celestial_systems/              # Gravitational system simulation
-│   ├── three_body_problem.R        # Three massive celestials
-│   └── two_body_system.R           # Two massive celestials
+│   ├── three_body/
+│   │   └── three_body_problem.R    # Three massive celestial chaos
+│   └── two_body/
+│       ├── two_body_euler.R        # Two-body orbits using Euler method
+│       ├── two_body_midpoint.R     # Two-body orbits using midpoint method
+│       ├── two_body_heuns.R        # Two-body orbits using Heun's method
+│       └── two_body_runge_kutta.R  # Two-body orbits using Runge-Kutta method
 ├── examples/
+│   ├── earth_moon_euler.R          # Earth and Moon example using Euler method
+│   ├── sun_earth_euler.R           # Sun and Earth example using Euler method
 │   ├── earth_mars_sun.R            # Earth, Mars and Sun example
-│   ├── earth_moon.R                # Earth and Moon example
-│   └── sun_earth.R                 # Sun and Earth example
+│   └── projectile_example.R        # Projectile motion example
 ├── images/
-│   ├── earth_mars_sun.png          # Earth, Mars and Sun saved plot
-│   ├── earth_moon.png              # Earth and Moon saved plot
-│   ├── sun_earth.png               # Sun and Earth saved plot
-│   ├── euler_trajectory.png        # Sun and Earth saved plot
-│   ├── midpoint_trajectory.png     # Sun and Earth saved plot
-│   ├── heun_trajectory.png         # Sun and Earth saved plot
-│   └── runge_kutta_trajectory.png  # Sun and Earth saved plot
-└── iteration_methods/              # Trajectories of particles in a static gravitational field
-    ├── euler_method.R              # Euler method
-    ├── midpoint_method.R           # Midpoint method
-    ├── heuns_method.R              # Heun's method
-    └── runge_kutta_method.R        # Runge-Kutta (RK4) method
+│   ├── earth_moon_euler.png        # Earth and Moon orbits plot for Euler method
+│   ├── sun_earth_euler.png         # Sun and Earth orbits plot for Euler method
+│   ├── euler_trajectory.png        # Euler method trajectory plot
+│   ├── midpoint_trajectory.png     # Midpoint method trajectory plot
+│   ├── heun_trajectory.png         # Heun's method trajectory plot
+│   └── rungekutta_trajectory.png   # Runge-Kutta method trajectory plot
+└── iteration_methods/              # Numerical integration methods for celestial mechanics
+    ├── euler_method.R              # Euler method implementation
+    ├── midpoint_method.R           # Midpoint method implementation
+    ├── heuns_method.R              # Heun's method implementation
+    └── runge_kutta_method.R        # Runge-Kutta (RK4) method implementation
 ```
 
 ## Installation
