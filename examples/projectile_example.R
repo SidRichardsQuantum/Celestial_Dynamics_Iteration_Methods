@@ -7,17 +7,16 @@ source("iteration_methods/midpoint_method.R")
 source("iteration_methods/runge_kutta_method.R")
 
 # Function to run example with specified method
-run_example <- function(method_name, a = 0, b = 10000, y0 = 0, v0 = 200, theta = pi/4, N = 100) {
+run_example <- function(method_name, T = 1000, y_0 = 0, v_0 = 200, theta = pi/4, N = 1000) {
   # Check if method exists
   if (!exists(method_name, mode = "function")) {
-    stop(paste("Method", method_name, "not found. Available methods: Euler, Heun, Midpoint, Runge-Kutta"))
+    stop(paste("Method", method_name, "not found. Available methods: Euler, Heun, Midpoint, RungeKutta"))
   }
   
   # Get the function by name and call it
   method_func <- get(method_name)
   cat(paste("=== Example Low Altitude Artillery Shell Example (", method_name, "Method ) ===\n"))
-  result <- method_func(a, b, y0, v0, theta, N)
-  cat(sprintf("Energy conservation ratio: %.6f\n", result))
+  result <- method_func(T, y_0, v_0, theta, N)
   cat("\n")
   return(result)
 }
@@ -25,4 +24,4 @@ run_example <- function(method_name, a = 0, b = 10000, y0 = 0, v0 = 200, theta =
 result1 <- run_example("Euler")
 result2 <- run_example("Heun")
 result3 <- run_example("Midpoint")
-result4 <- run_example("Runge-Kutta")
+result4 <- run_example("RungeKutta")
