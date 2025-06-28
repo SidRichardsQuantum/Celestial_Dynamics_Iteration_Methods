@@ -82,9 +82,10 @@ Euler = function(T, y_0, v_0, theta, N) {
        xlab = "Horizontal distance (m)", ylab = "Height (m)",
        main = "Projectile Trajectory: Euler Method vs Analytical Solution")
   
-  # Plot the analytical trajectory assuming constant gravitational acceleration
-  x_analytical = s
-  y_analytical = y_0 + x_analytical * tan(theta) + (g_y * x_analytical^2) / (2 * (v_0 * cos(theta))^2)
+  # Plot the analytical trajectory still assuming constant gravitational acceleration
+  t = seq(from = 0, to = T, length.out = N)
+  x_analytical = v_0 * cos(theta) * t
+  y_analytical = y_0 + v_0 * sin(theta) * t + 0.5 * g_y * t^2
   lines(x_analytical, y_analytical, col = "blue", lwd = 2, lty = 2)
   
   # Add legend
