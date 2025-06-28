@@ -1,7 +1,7 @@
 # Earth-Sun system (circular orbit)
-source("celestial_systems/2d_euler.R")
+source("celestial_systems/two_body/two_body_euler.R")
 
-result = euler_2d(
+result = euler_two_body(
   T = YEAR,                               # 1 year
   N = 10000,                              # 10,000 steps
   m_a = M_SUN,                            # Sun

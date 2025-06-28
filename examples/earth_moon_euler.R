@@ -1,7 +1,7 @@
 # Earth-Moon system (circular orbit)
-source("celestial_systems/2d_euler.R")
+source("celestial_systems/two_body/two_body_euler.R")
 
-result = euler_2d(
+result = euler_two_body(
   T = LUNAR_MONTH, # Lunar month
   N = 10000, # 10,000 steps
   m_a = M_EARTH, # Earth

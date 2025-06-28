@@ -1,8 +1,8 @@
 # Pair of massive bodies interacting in 2D
-# Midpoint Method for Two-Body System
+# Euler Method for Two-Body System
 source("constants.R")
 
-midpoint_2d = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_ay0, v_bx0, v_by0) {
+euler_two_body = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_ay0, v_bx0, v_by0) {
   # Calculate time step
   dt = T / N
   
@@ -28,7 +28,7 @@ midpoint_2d = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_ay0,
   U_0 = G * m_a * m_b / r_ab0
   E_0 = KE_0 + U_0
   
-  # Numerical integration using the Midpoint method
+  # Numerical integration using Euler method
   for(i in 1:N) {
     # Calculate current separation vector and distance
     r_ab = r_a - r_b # Vector from b to a
@@ -37,26 +37,14 @@ midpoint_2d = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_ay0,
     # Calculate accelerations
     a_a = G * m_b * r_ab / mag_r_ab^3
     a_b = -G * m_a * r_ab / mag_r_ab^3
-
-    # Midpoint positions and velocities
-    r_amid = r_a + (dt/2) * v_a
-    r_bmid = r_b + (dt/2) * v_b
-    v_amid = v_a + (dt/2) * a_a
-    v_bmid = v_b + (dt/2) * a_b
-
-    # Calculate separation vector and distance at midpoint
-    r_abmid = r_amid - r_bmid
-    mag_r_abmid = sqrt(sum(r_abmid^2))
-
-    # Midpoint accelerations
-    a_amid = G * m_b * r_abmid / mag_r_abmid^3
-    a_bmid = -G * m_a * r_abmid / mag_r_abmid^3
     
-    # Update positions and velocities using midpoint values
-    r_a = r_a + dt * v_amid
-    r_b = r_b + dt * v_bmid
-    v_a = v_a + dt * a_amid
-    v_b = v_b + dt * a_bmid
+    # Update positions using current velocities
+    r_a = r_a + dt * v_a
+    r_b = r_b + dt * v_b
+    
+    # Update velocities using current accelerations
+    v_a = v_a + dt * a_a
+    v_b = v_b + dt * a_b
     
     # Store positions for plotting
     x_a = c(x_a, r_a[1])
@@ -72,7 +60,7 @@ midpoint_2d = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_ay0,
   E_N = KE_N + U_N
   
   # Print simulation results
-  cat("Two-Body System Simulation Midpoint Method Results:\n")
+  cat("Two-Body System Simulation Euler Method Results:\n")
   cat(sprintf("Body a mass: %.2e kg\n", m_a))
   cat(sprintf("Body b mass: %.2e kg\n", m_b))
   cat(sprintf("Total simulation time: %.2f years\n", T / (365.25 * 24 * 3600)))
