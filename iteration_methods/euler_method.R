@@ -46,9 +46,9 @@ Euler = function(T, y_0, v_0, theta, N) {
     
     v_x[i+1] = v_x[i] + dt * g_x
     v_y[i+1] = v_y[i] + dt * g_y
-
-    l = c(l, y[i+1])
+    
     s = c(s, x[i+1])
+    l = c(l, y[i+1])
   }
   
   # Final height above Earth's center

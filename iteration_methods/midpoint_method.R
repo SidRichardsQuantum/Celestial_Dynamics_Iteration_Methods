@@ -42,14 +42,15 @@ Midpoint = function(T, y_0, v_0, theta, N) {
   # Run Midpoint method
   for (i in 1:N) {
     # Midpoint estimates
-    x_0.5 = x[i] + (dt/2) * v_x[i]
-    y_0.5 = y[i] + (dt/2) * v_y[i]
-    v_x0.5 = v_x[i] + (dt/2) * g_x
-    v_y0.5 = v_y[i] + (dt/2) * g_y
+    # x_mid and y_mid aren't used because the gravitational acceleration is constant
+    # x_mid = x[i] + (dt/2) * v_x[i]
+    # y_mid = y[i] + (dt/2) * v_y[i]
+    v_xmid = v_x[i] + (dt/2) * g_x
+    v_ymid = v_y[i] + (dt/2) * g_y
  
     # Update using midpoint values
-    x[i+1] = x[i] + dt * v_x0.5
-    y[i+1] = y[i] + dt * v_y0.5
+    x[i+1] = x[i] + dt * v_xmid
+    y[i+1] = y[i] + dt * v_ymid
     v_x[i+1] = v_x[i] + dt * g_x
     v_y[i+1] = v_y[i] + dt * g_y
     l = c(l, y[i+1])

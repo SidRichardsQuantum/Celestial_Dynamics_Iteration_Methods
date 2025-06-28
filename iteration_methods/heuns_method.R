@@ -42,8 +42,8 @@ Heun = function(T, y_0, v_0, theta, N) {
   # Run Heun's method
   for (i in 1:N) {
     # Predictor step (Euler estimate)
-    x_pred = x[i] + dt * v_x[i]
-    y_pred = y[i] + dt * v_y[i]
+    # x_pred = x[i] + dt * v_x[i]
+    # y_pred = y[i] + dt * v_y[i]
     v_xpred = v_x[i] + dt * g_x
     v_ypred = v_y[i] + dt * g_y
     

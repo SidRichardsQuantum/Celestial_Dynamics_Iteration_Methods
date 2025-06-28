@@ -1,8 +1,8 @@
 # Pair of massive bodies interacting in 2D
-# Euler Method for Two-Body System
+# Heun's Method for Two-Body System
 source("constants.R")
 
-euler_2d = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_ay0, v_bx0, v_by0) {
+heuns_2d = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_ay0, v_bx0, v_by0) {
   # Calculate time step
   dt = T / N
   
@@ -28,24 +28,36 @@ euler_2d = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_ay0, v_
   U_0 = G * m_a * m_b / r_ab0
   E_0 = KE_0 + U_0
   
-  # Numerical integration using Euler method
+  # Numerical integration using Heun's method
   for(i in 1:N) {
     # Calculate current separation vector and distance
     r_ab = r_a - r_b # Vector from b to a
     mag_r_ab = sqrt(sum(r_ab^2))
-    
-    # Calculate accelerations
+ 
+    # Calculate current accelerations
     a_a = G * m_b * r_ab / mag_r_ab^3
     a_b = -G * m_a * r_ab / mag_r_ab^3
-    
-    # Update positions using current velocities
-    r_a = r_a + dt * v_a
-    r_b = r_b + dt * v_b
-    
-    # Update velocities using current accelerations
-    v_a = v_a + dt * a_a
-    v_b = v_b + dt * a_b
-    
+  
+    # Calculate end-of-step (predicted) positions and velocities
+    r_aend = r_a + dt * v_a
+    r_bend = r_b + dt * v_b
+    v_aend = v_a + dt * a_a
+    v_bend = v_b + dt * a_b
+  
+    # Calculate separation vector and distance at end
+    r_abend = r_aend - r_bend
+    mag_r_abend = sqrt(sum(r_abend^2))
+   
+    # Calculate (predicted) accelerations at end
+    a_aend = G * m_b * r_abend / mag_r_abend^3
+    a_bend = -G * m_a * r_abend / mag_r_abend^3
+  
+    # Update using average of initial and end values
+    r_a = r_a + dt * (v_a + v_aend) / 2
+    r_b = r_b + dt * (v_b + v_bend) / 2
+    v_a = v_a + dt * (a_a + a_aend) / 2
+    v_b = v_b + dt * (a_b + a_bend) / 2
+  
     # Store positions for plotting
     x_a = c(x_a, r_a[1])
     y_a = c(y_a, r_a[2])
@@ -60,7 +72,7 @@ euler_2d = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_ay0, v_
   E_N = KE_N + U_N
   
   # Print simulation results
-  cat("Two-Body System Simulation Euler Method Results:\n")
+  cat("Two-Body System Simulation Heun's Method Results:\n")
   cat(sprintf("Body a mass: %.2e kg\n", m_a))
   cat(sprintf("Body b mass: %.2e kg\n", m_b))
   cat(sprintf("Total simulation time: %.2f years\n", T / (365.25 * 24 * 3600)))
