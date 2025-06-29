@@ -1,12 +1,12 @@
 # Earth-Moon system (circular orbit)
-# Euler method
-source("celestial_systems/two_body/two_body_euler.R")
+# Runge-Kutta method
+source("celestial_systems/two_body/two_body_runge_kutta.R")
 
 # Store T and N values for use in plot title
 T = 10 * LUNAR_MONTH # 10 lunar months
 N = 1000
 
-result = euler_two_body(
+result = runge_kutta_two_body(
   T = T,
   N = N,
   m_a = M_EARTH,
@@ -23,7 +23,7 @@ if (!dir.exists("images")) {
 }
 
 # Create filename and save plot
-filename = "earth_moon_euler.png"
+filename = "earth_moon_runge_kutta.png"
 filepath = file.path("images", filename)
 
 # Open PNG device
@@ -38,7 +38,7 @@ y_b_au = result$y_b / AU
 # Create single 2D plot showing both orbits with T and N in title
 plot(x_b_au, y_b_au, type="l", col="gray", lwd=2,
      xlab="x (AU)", ylab="y (AU)",
-     main=sprintf("Earth-Moon System (Euler Method)\nT = %.1f lunar months, N = %d steps", 
+     main=sprintf("Earth-Moon System (Runge-Kutta Method)\nT = %.1f lunar months, N = %d steps", 
                   T / LUNAR_MONTH, N))
 
 lines(x_a_au, y_a_au, col="blue", lwd=2)

@@ -73,11 +73,11 @@ source("Lorem_Ipsum.R")
 ![Euler Method Trajectory](images/euler_trajectory.png)
 
 ```r
-# Compare methods for Earth-Moon system
-source("examples/earth_moon.R")
+# Compare methods for Earth-Moon system using the Euler method
+source("examples/earth_moon_euler.R")
 ```
 
-![Earth and Moon](images/earth_moon.png)
+![Earth and Moon](images/earth_moon_euler.png)
 
 ---
 
