@@ -4,7 +4,7 @@ source("celestial_systems/three_body/three_body_runge_kutta.R")
 
 # Store T and N values for use in plot title
 T = 5 * YEAR # 5 years
-N = 1000    # High number of steps to show "more-accurate" chaos
+N = 1000     # High precision needed
 
 result = runge_kutta_three_body(
   T = T,
@@ -12,13 +12,12 @@ result = runge_kutta_three_body(
   m_a = M_EARTH,
   m_b = M_EARTH,
   m_c = M_EARTH,
-  # Specific initial positions for figure-8
-  r_ax0 = -0.05 * AU, r_ay0 = 0,
-  r_bx0 = 0.05 * AU, r_by0 = 0,
-  r_cx0 = 0, r_cy0 = 0,
-  v_ax0 = 0, v_ay0 = 250,
-  v_bx0 = 0, v_by0 = -250,
-  v_cx0 = 0, v_cy0 = 0
+  r_ax0 = 0 * AU, r_ay0 = 0.1 * AU,
+  r_bx0 = 0.1 * AU, r_by0 = 0 * AU,
+  r_cx0 = -0.1 * AU, r_cy0 = 0 * AU,
+  v_ax0 = 0, v_ay0 = -100,
+  v_bx0 = -75, v_by0 = 50,
+  v_cx0 = 150, v_cy0 = 50
 )
 
 # Create images directory if it doesn't exist
@@ -27,7 +26,7 @@ if (!dir.exists("images")) {
 }
 
 # Create filename and save plot
-filename = "figure_8.png"
+filename = "three_earths.png"
 filepath = file.path("images", filename)
 
 # Open PNG device
