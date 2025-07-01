@@ -26,7 +26,7 @@ if (!dir.exists("images")) {
 }
 
 # Create filename and save plot
-filename = "earth_mars_sun_runge_kutta.png"
+filename = "earth_mars_sun.png"
 filepath = file.path("images", filename)
 
 # Open PNG device
