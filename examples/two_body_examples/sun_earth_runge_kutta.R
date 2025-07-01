@@ -1,12 +1,12 @@
 # Earth-Sun system (circular orbit)
-# Euler method
-source("celestial_systems/two_body/two_body_euler.R")
+# Runge-Kutta method
+source("celestial_systems/two_body/two_body_runge_kutta.R")
 
 # Store T and N values for use in plot title
 T = 25 * YEAR # 25 years
 N = 1000
 
-result = euler_two_body(
+result = runge_kutta_two_body(
   T = T,
   N = N,
   m_a = M_SUN,                            # Sun
@@ -23,7 +23,7 @@ if (!dir.exists("images")) {
 }
 
 # Create filename and save plot
-filename = "sun_earth_euler.png"
+filename = "sun_earth_runge_kutta.png"
 filepath = file.path("images", filename)
 
 # Open PNG device
@@ -38,7 +38,7 @@ y_b_au = result$y_b / AU
 # Create single 2D plot showing both orbits
 plot(x_b_au, y_b_au, type="l", col="blue", lwd=2,
      xlab="x (AU)", ylab="y (AU)",
-     main=sprintf("Sun-Earth System (Euler Method)\nT = %.2f years, N = %d steps", 
+     main=sprintf("Sun-Earth System (Runge-Kutta Method)\nT = %.2f years, N = %d steps", 
                   T / (365.25 * 24 * 3600), N))
 lines(x_a_au, y_a_au, col="red", lwd=2)
 

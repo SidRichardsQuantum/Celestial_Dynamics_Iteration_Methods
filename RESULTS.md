@@ -1,34 +1,80 @@
 # Results
 
-## Earth-Moon System
+## Sun-Earth System
 
-Our Earth and moon example files in ```examples/two_body_examples``` each plot the orbit of the moon (grey line) around the Earth (blue) over $10$ lunar months ($\approx 29.5$ days), using a different iteration method.
-We set a high number of time-steps to maximise accuracy.
+Our Sun and Earth example files in ```examples/two_body_examples``` each plot the orbit of the Earth (blue line) around the Sun (red) over $25$ years, using a different iteration method.
+We use a high number of steps $N=1000$ to maximise technique accuracy.
 
 ### Euler Method
 
-The Euler Method only illustrates $\approx 3.25$ full orbits instead of $10$.
-The moon also spirals out immediately.
+The Euler Method does not illustrate the full $25$ periods.
+The Earth also spirals out immediately and not a lot of total energy is conserved.
 Therefore, the Euler method is not an accurate technique, so methods with a higher-order or greater resolution are required to trace-out celestial dynamics better.
 
-![Euler Method, Earth and Moon system](images/earth_moon_euler.png)
+Output:
+```
+Two-Body System Simulation Euler Method Results:
+Body a mass: 1.99e+30 kg
+Body b mass: 5.97e+24 kg
+Total simulation time: 25.00 years
+Time steps: 1000
+Time step size: 9.13 days
+Initial separation: 1.000 AU
+Final separation: 10.296 AU
+Energy conservation ratio: 0.145946
+```
+![Euler Method, Earth and Moon system](images/sun_earth_euler.png)
 
 ### Midpoint Method
 
-$10$ periods are given
-
-![Midpoint Method, Earth and Moon system](images/earth_moon_midpoint.png)
+```
+Two-Body System Simulation Midpoint Method Results:
+Body a mass: 1.99e+30 kg
+Body b mass: 5.97e+24 kg
+Total simulation time: 25.00 years
+Time steps: 1000
+Time step size: 9.13 days
+Initial separation: 1.000 AU
+Final separation: 1.055 AU
+Energy conservation ratio: 0.942958
+```
+![Midpoint Method, Earth and Moon system](images/sun_earth_midpoint.png)
 
 ### Heun's Method
 
-![Heun's Method, Earth and Moon system](images/earth_moon_heuns.png)
+```
+Two-Body System Simulation Heun's Method Results:
+Body a mass: 1.99e+30 kg
+Body b mass: 5.97e+24 kg
+Total simulation time: 25.00 years
+Time steps: 1000
+Time step size: 9.13 days
+Initial separation: 1.000 AU
+Final separation: 1.219 AU
+Energy conservation ratio: 0.849014
+```
+![Heun's Method, Earth and Moon system](images/sun_earth_heuns.png)
 
 ### Runge-Kutta Method
 
-![Runge-Kutta Method, Earth and Moon system](images/earth_moon_runge_kutta.png)
+```
+Two-Body System Simulation Runge-Kutta Method Results:
+Body a mass: 1.99e+30 kg
+Body b mass: 5.97e+24 kg
+Total simulation time: 25.00 years
+Time steps: 1000
+Time step size: 9.13 days
+Initial separation: 1.000 AU
+Final separation: 1.000 AU
+Energy conservation ratio: 1.000422
+```
+![Runge-Kutta Method, Earth and Moon system](images/sun_earth_runge_kutta.png)
 
 ## Three Earths System
 
+```
+
+```
 ![Three Earths](images/three_earths.png)
 
 ---
