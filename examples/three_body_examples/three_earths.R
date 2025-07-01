@@ -1,23 +1,37 @@
+# install.packages("reticulate")
+library(reticulate)
+source_python("examples/three_body_examples/figure_8_solution.py")
+
 # Three Earths system (three-body problem)
 # Runge-Kutta method
 source("celestial_systems/three_body/three_body_runge_kutta.R")
 
 # Store T and N values for use in plot title
-T = 5 * YEAR # 5 years
+T = 6 * YEAR # 6 years
 N = 1000     # High precision needed
 
+# Call the Python function
+ic = get_initial_conditions()
+pos1 = as.numeric(ic[[1]])
+pos2 = as.numeric(ic[[2]])
+pos3 = as.numeric(ic[[3]])
+vel1 = as.numeric(ic[[4]])
+vel2 = as.numeric(ic[[5]])
+vel3 = as.numeric(ic[[6]])
+
+# Run simulation using values from Python
 result = runge_kutta_three_body(
   T = T,
   N = N,
   m_a = M_EARTH,
   m_b = M_EARTH,
   m_c = M_EARTH,
-  r_ax0 = 0 * AU, r_ay0 = 0.1 * AU,
-  r_bx0 = 0.1 * AU, r_by0 = 0 * AU,
-  r_cx0 = -0.1 * AU, r_cy0 = 0 * AU,
-  v_ax0 = 0, v_ay0 = -100,
-  v_bx0 = -75, v_by0 = 50,
-  v_cx0 = 150, v_cy0 = 50
+  r_ax0 = pos1[1] * AU, r_ay0 = pos1[2] * AU,
+  r_bx0 = pos2[1] * AU, r_by0 = pos2[2] * AU,
+  r_cx0 = pos3[1] * AU, r_cy0 = pos3[2] * AU,
+  v_ax0 = vel1[1], v_ay0 = vel1[2],
+  v_bx0 = vel2[1], v_by0 = vel2[2],
+  v_cx0 = vel3[1], v_cy0 = vel3[2]
 )
 
 # Create images directory if it doesn't exist
