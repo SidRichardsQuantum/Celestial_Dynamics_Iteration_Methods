@@ -3,6 +3,7 @@
 ## Sun-Earth System
 
 Our Sun and Earth example files in ```examples/two_body_examples``` each plot the orbit of the Earth (blue line) around the Sun (red) over $25$ years, using a different iteration method.
+Our Earth starts $1AU$ on the $x$-axis away from the Sun at the origin.
 We use a high number of steps $N=1000$ to maximise technique accuracy.
 
 ### Euler Method
@@ -43,6 +44,8 @@ Energy conservation ratio: 0.942958
 
 ### Heun's Method
 
+Appears to be less accurate than the midpoint method.
+
 Output:
 ```
 Two-Body System Simulation Heun's Method Results:
@@ -58,6 +61,8 @@ Energy conservation ratio: 0.849014
 ![Heun's Method, Earth and Moon system](images/sun_earth_heuns.png)
 
 ### Runge-Kutta Method
+
+The most accurate technique by far, as the orbit shows no noticable perturbations or shifts.
 
 Output:
 ```
