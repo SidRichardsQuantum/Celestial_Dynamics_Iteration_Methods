@@ -91,9 +91,17 @@ We will use the RK4 method for the three-body systems for accuracy.
 
 ![Earth, Moon and Spacecraft](images/earth_moon_spacecraft.png)
 
-### Three Earths
+### Figure-8 Solution
+
+A stable solution to the three-body problem exists where three identical massive bodies follow eachother in a figure-8 parrern.
+Each body is exactly $T/3$ in front of the next, where $T$ is the period, hence the bodies are in a "choreography".
+We used a Python file to minimise the Lagrangian describing three identical masses each $T/3$ apart.
 
 ![Three Earths](images/three_earths.png)
+
+## References
+
+[https://en.m.wikipedia.org/wiki/Three-body_problem]
 
 ---
 
