@@ -44,7 +44,8 @@ Energy conservation ratio: 0.942958
 
 ### Heun's Method
 
-Appears to be less accurate than the midpoint method.
+Appears to be less accurate than the midpoint method as well as not conserving as much energy.
+$\approx 15%$ of total energy is lost after $25$ years, compared to $\approx 6%$ for the midpoint method.
 
 Output:
 ```
