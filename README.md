@@ -27,6 +27,7 @@ We adapt the two-body system by introducing a third celestial, to illustrate the
 ├── LICENSE                         # Project license
 ├── README.md                       # This file
 ├── THEORY.md                       # Theoretical background and equations
+├── RESULTS.md                      # Results, conclusions and evaluations
 ├── constants.R                     # Physical constants
 ├── celestial_systems/              # Gravitational system simulation
 │   ├── three_body/
@@ -66,17 +67,17 @@ cd Celestial_Dynamics_Iteration_Methods
 ### Example Usages
 
 ```r
-# Euler method: projectile trajectory on Earth
-source("Lorem_Ipsum.R")
+# Projectile trajectory on Earth
+# Approximated trajectory plotted alongside the real trajectory
+# Returns a plot for each method
+source("examples/projectile_trajectories/projectile_example.R")
 ```
-
 ![Euler Method Trajectory](images/euler_trajectory.png)
 
 ```r
 # Compare methods for Earth-Moon system using the Euler method
 source("examples/earth_moon_euler.R")
 ```
-
 ![Earth and Moon](images/earth_moon_euler.png)
 
 ---
