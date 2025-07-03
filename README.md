@@ -4,6 +4,8 @@ Coded entirely in R.
 
 See [THEORY.md](THEORY.md) for complete descriptions of each iteration technique.
 
+See [RESULTS.md](RESULTS.md) for results, conclusions and evaluations.
+
 ## Overview
 
 **Iteration Techniques Include**:
