@@ -12,6 +12,7 @@ N = 1000     # High precision needed
 
 # Call the Python function
 ic = get_initial_conditions()
+ic = G * M_EARTH * ic # Because G = M = 1 in the python file
 pos1 = as.numeric(ic[[1]])
 pos2 = as.numeric(ic[[2]])
 pos3 = as.numeric(ic[[3]])
