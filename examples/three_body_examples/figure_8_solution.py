@@ -5,7 +5,7 @@ def get_initial_conditions():
     G = 1
     m = 1
     T = 2 * np.pi
-    N = 999
+    N = 2000
     dt = T / N
 
     def shift(n, s): return (np.arange(n) + s) % n
@@ -18,7 +18,7 @@ def get_initial_conditions():
         vel = (X[shift(N, -1)] - X[shift(N, 1)]) / (2 * dt)
         K = 0.5 * m * np.sum(vel**2, axis=1) * 3
         def dist(a, b): return np.sqrt(np.sum((a - b)**2, axis=1) + 1e-12)
-        U = -G * m**2 * (1 / dist(body1, body2) + 1 / dist(body1, body3) + 1 / dist(body2, body3))
+        U = -abs(G) * m**2 * (1 / dist(body1, body2) + 1 / dist(body1, body3) + 1 / dist(body2, body3))
         return np.sum((K - U) * dt)
 
     a = 0.97000436
