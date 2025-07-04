@@ -5,7 +5,7 @@ def get_initial_conditions():
     G = 1
     m = 1
     T = 2 * np.pi
-    N = 2000
+    N = 5000
     dt = T / N
 
     def shift(n, s): return (np.arange(n) + s) % n

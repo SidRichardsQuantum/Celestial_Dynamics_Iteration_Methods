@@ -9,7 +9,7 @@ source("celestial_systems/three_body/three_body_runge_kutta.R")
 
 # Store T and N values for use in plot title
 T = 60 * YEAR # 60 years
-N = 10000     # High precision needed
+N = 5000     # High precision needed
 
 # Choose the real-world distance between outer bodies
 distance_real = AU   # 1 AU
