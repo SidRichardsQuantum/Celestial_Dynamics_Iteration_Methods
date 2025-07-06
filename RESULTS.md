@@ -117,7 +117,7 @@ Because three-body problems are extremely sensitive to perturbations in initial 
 - [Midpoint Method](https://en.m.wikipedia.org/wiki/Midpoint_method)
 - [Heun's Method](https://en.wikipedia.org/wiki/Heun%27s_method)
 - [Runge-Kutta Method](https://en.m.wikipedia.org/wiki/Runge–Kutta_methods)
-- [https://en.m.wikipedia.org/wiki/Three-body_problem]
+- [Figure-8 Solution](https://en.m.wikipedia.org/wiki/Three-body_problem)
 
 ---
 
