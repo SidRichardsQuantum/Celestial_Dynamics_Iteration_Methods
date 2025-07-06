@@ -4,7 +4,8 @@
 
 Our Sun and Earth example files in ```examples/two_body_examples``` each plot the orbit of the Earth (blue line) around the Sun (red) over $25$ years, using a different iteration method.
 Our Earth starts $1AU$ on the $x$-axis away from the Sun at the origin.
-We use a high number of steps $N=1000$ to maximise technique accuracy.
+We control a high number of steps $N=1000$ to maximise technique accuracy.
+$25$ years is also a control variable because this is a sufficiant number of orbital periods.
 
 ### Euler Method
 
@@ -81,27 +82,42 @@ Energy conservation ratio: 1.000422
 
 ## Three-Body Systems
 
-We will use the RK4 method for the three-body systems for accuracy.
+We used the RK4 method for the three-body systems for accuracy.
 
 ### Sun, Earth and Mars
+
+Below illustrates the orbits of both the earth and mars around the sun, over a year.
+As the planets are far away enough, and as the sun is a lot more massive, the orbits appear to be stable until errors in the Runge-Kutta method cause the system to spiral.
 
 ![Sun, Earth and Mars](images/earth_mars_sun.png)
 
 ### Earth, Moon and Spacecraft
 
+Another example illustrates an orbiting spacecraft between the Earth and moon.
+The spacecraft appears to have an unstable orbit because it is so much lighter than the celestials.
+Making small changes in the spacecraft's initial position and velocity drastically changes its orbit.
+For longer periods of time, the spacecraft eventually flies out and is lost.
+
 ![Earth, Moon and Spacecraft](images/earth_moon_spacecraft.png)
 
-### Figure-8 Solution
+### Figure-8 Solution Attempt
 
-A stable solution to the three-body problem exists where three identical massive bodies follow eachother in a figure-8 parrern.
-Each body is exactly $T/3$ in front of the next, where $T$ is the period, hence the bodies are in a "choreography".
-We used a Python file to minimise the Lagrangian describing three identical masses each $T/3$ apart.
+A stable solution to the three-body problem exists where three identical massive bodies follow each other in a figure-8 pattern.
+Each body is exactly $T/3$ in front of the next, for a period $T$, such that the bodies are in a "choreography".
+
+We used the Python file ```examples/three_body_examples/figure_8_solution.py``` to minimise the Lagrangian describing three identical masses each $T/3$ apart - giving the required initial parameters.
+
+Because three-body problems are extremely sensitive to perturbations in initial conditions, the masses start to derail from the figure-8 pattern almost instantly.
 
 ![Three Earths](images/three_earths.png)
 
 ## References
 
-[https://en.m.wikipedia.org/wiki/Three-body_problem]
+- [Euler Method](https://en.m.wikipedia.org/wiki/Euler_method)
+- [Midpoint Method](https://en.m.wikipedia.org/wiki/Midpoint_method)
+- [Heun's Method](https://en.wikipedia.org/wiki/Heun%27s_method)
+- [Runge-Kutta Method](https://en.m.wikipedia.org/wiki/Runge–Kutta_methods)
+- [https://en.m.wikipedia.org/wiki/Three-body_problem]
 
 ---
 
