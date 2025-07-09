@@ -111,6 +111,12 @@ Because three-body problems are extremely sensitive to perturbations in initial 
 
 ![Three Earths](images/three_earths.png)
 
+## Conclusions:
+- The Euler method lost $\approx 85%$ for our Sun-Earth simulation - making it the least accurate.
+- The Runge-Kutta (RK4) method is the most accurate, changing energy by as little as $\approx 0.04%$ for the same sytem.
+- Three-body systems are often unstable as at least one body is eventually lost in our simulations.
+- Systems of three similar-sized masses are hyper-sensitive to small changes in initial conditions.
+
 ## References
 
 - [Euler Method](https://en.m.wikipedia.org/wiki/Euler_method)
