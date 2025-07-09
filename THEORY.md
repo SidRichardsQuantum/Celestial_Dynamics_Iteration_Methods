@@ -83,12 +83,19 @@ Taking weighted averages of all the gradients:
 - $v_{x1} = v_{x0} + (k_{1vx} + 2k_{2vx} + 2k_{3vx} + k_{4vx}) / 6$
 - $a_{x1} = G m / x_1^2$
 
+## Solutions of the Three-Body Problem
+
+By minimising the action which describes three identical masses that follow each other $T/3$ apart, where $T$ is the orbital period, the initial conditions required for the stable figure-8 solution are generated.
+This solution is one of many, and are (almost) entirely theoretical as chances of real celestials forming these stable patterns are minuscule.
+By using the most accurate iteration method above, it might be possible to simulate the figure-8 for a short time before chaos ensues.
+
 ## References
 
 - [Euler Method](https://en.m.wikipedia.org/wiki/Euler_method)
 - [Midpoint Method](https://en.m.wikipedia.org/wiki/Midpoint_method)
 - [Heun's Method](https://en.wikipedia.org/wiki/Heun%27s_method)
 - [Runge-Kutta Method](https://en.m.wikipedia.org/wiki/Runge–Kutta_methods)
+- [Three-Body Problem Solutions](https://en.m.wikipedia.org/wiki/Three-body_problem)
 
 ---
 
