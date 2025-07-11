@@ -1,27 +1,43 @@
 # Comparing Iteration Methods Via Celestial Dynamics
-Comparing different numerical iteration techniques by tracing out gravitational dynamics of objects.
-Coded entirely in R.
 
-See [THEORY.md](THEORY.md) for complete descriptions of each iteration technique.
+A numerical simulation suite for comparing different time-stepping methods by tracing gravitational dynamics of celestial bodies.
+Implemented entirely in **R** (with some supporting Python).
 
-See [RESULTS.md](RESULTS.md) for results, conclusions and evaluations.
+📘 For method descriptions, see [THEORY.md](THEORY.md)
+
+📊 For results and evaluations, see [RESULTS.md](RESULTS.md)
+
+---
 
 ## Overview
 
-**Iteration Techniques Include**:
+This project explores the accuracy of common numerical iteration techniques, by simulating gravitational systems and observing trajectory divergence over time.
+
+**Iteration Techniques Included**:
 - Euler method
 - Midpoint method
 - Heun's method
-- Runge-Kutta method
+- Runge-Kutta (RK4) method
 
-Given an initial set of parameters, these iteration methods can be used to approximate the next coordinates after a short time step.
-Repeating this thousands of times, while tracing the coordinates, we illustrate the trajectories/orbits of the projectiles/celestials.
-When plotting orbits for every method, eventually the bodies spiral outwards - hence the plots (and ratio of initial to final energies) directly compare the different iteration techniques.
+Using an initial set of conditions, each method approximates the position and velocity of bodies over small time steps.
+Repeated iterations generate projectile trajectories or orbital paths, which can be compared visually and analytically.
+Plots and total energy conservation are used to directly compare the iteration techniques.
 
-An example for a projectile being fired on Earth's surface is given - with analysis on the accuracies of different iteration methods.
-More examples include the Sun and Earth's orbital plot, and similarly a Earth and Moon system plot.
+**Simulations include:**
+- 📍 A projectile launched on Earth's surface
+- 🌍 Earth-Sun orbit modeling
+- 🌕 Earth-Moon system with inter-body forces
+- 🪐 Three-body problems (e.g: figure-8 solution)
 
-We adapt the two-body system by introducing a third celestial, to illustrate the chaos of the three-body-problem for masses of similar sizes.
+## 🧠 Why This Matters
+
+Different numerical integration methods accumulate error differently.
+This repository illustrates:
+- **How fast energy errors grow** for different methods
+- The **visual impact** of method inaccuracy
+- Predictions of orbital dynamics
+- A glimpse into the complexity of the chaotic three-body problem
+- A techniques analytically find solutions to the three-body problem
 
 ## Project Structure
 
@@ -54,7 +70,7 @@ Celestial_Dynamics_Iteration_Methods/
 ## Installation
 
 ```bash
-# Clone and run
+# Clone the repository
 git clone https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods.git
 cd Celestial_Dynamics_Iteration_Methods
 ```
