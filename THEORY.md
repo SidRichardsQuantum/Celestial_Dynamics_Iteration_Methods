@@ -4,11 +4,13 @@ The acceleration of one body is $g = G * m / r^2$, where $G = -6.6743 * 10^{-11}
 
 These iteration techniques approximate the successive positions and time-derivatives after each small time increment $dt$.
 Here, we use $dt = T / N$, where $T$ is the total time and $N$ is the number of steps.
-Each method below has a different way of approximating the parameters, and are listed below from the least-accurate to the most.
+Each method below has a different way of approximating the parameters, and are listed below in order of increasing accuracy.
+
+## Numerical Methods
 
 Only the first approximated position and speed is written below, for the $x$-coordinate only.
 These equations have the same exact form in the $y$ or $z$-directions, and for all $N$ steps.
-Only coordinates $(x_i, y_i)$ are plotted for **integers** $i \in [0, N]$.
+Only the discrete positions $(x_i, y_i)$ for integer $i \in [0, N]$ are plotted.
 (The intermediate coordinates are not meant to be plotted.)
 
 For our projectile example, the gravitational acceleration is constant and only non-zero in the $y$-direction; such that $a_{xi} = 0$ and $a_{yi} = g = G m / r^2$, where $r = R + y_0$ for radius of the celestial $R$.
@@ -37,7 +39,7 @@ These are then used to find the successive parameters:
 
 ### Heun's Method
 
-This is also the RK2 method, which is more accurate than the Euler method because it averages the initial gradient with the gradient predicted by Euler's method.
+Heun’s method is another RK2 technique, which is more accurate than the Euler method because it averages the initial gradient with the gradient predicted by Euler's method.
 
 Euler's method predicts:
 - $x_{pred} = x_0 + v_{x0} dt$
@@ -51,7 +53,8 @@ Average the above with the initial parameters to get:
 
 ### Runge-Kutta (RK4) Method
 
-Four intermediate steps are calculated and their weighted average is used to more-accurately determine the successive positions and velocities.
+RK4 is a fourth-order method that evaluates acceleration and velocity at multiple intermediate points, improving both accuracy and energy conservation.
+Four intermediate estimates are calculated, and a weighted average is used to more-accurately determine the successive positions and velocities.
 
 Startpoint gradients:
 - $k_{1x} = v_{x0} dt$
