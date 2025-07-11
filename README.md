@@ -26,36 +26,29 @@ We adapt the two-body system by introducing a third celestial, to illustrate the
 ## Project Structure
 
 ```
-├── LICENSE                         # Project license
-├── README.md                       # This file
-├── THEORY.md                       # Theoretical background and equations
-├── RESULTS.md                      # Results, conclusions and evaluations
-├── constants.R                     # Physical constants
-├── celestial_systems/              # Gravitational system simulation
-│   ├── three_body/
-│   │   └── three_body_problem.R    # Three massive celestial chaos
-│   └── two_body/
-│       ├── two_body_euler.R        # Two-body orbits using Euler method
-│       ├── two_body_midpoint.R     # Two-body orbits using midpoint method
-│       ├── two_body_heuns.R        # Two-body orbits using Heun's method
-│       └── two_body_runge_kutta.R  # Two-body orbits using Runge-Kutta method
-├── examples/
-│   ├── earth_moon_euler.R          # Earth and Moon example using Euler method
-│   ├── sun_earth_euler.R           # Sun and Earth example using Euler method
-│   ├── earth_mars_sun.R            # Earth, Mars and Sun example
-│   └── projectile_example.R        # Projectile motion example
-├── images/
-│   ├── earth_moon_euler.png        # Earth and Moon orbits plot for Euler method
-│   ├── sun_earth_euler.png         # Sun and Earth orbits plot for Euler method
-│   ├── euler_trajectory.png        # Euler method trajectory plot
-│   ├── midpoint_trajectory.png     # Midpoint method trajectory plot
-│   ├── heun_trajectory.png         # Heun's method trajectory plot
-│   └── rungekutta_trajectory.png   # Runge-Kutta method trajectory plot
-└── iteration_methods/              # Numerical integration methods for celestial mechanics
-    ├── euler_method.R              # Euler method implementation
-    ├── midpoint_method.R           # Midpoint method implementation
-    ├── heuns_method.R              # Heun's method implementation
-    └── runge_kutta_method.R        # Runge-Kutta (RK4) method implementation
+Celestial_Dynamics_Iteration_Methods/
+├── LICENSE                           # MIT license
+├── README.md                         # This file
+├── THEORY.md                         # Theoretical background and equations
+├── RESULTS.md                        # Results, conclusions, and evaluation
+├── constants.R                       # Physical constants
+├── iteration_methods/                # Numerical integration methods directory
+├── celestial_systems/                # Massive body system dynamics
+│   ├── three_body/                   # Three massive celestial chaos
+│   │   ├── figure_8_solution.py      # Generates the initial conditions for figure-8 solution
+│   │   └── three_body_runge_kutta.R  # Evolves three masses using the RK4 method only
+│   └── two_body/                     # Celestial pair dynamics using each method
+├── images/                           # Visual outputs and plots for all examples
+└── examples/                         # Simulation examples
+    ├── projectile_trajectories/
+    │   └── projectile_example.R      # Runs all methods for the same projectile example
+    ├── three_body_examples/          # Simple three-body system examples
+    │   ├── earth_mars_sun.R
+    │   ├── earth_moon_spacecraft.R
+    │   └── three_earths.R            # Attempt at generating the figure-8 solution
+    └── two_body_examples/
+        ├── earth_moon_examples/      # Earth and Moon examples for each method
+        └── sun_earth_examples/       # Sun and Earth examples for each method
 ```
 
 ## Installation
@@ -78,7 +71,7 @@ source("examples/projectile_trajectories/projectile_example.R")
 
 ```r
 # Compare methods for Earth-Moon system using the Euler method
-source("examples/earth_moon_euler.R")
+source("examples/two_body_examples/earth_moon_examples/earth_moon_euler.R")
 ```
 ![Earth and Moon](images/earth_moon_euler.png)
 

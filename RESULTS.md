@@ -2,7 +2,7 @@
 
 ## Sun-Earth System
 
-Our Sun and Earth example files in ```examples/two_body_examples``` each plot the orbit of the Earth (blue line) around the Sun (red) over $25$ years, using a different iteration method.
+Our Sun and Earth files in the directory ```examples/two_body_examples/sun_earth_examples/```, each plot the orbit of the Earth (blue line) around the Sun (red) over $25$ years, using a different iteration method.
 Our Earth starts $1AU$ on the $x$-axis away from the Sun at the origin.
 We control a high number of steps $N=1000$ to maximise technique accuracy.
 $25$ years is also a control variable because this is a sufficiant number of orbital periods.
@@ -105,9 +105,10 @@ For longer periods of time, the spacecraft eventually flies out and is lost.
 A stable solution to the three-body problem exists where three identical massive bodies follow each other in a figure-8 pattern.
 Each body is exactly $T/3$ in front of the next, for a period $T$, such that the bodies are in a "choreography".
 
-We used the Python file ```examples/three_body_examples/figure_8_solution.py``` to minimise the Lagrangian describing three identical masses each $T/3$ apart - giving the required initial parameters.
+We used the Python file ```celestial_systems/three_body/figure_8_solution.py``` to minimise the Lagrangian describing three identical masses each $T/3$ apart - giving the required initial parameters.
 
 Because three-body problems are extremely sensitive to perturbations in initial conditions, the masses start to derail from the figure-8 pattern almost instantly.
+The energy output is ```Energy conservation ratio: 1.004923```, which suggests that even though the RK4 method is extremely accurate - chaos dominates.
 
 ![Three Earths](images/three_earths.png)
 

@@ -1,11 +1,10 @@
-# install.packages("reticulate")
 library(reticulate)
-source_python("examples/three_body_examples/figure_8_solution.py")
 source("constants.R")
 
 # Three Earths system (three-body problem)
 # Runge-Kutta method
 source("celestial_systems/three_body/three_body_runge_kutta.R")
+source_python("celestial_systems/three_body/figure_8_solution.py")
 
 # Store T and N values for use in plot title
 T = 60 * YEAR # 60 years
