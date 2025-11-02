@@ -1,5 +1,19 @@
 # Results
 
+## Table of Contents
+
+- [Sun-Earth System](#sun-earth-system)
+  - [Euler Method](#euler-method)
+  - [Midpoint Method](#midpoint-method)
+  - [Heun's Method](#heuns-method)
+  - [Runge-Kutta Method](#runge-kutta-method)
+- [Three-Body Systems](#three-body-systems)
+  - [Sun, Earth and Mars](#sun-earth-and-mars)
+  - [Earth, Moon and Spacecraft](#earth-moon-and-spacecraft)
+  - [Figure-8 Solution Attempt](#figure-8-solution-attempt)
+- [Conclusions](#conclusions)
+- [References](#references)
+
 ## Sun-Earth System
 
 Our Sun and Earth files in the directory ```examples/two_body_examples/sun_earth_examples/```, each plot the orbit of the Earth (blue line) around the Sun (red) over $25$ years, using a different iteration method.
