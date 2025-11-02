@@ -7,6 +7,14 @@ Implemented entirely in **R** (with some supporting Python).
 
 📊 For results and evaluations, see [RESULTS.md](RESULTS.md)
 
+## Table of Contents
+
+- [Overview](#overview)
+- [🧠 Why This Matters](#-why-this-matters)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+  - [Example Usages](#example-usages)
+
 ---
 
 ## Overview
