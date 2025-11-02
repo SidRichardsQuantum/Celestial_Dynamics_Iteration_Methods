@@ -1,5 +1,18 @@
 # THEORY
 
+## Table of Contents
+
+- [Intro](#intro)
+- [Numerical Methods](#numerical-methods)
+  - [Euler Method](#euler-method)
+  - [Midpoint Method](#midpoint-method)
+  - [Heun's Method](#heuns-method)
+  - [Runge-Kutta (RK4) Method](#runge-kutta-rk4-method)
+- [Solutions of the Three-Body Problem](#solutions-of-the-three-body-problem)
+- [References](#references)
+
+## Intro
+
 The acceleration of one body is $g = G * m / r^2$, where $G = -6.6743 * 10^{-11} m^3Kg^{-1}s^{-2}$ is the gravitational constant, $m$ is the mass of the other body and $r$ is the distance between them.
 
 These iteration techniques approximate the successive positions and time-derivatives after each small time increment $dt$.
