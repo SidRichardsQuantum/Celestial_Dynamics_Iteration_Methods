@@ -1,7 +1,7 @@
 # Comparing Iteration Methods Via Celestial Dynamics
 
 A numerical simulation suite for comparing different time-stepping methods by tracing gravitational dynamics of celestial bodies.
-Implemented entirely in **R** (with some supporting Python).
+Implemented primarily in **R**, with a supporting Python helper for figure-8 initial conditions.
 
 📘 For method descriptions, see [THEORY.md](THEORY.md)
 
@@ -45,7 +45,7 @@ This repository illustrates:
 - The **visual impact** of method inaccuracy
 - Predictions of orbital dynamics
 - A glimpse into the complexity of the chaotic three-body problem
-- A techniques analytically find solutions to the three-body problem
+- How numerical techniques can help analytically informed exploration of three-body solutions
 
 ## Project Structure
 
@@ -81,6 +81,9 @@ Celestial_Dynamics_Iteration_Methods/
 # Clone the repository
 git clone https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods.git
 cd Celestial_Dynamics_Iteration_Methods
+
+# Install Python dependencies for the figure-8 helper script
+python -m pip install -r requirements.txt
 ```
 
 ### Example Usages
