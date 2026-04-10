@@ -18,8 +18,8 @@
 
 Our Sun and Earth files in the directory ```examples/two_body_examples/sun_earth_examples/```, each plot the orbit of the Earth (blue line) around the Sun (red) over $25$ years, using a different iteration method.
 The simulation initializes Earth $1 AU$ along the x-axis from the Sun at the origin.
-We control a high number of steps $N=1000$ to maximise technique accuracy.
-$25$ years is chosen as it spans multiple orbital periods and exposes long-term integration errors..
+We use a high number of steps, $N=1000$, to maximize integration accuracy.
+$25$ years is chosen because it spans multiple orbital periods and exposes long-term integration errors.
 
 ### Euler Method
 
@@ -105,7 +105,7 @@ We used the RK4 method for the three-body systems for accuracy.
 
 ### Sun, Earth and Mars
 
-Below illustrates the orbits of both the earth and mars around the sun, over a year.
+Below illustrates the orbits of both the Earth and Mars around the Sun over a year.
 As the planets are far away enough, and as the sun is a lot more massive, the orbits appear to be stable until errors in the Runge-Kutta method cause the system to spiral.
 
 ![Sun, Earth and Mars](images/earth_mars_sun.png)
