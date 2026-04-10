@@ -27,6 +27,8 @@ This project explores the accuracy of common numerical iteration techniques, by 
 - Heun's method
 - Runge-Kutta (RK4) method
 
+> Note: `constants.R` defines `G` as negative and uses that sign convention directly in force equations.
+
 Using an initial set of conditions, each method approximates the position and velocity of bodies over small time steps.
 Repeated iterations generate projectile trajectories or orbital paths, which can be compared visually and analytically.
 Plots and total energy conservation are used to directly compare the iteration techniques.
@@ -91,7 +93,7 @@ python -m pip install -r requirements.txt
 ```r
 # Projectile trajectory on Earth
 # Approximated trajectory plotted alongside the real trajectory
-# Returns a plot for each method
+# Returns a plot for each projectile method (Euler, Heun, Midpoint)
 source("examples/projectile_trajectories/projectile_example.R")
 ```
 ![Euler Method Trajectory](images/euler_trajectory.png)
