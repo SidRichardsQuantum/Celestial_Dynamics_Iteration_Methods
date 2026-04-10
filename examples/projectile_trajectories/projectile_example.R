@@ -1,4 +1,4 @@
-# Runs different numerical methods for the same exmaple
+# Runs different numerical methods for the same example
 
 # Source all method implementations
 source("iteration_methods/euler_method.R")
