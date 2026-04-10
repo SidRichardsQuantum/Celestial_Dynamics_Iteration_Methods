@@ -41,7 +41,7 @@ Final separation: 10.296 AU
 Energy conservation ratio: 0.145946
 ```
 
-![Euler Method, Earth and Moon system](images/sun_earth_euler.png)
+![Euler Method, Sun and Earth system](images/sun_earth_euler.png)
 
 ### Midpoint Method
 
@@ -58,7 +58,7 @@ Final separation: 1.055 AU
 Energy conservation ratio: 0.942958
 ```
 
-![Midpoint Method, Earth and Moon system](images/sun_earth_midpoint.png)
+![Midpoint Method, Sun and Earth system](images/sun_earth_midpoint.png)
 
 ### Heun's Method
 
@@ -78,7 +78,7 @@ Final separation: 1.219 AU
 Energy conservation ratio: 0.849014
 ```
 
-![Heun's Method, Earth and Moon system](images/sun_earth_heuns.png)
+![Heun's Method, Sun and Earth system](images/sun_earth_heuns.png)
 
 ### Runge-Kutta Method
 
@@ -97,7 +97,7 @@ Final separation: 1.000 AU
 Energy conservation ratio: 1.000422
 ```
 
-![Runge-Kutta Method, Earth and Moon system](images/sun_earth_runge_kutta.png)
+![Runge-Kutta Method, Sun and Earth system](images/sun_earth_runge_kutta.png)
 
 ## Three-Body Systems
 
