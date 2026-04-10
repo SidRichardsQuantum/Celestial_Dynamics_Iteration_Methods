@@ -4,13 +4,12 @@
 source("iteration_methods/euler_method.R")
 source("iteration_methods/heuns_method.R")
 source("iteration_methods/midpoint_method.R")
-source("iteration_methods/runge_kutta_method.R")
 
 # Function to run example with specified method
 run_example <- function(method_name, T = 100, y_0 = 0, v_0 = 200, theta = pi/4, N = 50) {
   # Check if method exists
   if (!exists(method_name, mode = "function")) {
-    stop(paste("Method", method_name, "not found. Available methods: Euler, Heun, Midpoint, RungeKutta"))
+    stop(paste("Method", method_name, "not found. Available methods: Euler, Heun, Midpoint"))
   }
   
   # Get the function by name and call it
@@ -24,4 +23,3 @@ run_example <- function(method_name, T = 100, y_0 = 0, v_0 = 200, theta = pi/4, 
 result1 <- run_example("Euler")
 result2 <- run_example("Heun")
 result3 <- run_example("Midpoint")
-result4 <- run_example("RungeKutta")
