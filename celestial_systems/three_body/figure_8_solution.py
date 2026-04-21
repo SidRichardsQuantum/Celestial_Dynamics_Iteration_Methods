@@ -1,11 +1,15 @@
 import numpy as np
 from scipy.optimize import minimize
 
-def get_initial_conditions():
+def get_initial_conditions(N=5000):
     G = 1
     m = 1
     T = 2 * np.pi
-    N = 5000
+    N = int(N)
+    if N <= 0:
+        raise ValueError("N must be a positive integer.")
+    if N % 3 != 0:
+        N += (3 - (N % 3))
     dt = T / N
 
     def shift(n, s): return (np.arange(n) + s) % n
