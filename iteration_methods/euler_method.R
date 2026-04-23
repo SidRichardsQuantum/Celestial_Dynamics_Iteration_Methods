@@ -61,8 +61,8 @@ Euler = function(T, y_0, v_0, theta, N) {
   E_N = 0.5 * v_final_squared + G * M_EARTH / r_final
   
   # Create images directory if it doesn't exist
-  if (!dir.exists("images")) {
-    dir.create("images")
+  if (!dir.exists(file.path("images", "projectile"))) {
+    dir.create(file.path("images", "projectile"), recursive = TRUE)
   }
   
   # Ensure filename has .png extension
@@ -72,7 +72,7 @@ Euler = function(T, y_0, v_0, theta, N) {
   }
   
   # Full path to save the plot
-  filepath = file.path("images", filename)
+  filepath = file.path("images", "projectile", filename)
   
   # Open PNG device
   png(filepath, width = 800, height = 600, res = 100)

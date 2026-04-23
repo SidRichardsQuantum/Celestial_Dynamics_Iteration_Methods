@@ -49,7 +49,7 @@ Final separation: 10.296 AU
 Energy conservation ratio: 0.145946
 ```
 
-![Euler Method, Sun and Earth system](images/sun_earth_euler.png)
+![Euler Method, Sun and Earth system](images/two_body/sun_earth/sun_earth_euler.png)
 
 ### Midpoint Method
 
@@ -66,7 +66,7 @@ Final separation: 1.055 AU
 Energy conservation ratio: 0.942958
 ```
 
-![Midpoint Method, Sun and Earth system](images/sun_earth_midpoint.png)
+![Midpoint Method, Sun and Earth system](images/two_body/sun_earth/sun_earth_midpoint.png)
 
 ### Heun's Method
 
@@ -86,7 +86,7 @@ Final separation: 1.219 AU
 Energy conservation ratio: 0.849014
 ```
 
-![Heun's Method, Sun and Earth system](images/sun_earth_heuns.png)
+![Heun's Method, Sun and Earth system](images/two_body/sun_earth/sun_earth_heuns.png)
 
 ### Runge-Kutta Method
 
@@ -105,7 +105,7 @@ Final separation: 1.000 AU
 Energy conservation ratio: 1.000422
 ```
 
-![Runge-Kutta Method, Sun and Earth system](images/sun_earth_runge_kutta.png)
+![Runge-Kutta Method, Sun and Earth system](images/two_body/sun_earth/sun_earth_runge_kutta.png)
 
 ## Three-Body Systems
 
@@ -118,7 +118,7 @@ The example scripts are grouped under `examples/three_body_examples/` by model t
 Below illustrates the orbits of both the Earth and Mars around the Sun over a year.
 As the planets are far away enough, and as the sun is a lot more massive, the orbits appear to be stable until errors in the Runge-Kutta method cause the system to spiral.
 
-![Sun, Earth and Mars](images/earth_mars_sun.png)
+![Sun, Earth and Mars](images/three_body/general/earth_mars_sun.png)
 
 ### Earth, Moon and Spacecraft
 
@@ -127,7 +127,7 @@ The spacecraft appears to have an unstable orbit because it is so much lighter t
 Making small changes in the spacecraft's initial position and velocity drastically changes its orbit.
 For longer periods of time, the spacecraft escapes the Earth–Moon system due to unstable gravitational perturbations.
 
-![Earth, Moon and Spacecraft](images/earth_moon_spacecraft.png)
+![Earth, Moon and Spacecraft](images/three_body/general/earth_moon_spacecraft.png)
 
 ### Figure-8 Solution
 
@@ -140,7 +140,7 @@ For an initial outer-body separation of $1 AU$, one full figure-8 period is abou
 With the corrected scaling, RK4 returns the bodies to their starting separations after one period.
 The energy output is ```Energy conservation ratio: 1.000000```, so this example validates the periodic figure-8 setup rather than demonstrating immediate destabilization.
 
-![Three Earths](images/three_earths.png)
+![Three Earths](images/three_body/special_solutions/three_earths.png)
 
 ### Lagrange Equilateral Solution
 
@@ -150,7 +150,7 @@ The whole triangle rotates around its center of mass while preserving all three 
 For a side length of $1 AU$ between three Earth-mass bodies, one full period is about $333.2$ years.
 RK4 returns each pairwise separation to $1 AU$ after one period, with output ```Energy conservation ratio: 1.000000```.
 
-![Lagrange Three Earths](images/lagrange_three_earths.png)
+![Lagrange Three Earths](images/three_body/special_solutions/lagrange_three_earths.png)
 
 ### Euler Collinear Solution
 
@@ -160,7 +160,7 @@ This configuration is more delicate than the Lagrange triangle because the bodie
 For an outer-body separation of $1 AU$, one full period is about $182.5$ years.
 RK4 returns the adjacent separations to $0.5 AU$ and the outer separation to $1 AU$ after one period, with output ```Energy conservation ratio: 1.000000```.
 
-![Euler Collinear Three Earths](images/euler_collinear_three_earths.png)
+![Euler Collinear Three Earths](images/three_body/special_solutions/euler_collinear_three_earths.png)
 
 ### Perturbed Special Solutions
 
@@ -168,44 +168,44 @@ Small perturbations were added to the figure-8 and Lagrange solutions.
 The figure-8 perturbation changes one initial velocity component by $2%$ and is run over three nominal periods.
 The Lagrange perturbation shifts one body by $0.002 AU$ and produces much larger shape changes over two periods.
 
-![Perturbed Figure-8](images/perturbed_figure_8.png)
+![Perturbed Figure-8](images/three_body/perturbations/perturbed_figure_8.png)
 
-![Perturbed Lagrange Three Earths](images/perturbed_lagrange_three_earths.png)
+![Perturbed Lagrange Three Earths](images/three_body/perturbations/perturbed_lagrange_three_earths.png)
 
 ### Restricted Earth-Moon Trojan
 
 The restricted Earth-Moon example uses normalized CR3BP coordinates.
 The third body starts near L4, producing a Trojan-style tadpole trajectory in the rotating frame.
 
-![Restricted Earth-Moon Trojan](images/restricted_earth_moon_trojan.png)
+![Restricted Earth-Moon Trojan](images/three_body/restricted/restricted_earth_moon_trojan.png)
 
 ### Planar Lyapunov-Like L1 Orbit
 
 The L1 example uses the CR3BP helper and starts near the Earth-Moon L1 point.
 It is an illustrative planar Lyapunov-like trajectory in the rotating frame, not a corrected mission-grade halo orbit.
 
-![Lyapunov-Like Orbit Near L1](images/lyapunov_near_l1.png)
+![Lyapunov-Like Orbit Near L1](images/three_body/restricted/lyapunov_near_l1.png)
 
 ### Sitnikov Problem
 
 The Sitnikov example uses two equal primaries in circular motion and a restricted third body moving perpendicular to their orbital plane.
 The plot shows the vertical oscillation of the third body over time.
 
-![Sitnikov Three-Body Problem](images/sitnikov_three_body.png)
+![Sitnikov Three-Body Problem](images/three_body/restricted/sitnikov_three_body.png)
 
 ### Binary with a Distant Third Body
 
 The hierarchical triple example places two solar-mass stars in a close binary and a Jupiter-mass body on a much wider outer orbit.
 Over five years, the binary separation remains close to $0.2 AU$ while the third body traces a wider path around the pair.
 
-![Binary with Distant Third Body](images/binary_distant_third.png)
+![Binary with Distant Third Body](images/three_body/general/binary_distant_third.png)
 
 ### Butterfly I Choreography
 
 The Butterfly I choreography uses published dimensionless equal-mass initial conditions and scales them to three Earth-mass bodies with an outer separation of $1 AU$.
 It needs a finer step count than the figure-8 example; with $N=100000$, RK4 returns the starting separations after one period with output ```Energy conservation ratio: 1.000026```.
 
-![Butterfly I Choreography](images/butterfly_choreography.png)
+![Butterfly I Choreography](images/three_body/special_solutions/butterfly_choreography.png)
 
 ## Conclusions:
 - The Euler method lost $\approx 85%$ for our Sun-Earth simulation - making it the least accurate.

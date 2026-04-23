@@ -45,7 +45,7 @@ result = runge_kutta_three_body(
 
 plot_three_body_result(
   result = result,
-  filepath = file.path("images", "binary_distant_third.png"),
+  filepath = file.path("images", "three_body", "general", "binary_distant_third.png"),
   title = sprintf("Binary Stars with a Distant Third Body\nT = %.1f years, N = %d steps",
                   T / YEAR, N),
   labels = c("Star 1", "Star 2", "Distant body")

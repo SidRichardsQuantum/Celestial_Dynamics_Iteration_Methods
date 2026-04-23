@@ -5,9 +5,15 @@
 .Rhistory
 .RData
 .Ruserdata
+Rplots.pdf
 .Rproj.user/
 renv/library/
 renv/staging/
+
+# Local scratch output
+tmp/
+scratch/
+*.log
 
 # Python environments and caches
 __pycache__/

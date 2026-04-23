@@ -12,6 +12,6 @@ result = cr3bp_runge_kutta(T = T, N = N, mu = mu, state0 = state0)
 
 plot_cr3bp_result(
   result = result,
-  filepath = file.path("images", "lyapunov_near_l1.png"),
+  filepath = file.path("images", "three_body", "restricted", "lyapunov_near_l1.png"),
   title = "Planar Lyapunov-Like Orbit Near Earth-Moon L1"
 )

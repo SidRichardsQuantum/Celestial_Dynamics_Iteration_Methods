@@ -1,6 +1,6 @@
 # Pair of massive bodies interacting in 2D
 # Euler Method for Two-Body System
-source("constants.R")
+source("celestial_systems/two_body/two_body_helpers.R")
 
 euler_two_body = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_ay0, v_bx0, v_by0) {
   # Calculate time step
@@ -20,23 +20,14 @@ euler_two_body = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_a
   x_b = c(r_bx0)
   y_b = c(r_by0)
   
-  # Calculate initial total energy for conservation check
-  # Kinetic energy
-  KE_0 = 0.5 * m_a * sum(v_a^2) + 0.5 * m_b * sum(v_b^2)
-  # Potential energy
-  r_ab0 = sqrt(sum((r_a - r_b)^2))
-  U_0 = -G * m_a * m_b / r_ab0
-  E_0 = KE_0 + U_0
+  initial_separation = sqrt(sum((r_a - r_b)^2))
+  E_0 = two_body_total_energy(r_a, r_b, v_a, v_b, m_a, m_b)
   
   # Numerical integration using Euler method
   for(i in 1:N) {
-    # Calculate current separation vector and distance
-    r_ab = r_a - r_b # Vector from b to a
-    mag_r_ab = sqrt(sum(r_ab^2))
-    
-    # Calculate accelerations
-    a_a = -G * m_b * r_ab / mag_r_ab^3
-    a_b = G * m_a * r_ab / mag_r_ab^3
+    accelerations = two_body_accelerations(r_a, r_b, m_a, m_b)
+    a_a = accelerations$a_a
+    a_b = accelerations$a_b
     
     # Update positions using current velocities
     r_a = r_a + dt * v_a
@@ -53,35 +44,14 @@ euler_two_body = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_a
     y_b = c(y_b, r_b[2])
   }
   
-  # Calculate final energy for conservation check
-  KE_N = 0.5 * m_a * sum(v_a^2) + 0.5 * m_b * sum(v_b^2)
-  r_abN = sqrt(sum((r_a - r_b)^2))
-  U_N = -G * m_a * m_b / r_abN
-  E_N = KE_N + U_N
+  final_separation = sqrt(sum((r_a - r_b)^2))
+  E_N = two_body_total_energy(r_a, r_b, v_a, v_b, m_a, m_b)
+  energy_ratio = E_N / E_0
   
-  # Print simulation results
-  cat("Two-Body System Simulation Euler Method Results:\n")
-  cat(sprintf("Body a mass: %.2e kg\n", m_a))
-  cat(sprintf("Body b mass: %.2e kg\n", m_b))
-  cat(sprintf("Total simulation time: %.2f years\n", T / (365.25 * 24 * 3600)))
-  cat(sprintf("Time steps: %d\n", N))
-  cat(sprintf("Time step size: %.2f days\n", dt / (24 * 3600)))
-  cat(sprintf("Initial separation: %.3f AU\n", sqrt(sum((c(r_ax0, r_ay0) - c(r_bx0, r_by0))^2)) / AU))
-  cat(sprintf("Final separation: %.3f AU\n", r_abN / AU))
-  cat(sprintf("Energy conservation ratio: %.6f\n", E_N / E_0))
-  cat("\n")
+  print_two_body_summary("Euler", T, N, dt, m_a, m_b,
+                         initial_separation, final_separation,
+                         energy_ratio)
   
-  # Return results as a list
-  return(list(
-    x_a = x_a,
-    y_a = y_a,
-    x_b = x_b,
-    y_b = y_b,
-    energy_ratio = E_N / E_0,
-    initial_conditions = list(
-      r_ax0 = r_ax0, r_ay0 = r_ay0,
-      r_bx0 = r_bx0, r_by0 = r_by0,
-      m_a = m_a, m_b = m_b
-    )
-  ))
+  return(two_body_result(x_a, y_a, x_b, y_b, energy_ratio,
+                         r_ax0, r_ay0, r_bx0, r_by0, m_a, m_b))
 }

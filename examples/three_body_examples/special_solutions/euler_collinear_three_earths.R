@@ -33,7 +33,7 @@ result = runge_kutta_three_body(
 )
 
 filename = "euler_collinear_three_earths.png"
-filepath = file.path("images", filename)
+filepath = file.path("images", "three_body", "special_solutions", filename)
 
 plot_three_body_result(
   result = result,

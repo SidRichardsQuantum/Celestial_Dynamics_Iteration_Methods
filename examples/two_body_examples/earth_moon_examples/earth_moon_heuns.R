@@ -1,6 +1,7 @@
 # Earth-Moon system (circular orbit)
 # Heun's method
 source("celestial_systems/two_body/two_body_heuns.R")
+source("celestial_systems/two_body/plot_two_body.R")
 
 # Store T and N values for use in plot title
 T = 10 * LUNAR_MONTH # 10 lunar months
@@ -17,46 +18,11 @@ result = heuns_two_body(
   v_bx0 = 0, v_by0 = abs(V_MOON_ORBITAL) # Moon orbital velocity
 )
 
-# Create images directory if it doesn't exist
-if (!dir.exists("images")) {
-  dir.create("images")
-}
-
-# Create filename and save plot
-filename = "earth_moon_heuns.png"
-filepath = file.path("images", filename)
-
-# Open PNG device
-png(filepath, width = 800, height = 600, res = 100)
-
-# Convert to AU for plotting
-x_a_au = result$x_a / AU
-y_a_au = result$y_a / AU
-x_b_au = result$x_b / AU
-y_b_au = result$y_b / AU
-
-# Create single 2D plot showing both orbits with T and N in title
-plot(x_b_au, y_b_au, type="l", col="gray", lwd=2,
-     xlab="x (AU)", ylab="y (AU)",
-     main=sprintf("Earth-Moon System (Heun's Method)\nT = %.1f lunar months, N = %d steps", 
-                  T / LUNAR_MONTH, N))
-
-lines(x_a_au, y_a_au, col="blue", lwd=2)
-
-# Add final positions (end of trajectories)
-points(tail(x_a_au, 1), tail(y_a_au, 1), 
-       pch=19, col="blue", cex=1.5)
-points(tail(x_b_au, 1), tail(y_b_au, 1), 
-       pch=19, col="gray", cex=1.5)
-
-# Add legend
-legend("topright", legend=c("Earth", "Moon"),
-       lty=c("solid", "solid"), col=c("blue", "gray"), lwd=c(2, 2))
-
-# Add grid for better readability
-grid(col = "lightgray", lty = "dotted")
-
-# Close the PNG device
-dev.off()
-
-cat(sprintf("Plot saved to: %s\n", filepath))
+plot_two_body_result(
+  result = result,
+  filepath = file.path("images", "two_body", "earth_moon", "earth_moon_heuns.png"),
+  title = sprintf("Earth-Moon System (Heun's Method)\nT = %.1f lunar months, N = %d steps",
+                  T / LUNAR_MONTH, N),
+  labels = c("Earth", "Moon"),
+  colors = c("blue", "gray")
+)

@@ -36,7 +36,7 @@ result = runge_kutta_three_body(
 
 plot_three_body_result(
   result = result,
-  filepath = file.path("images", "butterfly_choreography.png"),
+  filepath = file.path("images", "three_body", "special_solutions", "butterfly_choreography.png"),
   title = sprintf("%s Three-Earth Choreography\nT = %.1f years, N = %d steps",
                   ic$label, T / YEAR, N),
   labels = c("Earth 1", "Earth 2", "Earth 3")

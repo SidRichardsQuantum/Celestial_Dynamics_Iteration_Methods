@@ -33,7 +33,7 @@ result = runge_kutta_three_body(
 
 plot_three_body_result(
   result = result,
-  filepath = file.path("images", "perturbed_figure_8.png"),
+  filepath = file.path("images", "three_body", "perturbations", "perturbed_figure_8.png"),
   title = sprintf("Perturbed Figure-8 Three-Earth System\nT = %.1f years, N = %d steps",
                   T / YEAR, N),
   labels = c("Earth 1", "Earth 2", "Earth 3")

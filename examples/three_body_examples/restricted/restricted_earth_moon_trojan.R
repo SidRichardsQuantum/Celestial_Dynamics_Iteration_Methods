@@ -12,6 +12,6 @@ result = cr3bp_runge_kutta(T = T, N = N, mu = mu, state0 = state0)
 
 plot_cr3bp_result(
   result = result,
-  filepath = file.path("images", "restricted_earth_moon_trojan.png"),
+  filepath = file.path("images", "three_body", "restricted", "restricted_earth_moon_trojan.png"),
   title = "Restricted Earth-Moon Trojan Near L4\nRotating CR3BP frame"
 )

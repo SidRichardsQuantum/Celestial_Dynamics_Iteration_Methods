@@ -15,7 +15,7 @@ result = sitnikov_runge_kutta(
 
 plot_sitnikov_result(
   result = result,
-  filepath = file.path("images", "sitnikov_three_body.png"),
+  filepath = file.path("images", "three_body", "restricted", "sitnikov_three_body.png"),
   title = sprintf("Sitnikov Restricted Three-Body Problem\nT = %.1f years, N = %d steps",
                   T / YEAR, N)
 )

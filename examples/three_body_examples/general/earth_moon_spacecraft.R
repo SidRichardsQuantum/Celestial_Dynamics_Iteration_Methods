@@ -40,7 +40,7 @@ result = runge_kutta_three_body(
 )
 
 filename = "earth_moon_spacecraft.png"
-filepath = file.path("images", filename)
+filepath = file.path("images", "three_body", "general", filename)
 
 plot_three_body_result(
   result = result,
