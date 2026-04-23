@@ -2,7 +2,7 @@
 # All values in SI units unless otherwise specified
 
 # Universal constants
-G <- -6.6743015e-11  # Gravitational constant (m³/kg·s²)
+G <- 6.6743015e-11  # Gravitational constant (m³/kg·s²)
 
 # Masses (kg)
 M_SUN <- 1.9885e30      # Mass of Sun

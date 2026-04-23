@@ -13,7 +13,7 @@ RungeKutta = function(T, y_0, v_0, theta, N) {
 
   r = R_EARTH + y_0       # Initial height above Earth's center
   g_x = 0                 # No acceleration in the x-direction
-  g_y = G * M_EARTH / r^2 # Initial gravitational acceleration
+  g_y = -G * M_EARTH / r^2 # Initial gravitational acceleration
   
   # Calculate incremental time step
   dt = T / N
@@ -37,7 +37,7 @@ RungeKutta = function(T, y_0, v_0, theta, N) {
 
   # Energy conservation test: energy is conserved if the ratio of initial to final energies equals 1
   # Initial energy (kinetic + potential) per unit mass
-  E_0 = 0.5 * v_0^2 - G * M_EARTH / r
+  E_0 = 0.5 * v_0^2 + G * M_EARTH / r
 
   # Run Runge-Kutta method
   for (i in 1:N) {
@@ -81,7 +81,7 @@ RungeKutta = function(T, y_0, v_0, theta, N) {
   v_final_squared = v_x[N+1]^2 + v_y[N+1]^2
   
   # Final energy per unit mass
-  E_N = 0.5 * v_final_squared - G * M_EARTH / r_final
+  E_N = 0.5 * v_final_squared + G * M_EARTH / r_final
   
   # Create images directory if it doesn't exist
   if (!dir.exists("images")) {

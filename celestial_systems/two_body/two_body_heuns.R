@@ -23,9 +23,9 @@ heuns_two_body = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_a
   # Calculate initial total energy for conservation check
   # Kinetic energy
   KE_0 = 0.5 * m_a * sum(v_a^2) + 0.5 * m_b * sum(v_b^2)
-  # Potential energy (note: G is negative in constants.R)
+  # Potential energy
   r_ab0 = sqrt(sum((r_a - r_b)^2))
-  U_0 = G * m_a * m_b / r_ab0
+  U_0 = -G * m_a * m_b / r_ab0
   E_0 = KE_0 + U_0
   
   # Numerical integration using Heun's method
@@ -35,8 +35,8 @@ heuns_two_body = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_a
     mag_r_ab = sqrt(sum(r_ab^2))
  
     # Calculate current accelerations
-    a_a = G * m_b * r_ab / mag_r_ab^3
-    a_b = -G * m_a * r_ab / mag_r_ab^3
+    a_a = -G * m_b * r_ab / mag_r_ab^3
+    a_b = G * m_a * r_ab / mag_r_ab^3
   
     # Calculate end-of-step (predicted) positions and velocities
     r_aend = r_a + dt * v_a
@@ -49,8 +49,8 @@ heuns_two_body = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_a
     mag_r_abend = sqrt(sum(r_abend^2))
    
     # Calculate (predicted) accelerations at end
-    a_aend = G * m_b * r_abend / mag_r_abend^3
-    a_bend = -G * m_a * r_abend / mag_r_abend^3
+    a_aend = -G * m_b * r_abend / mag_r_abend^3
+    a_bend = G * m_a * r_abend / mag_r_abend^3
   
     # Update using average of initial and end values
     r_a = r_a + dt * (v_a + v_aend) / 2
@@ -68,7 +68,7 @@ heuns_two_body = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_a
   # Calculate final energy for conservation check
   KE_N = 0.5 * m_a * sum(v_a^2) + 0.5 * m_b * sum(v_b^2)
   r_abN = sqrt(sum((r_a - r_b)^2))
-  U_N = G * m_a * m_b / r_abN
+  U_N = -G * m_a * m_b / r_abN
   E_N = KE_N + U_N
   
   # Print simulation results

@@ -6,7 +6,14 @@ runge_kutta_three_body = function(T, N,
                                   m_a, m_b, m_c,
                                   r_ax0, r_ay0, r_bx0, r_by0, r_cx0, r_cy0,
                                   v_ax0, v_ay0, v_bx0, v_by0, v_cx0, v_cy0) {
-  
+
+  if (!is.finite(T) || T <= 0) {
+    stop("T must be a positive finite value.")
+  }
+  if (!is.finite(N) || N <= 0 || N != as.integer(N)) {
+    stop("N must be a positive integer.")
+  }
+
   # Calculate time step
   dt = T / N
   
@@ -21,22 +28,31 @@ runge_kutta_three_body = function(T, N,
   v_c = c(v_cx0, v_cy0)
   
   # Initialize position arrays for plotting
-  x_a = c(r_ax0)
-  y_a = c(r_ay0)
-  x_b = c(r_bx0)
-  y_b = c(r_by0)
-  x_c = c(r_cx0)
-  y_c = c(r_cy0)
+  x_a = numeric(N + 1)
+  y_a = numeric(N + 1)
+  x_b = numeric(N + 1)
+  y_b = numeric(N + 1)
+  x_c = numeric(N + 1)
+  y_c = numeric(N + 1)
+  x_a[1] = r_ax0
+  y_a[1] = r_ay0
+  x_b[1] = r_bx0
+  y_b[1] = r_by0
+  x_c[1] = r_cx0
+  y_c[1] = r_cy0
   
   # Calculate initial total energy for conservation check
   # Kinetic energy
   KE_0 = 0.5 * m_a * sum(v_a^2) + 0.5 * m_b * sum(v_b^2) + 0.5 * m_c * sum(v_c^2)
   
-  # Potential energy (note: G is negative in constants.R)
+  # Potential energy
   r_ab0 = sqrt(sum((r_a - r_b)^2))
   r_ac0 = sqrt(sum((r_a - r_c)^2))
   r_bc0 = sqrt(sum((r_b - r_c)^2))
-  U_0 = G * m_a * m_b / r_ab0 + G * m_a * m_c / r_ac0 + G * m_b * m_c / r_bc0
+  if (any(c(r_ab0, r_ac0, r_bc0) <= 0)) {
+    stop("Initial body positions must be distinct.")
+  }
+  U_0 = -G * m_a * m_b / r_ab0 - G * m_a * m_c / r_ac0 - G * m_b * m_c / r_bc0
   E_0 = KE_0 + U_0
   
   # Numerical integration using the Runge-Kutta (RK4) method
@@ -50,14 +66,17 @@ runge_kutta_three_body = function(T, N,
     mag_r_ab = sqrt(sum(r_ab^2))
     mag_r_ac = sqrt(sum(r_ac^2))
     mag_r_bc = sqrt(sum(r_bc^2))
+    if (any(c(mag_r_ab, mag_r_ac, mag_r_bc) <= 0)) {
+      stop(sprintf("Body collision or overlapping positions at step %d.", i))
+    }
     
     # k1: Current accelerations and velocities
     # Acceleration on body a due to b and c
-    a_a_k1 = G * m_b * r_ab / mag_r_ab^3 + G * m_c * r_ac / mag_r_ac^3
+    a_a_k1 = -G * m_b * r_ab / mag_r_ab^3 - G * m_c * r_ac / mag_r_ac^3
     # Acceleration on body b due to a and c
-    a_b_k1 = -G * m_a * r_ab / mag_r_ab^3 + G * m_c * r_bc / mag_r_bc^3
+    a_b_k1 = G * m_a * r_ab / mag_r_ab^3 - G * m_c * r_bc / mag_r_bc^3
     # Acceleration on body c due to a and b
-    a_c_k1 = -G * m_a * r_ac / mag_r_ac^3 - G * m_b * r_bc / mag_r_bc^3
+    a_c_k1 = G * m_a * r_ac / mag_r_ac^3 + G * m_b * r_bc / mag_r_bc^3
     
     v_a_k1 = v_a
     v_b_k1 = v_b
@@ -78,10 +97,13 @@ runge_kutta_three_body = function(T, N,
     mag_r_ab_k2 = sqrt(sum(r_ab_k2^2))
     mag_r_ac_k2 = sqrt(sum(r_ac_k2^2))
     mag_r_bc_k2 = sqrt(sum(r_bc_k2^2))
+    if (any(c(mag_r_ab_k2, mag_r_ac_k2, mag_r_bc_k2) <= 0)) {
+      stop(sprintf("Body collision or overlapping positions at step %d.", i))
+    }
     
-    a_a_k2 = G * m_b * r_ab_k2 / mag_r_ab_k2^3 + G * m_c * r_ac_k2 / mag_r_ac_k2^3
-    a_b_k2 = -G * m_a * r_ab_k2 / mag_r_ab_k2^3 + G * m_c * r_bc_k2 / mag_r_bc_k2^3
-    a_c_k2 = -G * m_a * r_ac_k2 / mag_r_ac_k2^3 - G * m_b * r_bc_k2 / mag_r_bc_k2^3
+    a_a_k2 = -G * m_b * r_ab_k2 / mag_r_ab_k2^3 - G * m_c * r_ac_k2 / mag_r_ac_k2^3
+    a_b_k2 = G * m_a * r_ab_k2 / mag_r_ab_k2^3 - G * m_c * r_bc_k2 / mag_r_bc_k2^3
+    a_c_k2 = G * m_a * r_ac_k2 / mag_r_ac_k2^3 + G * m_b * r_bc_k2 / mag_r_bc_k2^3
     
     # k3: Midpoint using k2
     r_a_k3 = r_a + 0.5 * dt * v_a_k2
@@ -98,10 +120,13 @@ runge_kutta_three_body = function(T, N,
     mag_r_ab_k3 = sqrt(sum(r_ab_k3^2))
     mag_r_ac_k3 = sqrt(sum(r_ac_k3^2))
     mag_r_bc_k3 = sqrt(sum(r_bc_k3^2))
+    if (any(c(mag_r_ab_k3, mag_r_ac_k3, mag_r_bc_k3) <= 0)) {
+      stop(sprintf("Body collision or overlapping positions at step %d.", i))
+    }
     
-    a_a_k3 = G * m_b * r_ab_k3 / mag_r_ab_k3^3 + G * m_c * r_ac_k3 / mag_r_ac_k3^3
-    a_b_k3 = -G * m_a * r_ab_k3 / mag_r_ab_k3^3 + G * m_c * r_bc_k3 / mag_r_bc_k3^3
-    a_c_k3 = -G * m_a * r_ac_k3 / mag_r_ac_k3^3 - G * m_b * r_bc_k3 / mag_r_bc_k3^3
+    a_a_k3 = -G * m_b * r_ab_k3 / mag_r_ab_k3^3 - G * m_c * r_ac_k3 / mag_r_ac_k3^3
+    a_b_k3 = G * m_a * r_ab_k3 / mag_r_ab_k3^3 - G * m_c * r_bc_k3 / mag_r_bc_k3^3
+    a_c_k3 = G * m_a * r_ac_k3 / mag_r_ac_k3^3 + G * m_b * r_bc_k3 / mag_r_bc_k3^3
     
     # k4: Endpoint using k3
     r_a_k4 = r_a + dt * v_a_k3
@@ -118,10 +143,13 @@ runge_kutta_three_body = function(T, N,
     mag_r_ab_k4 = sqrt(sum(r_ab_k4^2))
     mag_r_ac_k4 = sqrt(sum(r_ac_k4^2))
     mag_r_bc_k4 = sqrt(sum(r_bc_k4^2))
+    if (any(c(mag_r_ab_k4, mag_r_ac_k4, mag_r_bc_k4) <= 0)) {
+      stop(sprintf("Body collision or overlapping positions at step %d.", i))
+    }
     
-    a_a_k4 = G * m_b * r_ab_k4 / mag_r_ab_k4^3 + G * m_c * r_ac_k4 / mag_r_ac_k4^3
-    a_b_k4 = -G * m_a * r_ab_k4 / mag_r_ab_k4^3 + G * m_c * r_bc_k4 / mag_r_bc_k4^3
-    a_c_k4 = -G * m_a * r_ac_k4 / mag_r_ac_k4^3 - G * m_b * r_bc_k4 / mag_r_bc_k4^3
+    a_a_k4 = -G * m_b * r_ab_k4 / mag_r_ab_k4^3 - G * m_c * r_ac_k4 / mag_r_ac_k4^3
+    a_b_k4 = G * m_a * r_ab_k4 / mag_r_ab_k4^3 - G * m_c * r_bc_k4 / mag_r_bc_k4^3
+    a_c_k4 = G * m_a * r_ac_k4 / mag_r_ac_k4^3 + G * m_b * r_bc_k4 / mag_r_bc_k4^3
     
     # Final update using RK4 weighted average
     r_a = r_a + (dt/6) * (v_a_k1 + 2*v_a_k2 + 2*v_a_k3 + v_a_k4)
@@ -132,12 +160,12 @@ runge_kutta_three_body = function(T, N,
     v_c = v_c + (dt/6) * (a_c_k1 + 2*a_c_k2 + 2*a_c_k3 + a_c_k4)
     
     # Store positions for plotting
-    x_a = c(x_a, r_a[1])
-    y_a = c(y_a, r_a[2])
-    x_b = c(x_b, r_b[1])
-    y_b = c(y_b, r_b[2])
-    x_c = c(x_c, r_c[1])
-    y_c = c(y_c, r_c[2])
+    x_a[i + 1] = r_a[1]
+    y_a[i + 1] = r_a[2]
+    x_b[i + 1] = r_b[1]
+    y_b[i + 1] = r_b[2]
+    x_c[i + 1] = r_c[1]
+    y_c[i + 1] = r_c[2]
   }
   
   # Calculate final energy for conservation check
@@ -145,7 +173,7 @@ runge_kutta_three_body = function(T, N,
   r_abN = sqrt(sum((r_a - r_b)^2))
   r_acN = sqrt(sum((r_a - r_c)^2))
   r_bcN = sqrt(sum((r_b - r_c)^2))
-  U_N = G * m_a * m_b / r_abN + G * m_a * m_c / r_acN + G * m_b * m_c / r_bcN
+  U_N = -G * m_a * m_b / r_abN - G * m_a * m_c / r_acN - G * m_b * m_c / r_bcN
   E_N = KE_N + U_N
   
   # Print simulation results

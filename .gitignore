@@ -1,0 +1,21 @@
+.codex/
+.codex
+
+# R session and project-local state
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+renv/library/
+renv/staging/
+
+# Python environments and caches
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Local OS/editor files
+.DS_Store
+Thumbs.db
