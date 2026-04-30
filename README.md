@@ -1,7 +1,13 @@
 # Comparing Iteration Methods Via Celestial Dynamics
 
+[![R validation](https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods/actions/workflows/r-validation.yml/badge.svg)](https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods/actions/workflows/r-validation.yml)
+[![Deploy GitHub Pages](https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods/actions/workflows/pages.yml/badge.svg)](https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods/actions/workflows/pages.yml)
+
 A numerical simulation suite for comparing time-stepping methods by tracing gravitational dynamics of projectiles, two-body systems, and three-body systems.
 The project is implemented primarily in R, with an optional Python helper for regenerating figure-8 initial conditions.
+
+View the generated results site:
+[https://sidrichardsquantum.github.io/Celestial_Dynamics_Iteration_Methods/](https://sidrichardsquantum.github.io/Celestial_Dynamics_Iteration_Methods/)
 
 For setup, commands, examples, and repository layout, see [USAGE.md](USAGE.md).
 For method descriptions, see [THEORY.md](THEORY.md).
@@ -67,7 +73,7 @@ Rscript tests/validate_three_body.R
 - `images/`: generated plots grouped by example type
 - `analysis/`: reproducible result-table, diagnostic-plot, and dashboard generation
 - `tests/`: validation scripts used locally and in CI
-- `.github/workflows/`: automatic validation and manual plot-regeneration workflows
+- `.github/workflows/`: validation, plot-regeneration, and GitHub Pages deployment workflows
 
 ## License
 

@@ -62,6 +62,18 @@ dashboard changes:
 Rscript analysis/update_artifact_baseline.R
 ```
 
+Open the generated local results index in a browser:
+
+```text
+analysis/generated/index.html
+```
+
+The published GitHub Pages version is:
+
+```text
+https://sidrichardsquantum.github.io/Celestial_Dynamics_Iteration_Methods/
+```
+
 Regenerate two-body plots only:
 
 ```bash
@@ -152,15 +164,26 @@ Celestial_Dynamics_Iteration_Methods/
 ├── run_all_examples.R
 ├── analysis/
 │   ├── generate_results.R
+│   ├── update_artifact_baseline.R
 │   └── generated/
+│       ├── artifact_baseline.csv
 │       ├── convergence_summary.csv
+│       ├── earth_moon_method_summary.csv
+│       ├── index.html
 │       ├── method_summary.csv
-│       └── method_comparison_dashboard.html
+│       ├── method_comparison_dashboard.html
+│       ├── n_body_conservation_summary.csv
+│       ├── plot_manifest.csv
+│       ├── runtime_benchmark.csv
+│       └── three_body_special_summary.csv
 ├── .github/
 │   └── workflows/
+│       ├── pages.yml
 │       ├── r-validation.yml
 │       └── regenerate-plots.yml
 ├── celestial_systems/
+│   ├── plotting/
+│   │   └── plot_style.R
 │   ├── two_body/
 │   │   ├── plot_two_body.R
 │   │   ├── two_body_helpers.R
@@ -222,7 +245,7 @@ Celestial_Dynamics_Iteration_Methods/
     └── validate_three_body.R
 ```
 
-## Generated Images
+## Generated Artifacts
 
 Plots are generated artifacts, but this repository keeps representative PNGs under `images/` so the markdown result pages render directly.
 Trajectory examples also write companion HTML canvas animations next to the PNGs.
@@ -234,6 +257,7 @@ Rscript tests/validate_plot_generation.R
 
 The GitHub Actions workflow `R validation` runs `tests/run_all_tests.R` on pushes and pull requests.
 The `Regenerate plots` workflow is manual; it runs `run_all_examples.R`, regenerates analysis artifacts, validates the outputs, and uploads regenerated image and analysis directories as artifacts.
+The `Deploy GitHub Pages` workflow regenerates plots, animations, and analysis artifacts, validates them, and publishes a static site containing `analysis/generated/`, `images/`, and the top-level markdown documents.
 
 The generated comparison dashboard is written to:
 
