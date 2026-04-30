@@ -1,3 +1,5 @@
+source("celestial_systems/plotting/plot_style.R")
+
 cr3bp_lagrange_points = function(mu) {
   if (!is.finite(mu) || mu <= 0 || mu >= 0.5) {
     stop("mu must be finite and in the interval (0, 0.5).")
@@ -100,16 +102,11 @@ cr3bp_rotating_to_inertial = function(result) {
 }
 
 plot_cr3bp_result = function(result, filepath, title, show_lagrange_points = TRUE) {
-  output_dir = dirname(filepath)
-  if (!dir.exists(output_dir)) {
-    dir.create(output_dir, recursive = TRUE)
-  }
-
-  png(filepath, width = 800, height = 600, res = 100)
-  old_par = par(mfrow = c(1, 2), mar = c(4, 4, 3, 1))
+  old_par = cd_open_png(filepath, width = 1200, height = 720, res = 140,
+                        mar = c(4.8, 4.8, 3.2, 1.2), mfrow = c(1, 2))
+  par(oma = c(0, 0, 2.5, 0))
   on.exit({
-    par(old_par)
-    dev.off()
+    cd_close_png(old_par)
   }, add = TRUE)
 
   states = result$states
@@ -120,69 +117,81 @@ plot_cr3bp_result = function(result, filepath, title, show_lagrange_points = TRU
   lagrange_y = sapply(lagrange_points, function(point) point[2])
   all_x = c(states[, "x"], primary_x, lagrange_x)
   all_y = c(states[, "y"], 0, 0, lagrange_y)
-  x_padding = max(diff(range(all_x)) * 0.08, 0.04)
-  y_padding = max(diff(range(all_y)) * 0.08, 0.04)
-
-  plot(states[, "x"], states[, "y"], type = "l", lwd = 2, col = "blue",
-       xlim = range(all_x) + c(-x_padding, x_padding),
-       ylim = range(all_y) + c(-y_padding, y_padding),
-       xlab = "x (primary separation units)",
-       ylab = "y (primary separation units)",
-       main = "Rotating frame", asp = 1)
+  xlim = cd_expand_range(all_x, 0.08, 0.04)
+  ylim = cd_expand_range(all_y, 0.08, 0.04)
+  cd_plot_empty(xlim, ylim,
+                xlab = "x (primary separation units)",
+                ylab = "y (primary separation units)",
+                main = "Rotating frame", asp = 1)
+  lines(states[, "x"], states[, "y"], lwd = 2.4,
+        col = grDevices::adjustcolor(cd_colors$blue, 0.78))
   points(primary_x, c(0, 0), pch = 19,
-         col = c("orange", "gray40"), cex = c(2, 1.2))
+         col = c(cd_colors$orange, cd_colors$gray), cex = c(2, 1.2))
   if (show_lagrange_points) {
-    points(lagrange_x, lagrange_y, pch = 4, col = "black", cex = 1.1,
+    points(lagrange_x, lagrange_y, pch = 4, col = cd_colors$black, cex = 1.1,
            lwd = 1.4)
     text(lagrange_x, lagrange_y, labels = names(lagrange_points),
-         pos = c(3, 3, 1, 3, 1), cex = 0.8)
+         pos = c(3, 3, 1, 3, 1), cex = 0.76, col = cd_colors$ink)
   }
-  points(states[1, "x"], states[1, "y"], pch = 1, col = "blue", cex = 1.4)
+  points(states[1, "x"], states[1, "y"], pch = 21, col = cd_colors$blue,
+         bg = cd_colors$panel, cex = 1.4, lwd = 1.4)
   points(tail(states[, "x"], 1), tail(states[, "y"], 1),
-         pch = 19, col = "blue", cex = 1.2)
+         pch = 19, col = cd_colors$blue, cex = 1.2)
   legend("topright", legend = c("Restricted body path", "Lagrange points"),
-         col = c("blue", "black"), lty = c(1, NA), pch = c(NA, 4),
-         lwd = c(2, NA))
-  grid(col = "lightgray", lty = "dotted")
+         col = c(cd_colors$blue, cd_colors$black), lty = c(1, NA),
+         pch = c(NA, 4), lwd = c(2, NA), bty = "n", cex = 0.82)
 
   inertial = cr3bp_rotating_to_inertial(result)
   all_ix = c(inertial$restricted[, "x"], inertial$primary_1[, "x"],
              inertial$primary_2[, "x"])
   all_iy = c(inertial$restricted[, "y"], inertial$primary_1[, "y"],
              inertial$primary_2[, "y"])
-  ix_padding = max(diff(range(all_ix)) * 0.08, 0.04)
-  iy_padding = max(diff(range(all_iy)) * 0.08, 0.04)
-
-  plot(inertial$restricted[, "x"], inertial$restricted[, "y"],
-       type = "l", lwd = 2, col = "blue",
-       xlim = range(all_ix) + c(-ix_padding, ix_padding),
-       ylim = range(all_iy) + c(-iy_padding, iy_padding),
-       xlab = "x (primary separation units)",
-       ylab = "y (primary separation units)",
-       main = title, asp = 1)
+  ixlim = cd_expand_range(all_ix, 0.08, 0.04)
+  iylim = cd_expand_range(all_iy, 0.08, 0.04)
+  cd_plot_empty(ixlim, iylim,
+                xlab = "x (primary separation units)",
+                ylab = "y (primary separation units)",
+                main = "Inertial frame", asp = 1)
+  lines(inertial$restricted[, "x"], inertial$restricted[, "y"],
+        lwd = 2.4, col = grDevices::adjustcolor(cd_colors$blue, 0.78))
   lines(inertial$primary_1[, "x"], inertial$primary_1[, "y"],
-        lwd = 2, col = "orange")
+        lwd = 2.2, col = cd_colors$orange)
   lines(inertial$primary_2[, "x"], inertial$primary_2[, "y"],
-        lwd = 2, col = "gray40")
+        lwd = 2.2, col = cd_colors$gray)
   points(inertial$restricted[1, "x"], inertial$restricted[1, "y"],
-         pch = 21, col = "blue", bg = "white", cex = 1.2)
+         pch = 21, col = cd_colors$blue, bg = cd_colors$panel, cex = 1.2)
   points(inertial$primary_1[1, "x"], inertial$primary_1[1, "y"],
-         pch = 21, col = "orange", bg = "white", cex = 1.2)
+         pch = 21, col = cd_colors$orange, bg = cd_colors$panel, cex = 1.2)
   points(inertial$primary_2[1, "x"], inertial$primary_2[1, "y"],
-         pch = 21, col = "gray40", bg = "white", cex = 1.2)
+         pch = 21, col = cd_colors$gray, bg = cd_colors$panel, cex = 1.2)
   points(tail(inertial$restricted[, "x"], 1),
          tail(inertial$restricted[, "y"], 1), pch = 19,
-         col = "blue", cex = 1.2)
+         col = cd_colors$blue, cex = 1.2)
   points(tail(inertial$primary_1[, "x"], 1),
          tail(inertial$primary_1[, "y"], 1), pch = 19,
-         col = "orange", cex = 1.2)
+         col = cd_colors$orange, cex = 1.2)
   points(tail(inertial$primary_2[, "x"], 1),
          tail(inertial$primary_2[, "y"], 1), pch = 19,
-         col = "gray40", cex = 1.2)
+         col = cd_colors$gray, cex = 1.2)
   legend("topright",
          legend = c("Restricted body", "Primary 1", "Primary 2"),
-         col = c("blue", "orange", "gray40"), lty = 1, lwd = 2)
-  grid(col = "lightgray", lty = "dotted")
+         col = c(cd_colors$blue, cd_colors$orange, cd_colors$gray),
+         lty = 1, lwd = 2, bty = "n", cex = 0.82)
+
+  mtext(title, outer = TRUE, cex = 1.15, font = 2, col = cd_colors$ink)
 
   cat(sprintf("Plot saved to: %s\n", filepath))
+  cd_record_plot_manifest(
+    filepath = filepath,
+    artifact_type = "png",
+    plot_type = "restricted_three_body",
+    title = title,
+    width = 1200,
+    height = 720,
+    res = 140,
+    xlim = ixlim,
+    ylim = iylim,
+    data_x = all_ix,
+    data_y = all_iy
+  )
 }

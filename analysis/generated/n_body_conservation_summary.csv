@@ -1,0 +1,4 @@
+"case","years","steps","bodies","final_energy_ratio","max_abs_energy_error","max_abs_angular_momentum_drift"
+"Sun-Earth-Mars-Jupiter",12,6000,4,1.00000000001062,1.06180722241156e-11,4.55554234635697e-13
+"Rotating square four-body",123.993070211866,20000,4,0.999999999999999,5.71739261866896e-15,2.81649075302727e-15
+"Triangular central four-body",162.437402072328,20000,4,1.00000000000002,2.12602007517891e-14,1.06080314834503e-14

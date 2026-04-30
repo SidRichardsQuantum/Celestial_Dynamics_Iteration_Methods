@@ -6,6 +6,11 @@ examples = c(
   "examples/three_body_examples/run_all_three_body_examples.R"
 )
 
+source("celestial_systems/plotting/plot_style.R")
+if (file.exists(cd_plot_manifest_path)) {
+  invisible(file.remove(cd_plot_manifest_path))
+}
+
 for (example in examples) {
   cat(sprintf("Running %s\n", example))
   status = system2("Rscript", example, stdout = "", stderr = "")

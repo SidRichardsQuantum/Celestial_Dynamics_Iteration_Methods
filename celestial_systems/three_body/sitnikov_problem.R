@@ -1,4 +1,5 @@
 source("constants.R")
+source("celestial_systems/plotting/plot_style.R")
 
 sitnikov_runge_kutta = function(T, N, primary_mass = M_EARTH,
                                 primary_radius = 0.5 * AU,
@@ -64,16 +65,11 @@ sitnikov_runge_kutta = function(T, N, primary_mass = M_EARTH,
 }
 
 plot_sitnikov_result = function(result, filepath, title) {
-  output_dir = dirname(filepath)
-  if (!dir.exists(output_dir)) {
-    dir.create(output_dir, recursive = TRUE)
-  }
-
-  png(filepath, width = 800, height = 600, res = 100)
-  old_par = par(mfrow = c(1, 2), mar = c(4, 4, 3, 1))
+  old_par = cd_open_png(filepath, width = 1200, height = 720, res = 140,
+                        mar = c(4.8, 4.8, 3.2, 1.2), mfrow = c(1, 2))
+  par(oma = c(0, 0, 2.5, 0))
   on.exit({
-    par(old_par)
-    dev.off()
+    cd_close_png(old_par)
   }, add = TRUE)
 
   primary_a_x = result$primary_a[, 1] / AU
@@ -84,34 +80,50 @@ plot_sitnikov_result = function(result, filepath, title) {
   third_y = result$third[, 2] / AU
   all_x = c(primary_a_x, primary_b_x, third_x)
   all_y = c(primary_a_y, primary_b_y, third_y)
-  x_padding = max(diff(range(all_x)) * 0.1, 0.02)
-  y_padding = max(diff(range(all_y)) * 0.1, 0.02)
-
-  plot(primary_a_x, primary_a_y, type = "l", lwd = 2, col = "orange",
-       xlim = range(all_x) + c(-x_padding, x_padding),
-       ylim = range(all_y) + c(-y_padding, y_padding),
-       xlab = "x (AU)", ylab = "y (AU)", main = "Orbital-plane paths",
-       asp = 1)
-  lines(primary_b_x, primary_b_y, lwd = 2, col = "gray40")
-  lines(third_x, third_y, lwd = 2, col = "blue")
+  xlim = cd_expand_range(all_x, 0.1, 0.02)
+  ylim = cd_expand_range(all_y, 0.1, 0.02)
+  cd_plot_empty(xlim, ylim,
+                xlab = "x (AU)", ylab = "y (AU)",
+                main = "Orbital-plane paths", asp = 1)
+  lines(primary_a_x, primary_a_y, lwd = 2.3, col = cd_colors$orange)
+  lines(primary_b_x, primary_b_y, lwd = 2.3, col = cd_colors$gray)
+  lines(third_x, third_y, lwd = 2.3, col = cd_colors$blue)
   points(tail(primary_a_x, 1), tail(primary_a_y, 1), pch = 19,
-         col = "orange", cex = 1.5)
+         col = cd_colors$orange, cex = 1.5)
   points(tail(primary_b_x, 1), tail(primary_b_y, 1), pch = 19,
-         col = "gray40", cex = 1.5)
+         col = cd_colors$gray, cex = 1.5)
   points(tail(third_x, 1), tail(third_y, 1), pch = 19,
-         col = "blue", cex = 1.5)
+         col = cd_colors$blue, cex = 1.5)
   legend("topright", legend = c("Primary 1 path", "Primary 2 path",
                                 "Restricted body path"),
-         col = c("orange", "gray40", "blue"), lty = 1, lwd = 2)
-  grid(col = "lightgray", lty = "dotted")
+         col = c(cd_colors$orange, cd_colors$gray, cd_colors$blue),
+         lty = 1, lwd = 2, bty = "n", cex = 0.82)
 
-  plot(result$t / YEAR, result$z / AU, type = "l", lwd = 2, col = "blue",
-       xlab = "time (years)", ylab = "restricted body z (AU)",
-       main = title)
-  abline(h = 0, col = "gray50", lty = "dashed")
+  txlim = cd_expand_range(result$t / YEAR, 0.02, 0.02)
+  zylim = cd_expand_range(result$z / AU, 0.08, 0.005)
+  cd_plot_empty(txlim, zylim,
+                xlab = "time (years)", ylab = "restricted body z (AU)",
+                main = "Vertical oscillation")
+  lines(result$t / YEAR, result$z / AU, lwd = 2.3, col = cd_colors$blue)
+  abline(h = 0, col = cd_colors$gray, lty = "dashed")
   legend("topright", legend = c("Restricted body z", "Primary orbital plane"),
-         col = c("blue", "gray50"), lty = c(1, 2), lwd = c(2, 1))
-  grid(col = "lightgray", lty = "dotted")
+         col = c(cd_colors$blue, cd_colors$gray), lty = c(1, 2),
+         lwd = c(2, 1), bty = "n", cex = 0.82)
+
+  mtext(title, outer = TRUE, cex = 1.15, font = 2, col = cd_colors$ink)
 
   cat(sprintf("Plot saved to: %s\n", filepath))
+  cd_record_plot_manifest(
+    filepath = filepath,
+    artifact_type = "png",
+    plot_type = "sitnikov",
+    title = title,
+    width = 1200,
+    height = 720,
+    res = 140,
+    xlim = txlim,
+    ylim = zylim,
+    data_x = result$t / YEAR,
+    data_y = result$z / AU
+  )
 }

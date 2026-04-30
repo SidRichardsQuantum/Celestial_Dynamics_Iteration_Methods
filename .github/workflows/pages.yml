@@ -1,0 +1,93 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+
+      - name: Regenerate example plots and animations
+        run: Rscript run_all_examples.R
+
+      - name: Regenerate analysis artifacts
+        run: Rscript analysis/generate_results.R
+
+      - name: Run validation scripts
+        run: Rscript tests/run_all_tests.R
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare Pages site
+        run: |
+          mkdir -p _site/analysis _site/images
+          cp -R analysis/generated _site/analysis/
+          cp -R images/. _site/images/
+          cp README.md RESULTS.md THEORY.md USAGE.md _site/
+          touch _site/.nojekyll
+          cat > _site/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <meta http-equiv="refresh" content="0; url=analysis/generated/index.html">
+            <title>Celestial Dynamics Results</title>
+            <style>
+              body {
+                margin: 0;
+                min-height: 100vh;
+                display: grid;
+                place-items: center;
+                font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+                color: #172033;
+                background: #f6f8fb;
+              }
+              a { color: #0f766e; }
+            </style>
+          </head>
+          <body>
+            <main>
+              <p>Opening <a href="analysis/generated/index.html">Celestial Dynamics Results</a>.</p>
+            </main>
+          </body>
+          </html>
+          HTML
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

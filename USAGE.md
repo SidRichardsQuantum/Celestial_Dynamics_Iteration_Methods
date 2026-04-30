@@ -35,7 +35,7 @@ Run two-body validation only:
 Rscript tests/validate_two_body.R
 ```
 
-Regenerate every example plot:
+Regenerate every example plot and companion trajectory animation:
 
 ```bash
 Rscript run_all_examples.R
@@ -47,11 +47,19 @@ Regenerate the Sun-Earth all-method comparison only:
 Rscript examples/comparisons/sun_earth_all_methods.R
 ```
 
-Regenerate generated result tables, energy/angular-momentum diagnostics,
-convergence plots, and the method comparison dashboard:
+Regenerate generated result tables, conservation diagnostics, runtime
+benchmarks, convergence plots, the plot manifest, the results index, and the
+method comparison dashboard:
 
 ```bash
 Rscript analysis/generate_results.R
+```
+
+Update the committed artifact size/dimension baseline after intentional plot or
+dashboard changes:
+
+```bash
+Rscript analysis/update_artifact_baseline.R
 ```
 
 Regenerate two-body plots only:
@@ -217,6 +225,7 @@ Celestial_Dynamics_Iteration_Methods/
 ## Generated Images
 
 Plots are generated artifacts, but this repository keeps representative PNGs under `images/` so the markdown result pages render directly.
+Trajectory examples also write companion HTML canvas animations next to the PNGs.
 If an example is changed, run the relevant example runner and then run:
 
 ```bash
@@ -230,4 +239,25 @@ The generated comparison dashboard is written to:
 
 ```text
 analysis/generated/method_comparison_dashboard.html
+```
+
+The generated results index is written to:
+
+```text
+analysis/generated/index.html
+```
+
+The plot manifest and artifact baseline used by validation are written to:
+
+```text
+analysis/generated/plot_manifest.csv
+analysis/generated/artifact_baseline.csv
+```
+
+Representative generated animations include:
+
+```text
+images/two_body/sun_earth/sun_earth_runge_kutta.html
+images/three_body/special_solutions/three_earths.html
+images/n_body/sun_earth_mars_jupiter.html
 ```

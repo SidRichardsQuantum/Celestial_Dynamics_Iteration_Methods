@@ -1,5 +1,6 @@
 # Load physical constants
 source("constants.R")
+source("celestial_systems/plotting/plot_style.R")
 
 # Midpoint method
 Midpoint = function(T, y_0, v_0, theta, N) {
@@ -80,31 +81,19 @@ Midpoint = function(T, y_0, v_0, theta, N) {
   # Full path to save the plot
   filepath = file.path("images", "projectile", filename)
   
-  # Open PNG device
-  png(filepath, width = 800, height = 600, res = 100)
-  
-  # Plot the numerical approximation
-  plot(s, l, type = "l", col = "red", lwd = 2,
-       xlab = "Horizontal distance (m)", ylab = "Height (m)",
-       main = "Projectile Trajectory: Midpoint Method vs Analytical Solution")
-  
   # Plot the analytical trajectory assuming constant gravitational acceleration
-  t = seq(from = 0, to = T, length.out = N)
+  t = seq(from = 0, to = T, length.out = length(s))
   x_analytical = v_0 * cos(theta) * t
   y_analytical = y_0 + v_0 * sin(theta) * t + 0.5 * g_y * t^2
-  lines(x_analytical, y_analytical, col = "blue", lwd = 2, lty = 2)
-  
-  # Add legend
-  legend("topright", legend = c("Midpoint Method", "Analytical Solution"),
-         lty = c("solid", "dashed"), col = c("red", "blue"), lwd = c(2, 2))
-  
-  # Add grid for better readability
-  grid(col = "gray", lty = "dotted")
-  
-  # Close the PNG device
-  dev.off()
-
-  cat(sprintf("Plot saved to: %s\n", filepath))
+  cd_plot_projectile(
+    filepath = filepath,
+    title = "Projectile Trajectory: Midpoint Method vs Analytical Solution",
+    method_label = "Midpoint Method",
+    x_numeric = s,
+    y_numeric = l,
+    x_reference = x_analytical,
+    y_reference = y_analytical
+  )
 
   # Print some useful information
   cat("Simulation Results:\n")

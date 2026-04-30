@@ -4,8 +4,7 @@
 
 - [Generated Analysis](#generated-analysis)
 - [Comparison Examples](#comparison-examples)
-- [N-Body Systems](#n-body-systems)
-- [Sun-Earth System](#sun-earth-system)
+- [Two-Body Sun-Earth System](#two-body-sun-earth-system)
   - [Euler Method](#euler-method)
   - [Midpoint Method](#midpoint-method)
   - [Heun's Method](#heuns-method)
@@ -14,15 +13,16 @@
 - [Three-Body Systems](#three-body-systems)
   - [Sun, Earth and Mars](#sun-earth-and-mars)
   - [Earth, Moon and Spacecraft](#earth-moon-and-spacecraft)
+  - [Binary with a Distant Third Body](#binary-with-a-distant-third-body)
   - [Figure-8 Solution](#figure-8-solution)
   - [Lagrange Equilateral Solution](#lagrange-equilateral-solution)
   - [Euler Collinear Solution](#euler-collinear-solution)
+  - [Butterfly I Choreography](#butterfly-i-choreography)
   - [Perturbed Special Solutions](#perturbed-special-solutions)
   - [Restricted Earth-Moon Trojan](#restricted-earth-moon-trojan)
   - [Planar Lyapunov-Like L1 Orbit](#planar-lyapunov-like-l1-orbit)
   - [Sitnikov Problem](#sitnikov-problem)
-  - [Binary with a Distant Third Body](#binary-with-a-distant-third-body)
-  - [Butterfly I Choreography](#butterfly-i-choreography)
+- [N-Body Systems](#n-body-systems)
 - [Conclusions](#conclusions)
 - [References](#references)
 
@@ -69,12 +69,89 @@ Errors are measured against a one-year RK4 reference run with `N = 16000`.
 | Verlet | 1 | 1000 | 3.65250e-01 | 8.26677e-05 | 2.000e+00 |
 | Verlet | 1 | 2000 | 1.82625e-01 | 2.06671e-05 | 2.000e+00 |
 
+### Earth-Moon Method Summary
+
+The same two-body methods are run for ten lunar months with `N = 1000`.
+
+| system | method | duration | steps | final_separation_au | final_energy_ratio | max_abs_energy_error | max_abs_angular_momentum_drift |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Earth-Moon | Euler | 10 lunar months | 1000 | 6.23876e-03 | 3.21768e-01 | 6.78232e-01 | 6.94754e-01 |
+| Earth-Moon | Midpoint | 10 lunar months | 1000 | 2.57415e-03 | 9.98012e-01 | 1.98768e-03 | 9.71682e-04 |
+| Earth-Moon | Heun | 10 lunar months | 1000 | 2.58973e-03 | 9.92271e-01 | 7.72945e-03 | 3.79312e-03 |
+| Earth-Moon | RK4 | 10 lunar months | 1000 | 2.56867e-03 | 1.00000e+00 | 1.81136e-06 | 8.83727e-07 |
+| Earth-Moon | Verlet | 10 lunar months | 1000 | 2.56904e-03 | 1.00000e+00 | 1.53235e-05 | 3.99646e-15 |
+
+### Special Three-Body Conservation Summary
+
+These RK4 runs check whether known periodic configurations return close to their starting shape after one nominal period.
+
+| case | years | steps | final_energy_ratio | max_abs_energy_error | max_abs_angular_momentum_drift | max_pair_separation_error_au |
+| --- | --- | --- | --- | --- | --- | --- |
+| Figure-8 | 2.05397e+02 | 2e+04 | 1.00000e+00 | 1.93255e-14 | 1.13782e+39 | 1.70987e-08 |
+| Lagrange triangle | 3.33146e+02 | 2e+04 | 1.00000e+00 | 4.97494e-15 | 2.48305e-15 | 1.01387e-13 |
+| Euler collinear | 1.82472e+02 | 2e+04 | 1.00000e+00 | 7.95990e-15 | 4.14482e-15 | 1.22398e-15 |
+| Butterfly I | 2.02434e+02 | 1e+05 | 1.00003e+00 | 2.62380e-05 | 1.87407e+45 | 8.00074e-05 |
+
+### N-Body Conservation Summary
+
+The n-body cases report energy and angular-momentum drift for multi-body examples beyond the dedicated two- and three-body solvers.
+
+| case | years | steps | bodies | final_energy_ratio | max_abs_energy_error | max_abs_angular_momentum_drift |
+| --- | --- | --- | --- | --- | --- | --- |
+| Sun-Earth-Mars-Jupiter | 1.20000e+01 |  6000 | 4 | 1e+00 | 1.06181e-11 | 4.55554e-13 |
+| Rotating square four-body | 1.23993e+02 | 20000 | 4 | 1e+00 | 5.71739e-15 | 2.81649e-15 |
+| Triangular central four-body | 1.62437e+02 | 20000 | 4 | 1e+00 | 2.12602e-14 | 1.06080e-14 |
+
+### Runtime and Accuracy Benchmark
+
+Runtime is measured for one-year Sun-Earth runs against the same fine RK4 reference used in the convergence table.
+
+| method | years | steps | dt_days | runtime_seconds | final_position_error_au | error_per_second |
+| --- | --- | --- | --- | --- | --- | --- |
+| Euler | 1 |  250 | 1.46100e+00 | 2.0e-03 | 1.20694e+00 | 6.03469e+02 |
+| Euler | 1 |  500 | 7.30500e-01 | 8.0e-03 | 6.76416e-01 | 8.45519e+01 |
+| Euler | 1 | 1000 | 3.65250e-01 | 1.3e-02 | 3.58832e-01 | 2.76025e+01 |
+| Euler | 1 | 2000 | 1.82625e-01 | 4.5e-02 | 1.84827e-01 | 4.10726e+00 |
+| Midpoint | 1 |  250 | 1.46100e+00 | 3.0e-03 | 2.37405e-03 | 7.91348e-01 |
+| Midpoint | 1 |  500 | 7.30500e-01 | 1.0e-02 | 5.87089e-04 | 5.87089e-02 |
+| Midpoint | 1 | 1000 | 3.65250e-01 | 2.4e-02 | 1.45910e-04 | 6.07958e-03 |
+| Midpoint | 1 | 2000 | 1.82625e-01 | 7.7e-02 | 3.63660e-05 | 4.72286e-04 |
+| Heun | 1 |  250 | 1.46100e+00 | 7.0e-03 | 5.51744e-03 | 7.88206e-01 |
+| Heun | 1 |  500 | 7.30500e-01 | 1.1e-02 | 1.35203e-03 | 1.22912e-01 |
+| Heun | 1 | 1000 | 3.65250e-01 | 1.6e-02 | 3.34451e-04 | 2.09032e-02 |
+| Heun | 1 | 2000 | 1.82625e-01 | 6.0e-02 | 8.31604e-05 | 1.38601e-03 |
+| RK4 | 1 |  250 | 1.46100e+00 | 7.0e-03 | 6.58641e-08 | 9.40915e-06 |
+| RK4 | 1 |  500 | 7.30500e-01 | 1.8e-02 | 3.85816e-09 | 2.14342e-07 |
+| RK4 | 1 | 1000 | 3.65250e-01 | 2.4e-02 | 2.33057e-10 | 9.71069e-09 |
+| RK4 | 1 | 2000 | 1.82625e-01 | 8.5e-02 | 1.43231e-11 | 1.68508e-10 |
+| Verlet | 1 |  250 | 1.46100e+00 | 4.0e-03 | 1.32238e-03 | 3.30596e-01 |
+| Verlet | 1 |  500 | 7.30500e-01 | 6.0e-03 | 3.30656e-04 | 5.51093e-02 |
+| Verlet | 1 | 1000 | 3.65250e-01 | 1.5e-02 | 8.26677e-05 | 5.51118e-03 |
+| Verlet | 1 | 2000 | 1.82625e-01 | 5.9e-02 | 2.06671e-05 | 3.50291e-04 |
+
+### Interpretation Notes
+
+- Energy and angular momentum drift are the main diagnostics for whether an orbit is physically credible over long horizons.
+- Euler is useful as a failure baseline: its first-order error produces visible orbital drift even when the trajectory still looks smooth.
+- RK4 gives the smallest local error in these examples, while Velocity Verlet is included because symplectic methods often preserve qualitative orbital behavior over long integrations.
+- Three-body periodic solutions are validation cases, not generic stability guarantees; the perturbation examples show how quickly nearby trajectories can diverge.
+
 ### Generated Figures
 
 - `images/analysis/sun_earth_energy_error.png`
 - `images/analysis/sun_earth_angular_momentum_drift.png`
 - `images/analysis/convergence_rates.png`
+- `analysis/generated/earth_moon_method_summary.csv`
+- `analysis/generated/three_body_special_summary.csv`
+- `analysis/generated/n_body_conservation_summary.csv`
+- `analysis/generated/runtime_benchmark.csv`
+- `analysis/generated/plot_manifest.csv`
+- `analysis/generated/artifact_baseline.csv`
+- `analysis/generated/index.html`
 - `analysis/generated/method_comparison_dashboard.html`
+- `images/two_body/sun_earth/sun_earth_runge_kutta.html`
+- `images/three_body/special_solutions/three_earths.html`
+- `images/n_body/sun_earth_mars_jupiter.html`
 
 ![Sun-Earth energy error](images/analysis/sun_earth_energy_error.png)
 
@@ -99,24 +176,7 @@ higher-accuracy methods remain visible next to Euler.
 
 ![Sun-Earth all-method energy error](images/comparisons/sun_earth_energy_error_all_methods.png)
 
-## N-Body Systems
-
-The general n-body engine supports any number of 2D massive bodies using shared
-array-based position and velocity storage.
-The first example uses RK4 for a Sun-Earth-Mars-Jupiter system over 12 years.
-It is intended as a compact demonstration that the repo can now run beyond
-hard-coded two-body and three-body systems.
-
-![Sun-Earth-Mars-Jupiter](images/n_body/sun_earth_mars_jupiter.png)
-
-The n-body examples also include special four-body central configurations.
-In these cases the shape is preserved while the bodies rotate rigidly.
-
-![Rotating square four-body solution](images/n_body/special_solutions/rotating_square_four_body.png)
-
-![Triangular central four-body solution](images/n_body/special_solutions/triangular_central_four_body.png)
-
-## Sun-Earth System
+## Two-Body Sun-Earth System
 
 Our Sun and Earth files in the directory ```examples/two_body_examples/sun_earth_examples/```, each plot the orbit of the Earth (blue line) around the Sun (red) over $25$ years, using a different iteration method.
 The simulation initializes Earth $1 AU$ along the x-axis from the Sun at the origin.
@@ -233,6 +293,13 @@ For longer periods of time, the spacecraft escapes the Earth–Moon system due t
 
 ![Earth, Moon and Spacecraft](images/three_body/general/earth_moon_spacecraft.png)
 
+### Binary with a Distant Third Body
+
+The hierarchical triple example places two solar-mass stars in a close binary and a Jupiter-mass body on a much wider outer orbit.
+Over five years, the binary separation remains close to $0.2 AU$ while the third body traces a wider path around the pair.
+
+![Binary with Distant Third Body](images/three_body/general/binary_distant_third.png)
+
 ### Figure-8 Solution
 
 A stable solution to the three-body problem exists where three identical massive bodies follow each other in a figure-8 pattern.
@@ -266,6 +333,13 @@ RK4 returns the adjacent separations to $0.5 AU$ and the outer separation to $1 
 
 ![Euler Collinear Three Earths](images/three_body/special_solutions/euler_collinear_three_earths.png)
 
+### Butterfly I Choreography
+
+The Butterfly I choreography uses published dimensionless equal-mass initial conditions and scales them to three Earth-mass bodies with an outer separation of $1 AU$.
+It needs a finer step count than the figure-8 example; with $N=100000$, RK4 returns the starting separations after one period with output ```Energy conservation ratio: 1.000026```.
+
+![Butterfly I Choreography](images/three_body/special_solutions/butterfly_choreography.png)
+
 ### Perturbed Special Solutions
 
 Small perturbations were added to the figure-8 and Lagrange solutions.
@@ -297,19 +371,22 @@ The plot shows the vertical oscillation of the third body over time.
 
 ![Sitnikov Three-Body Problem](images/three_body/restricted/sitnikov_three_body.png)
 
-### Binary with a Distant Third Body
+## N-Body Systems
 
-The hierarchical triple example places two solar-mass stars in a close binary and a Jupiter-mass body on a much wider outer orbit.
-Over five years, the binary separation remains close to $0.2 AU$ while the third body traces a wider path around the pair.
+The general n-body engine supports any number of 2D massive bodies using shared
+array-based position and velocity storage.
+The first example uses RK4 for a Sun-Earth-Mars-Jupiter system over 12 years.
+It is intended as a compact demonstration that the repo can now run beyond
+hard-coded two-body and three-body systems.
 
-![Binary with Distant Third Body](images/three_body/general/binary_distant_third.png)
+![Sun-Earth-Mars-Jupiter](images/n_body/sun_earth_mars_jupiter.png)
 
-### Butterfly I Choreography
+The n-body examples also include special four-body central configurations.
+In these cases the shape is preserved while the bodies rotate rigidly.
 
-The Butterfly I choreography uses published dimensionless equal-mass initial conditions and scales them to three Earth-mass bodies with an outer separation of $1 AU$.
-It needs a finer step count than the figure-8 example; with $N=100000$, RK4 returns the starting separations after one period with output ```Energy conservation ratio: 1.000026```.
+![Rotating square four-body solution](images/n_body/special_solutions/rotating_square_four_body.png)
 
-![Butterfly I Choreography](images/three_body/special_solutions/butterfly_choreography.png)
+![Triangular central four-body solution](images/n_body/special_solutions/triangular_central_four_body.png)
 
 ## Conclusions:
 - The Euler method lost $\approx 85%$ for our Sun-Earth simulation - making it the least accurate.

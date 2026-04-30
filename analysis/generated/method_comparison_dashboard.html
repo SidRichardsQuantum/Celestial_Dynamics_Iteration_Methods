@@ -5,55 +5,96 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Celestial Dynamics Method Dashboard</title>
   <style>
-    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, sans-serif; color: #1f2933; background: #f6f7f9; }
-    header { padding: 24px 32px 12px; background: #ffffff; border-bottom: 1px solid #d8dee6; }
-    h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: 0; }
-    p { margin: 0; color: #52606d; }
-    main { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; padding: 18px 32px 32px; }
-    section { background: #ffffff; border: 1px solid #d8dee6; border-radius: 8px; padding: 16px; }
-    canvas { width: 100%; height: auto; border: 1px solid #e4e7eb; background: #ffffff; }
+    :root { color-scheme: light; --ink: #172033; --muted: #667085; --line: #d8dee6; --soft: #eef2f6; --panel: #ffffff; --paper: #f6f8fb; --accent: #0f766e; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, sans-serif; color: var(--ink); background: linear-gradient(180deg, #ffffff 0, var(--paper) 300px); }
+    header { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: end; padding: 26px 32px 16px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.9); }
+    h1 { margin: 0 0 7px; font-size: 28px; line-height: 1.12; letter-spacing: 0; }
+    h2 { margin: 0; font-size: 16px; line-height: 1.2; letter-spacing: 0; }
+    p { margin: 0; color: var(--muted); }
+    main { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(360px, .95fr); gap: 18px; padding: 18px 32px 32px; }
+    .metric-strip { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+    .metric { min-width: 112px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+    .metric span { display: block; color: var(--muted); font-size: 12px; }
+    .metric strong { display: block; margin-top: 2px; font-size: 18px; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; box-shadow: 0 12px 28px rgba(16, 24, 40, .06); }
+    .panel-header { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 13px 15px; border-bottom: 1px solid var(--line); background: #fbfcfe; }
+    .panel-header span { color: var(--muted); font-size: 13px; }
+    .panel-body { padding: 14px; }
+    canvas { width: 100%; height: auto; display: block; border: 1px solid var(--soft); background: #ffffff; }
     .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
-    button { border: 1px solid #9aa5b1; background: #ffffff; border-radius: 6px; padding: 8px 12px; cursor: pointer; }
-    button.active { background: #1f2933; color: #ffffff; }
+    .button-group { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+    button { border: 1px solid #aab3bf; background: #ffffff; color: var(--ink); border-radius: 6px; padding: 8px 11px; cursor: pointer; font: inherit; line-height: 1; }
+    button:hover { border-color: var(--accent); color: var(--accent); }
+    button:focus-visible, input:focus-visible { outline: 3px solid rgba(15,118,110,.22); outline-offset: 2px; }
+    button.active { background: var(--ink); color: #ffffff; border-color: var(--ink); }
+    button.secondary { color: var(--accent); border-color: rgba(15,118,110,.45); }
+    input[type=range] { width: min(520px, 52vw); accent-color: var(--accent); }
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { padding: 8px; border-bottom: 1px solid #e4e7eb; text-align: right; }
+    th, td { padding: 9px 8px; border-bottom: 1px solid var(--soft); text-align: right; }
     th:first-child, td:first-child { text-align: left; }
-    .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
-    .legend span { display: inline-flex; align-items: center; gap: 6px; }
-    .swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
-    @media (max-width: 900px) { main { grid-template-columns: 1fr; padding: 16px; } header { padding: 20px 16px 10px; } }
+    th { color: var(--muted); font-weight: 700; background: #fbfcfe; }
+    tbody tr:nth-child(even) { background: #fbfcfe; }
+    tr.dimmed { color: #98a2b3; }
+    .legend { display: flex; gap: 10px 14px; flex-wrap: wrap; margin-top: 10px; }
+    .legend label { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size: 14px; }
+    .legend input { accent-color: var(--accent); }
+    .legend label:has(input:not(:checked)) { opacity: .48; }
+    .readout { margin: 10px 0 0; min-height: 22px; color: #344054; font-size: 14px; line-height: 1.5; }
+    .swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; box-shadow: inset 0 0 0 1px rgba(23,32,51,.14); }
+    @media (max-width: 1000px) { main { grid-template-columns: 1fr; padding: 16px; } header { grid-template-columns: 1fr; padding: 22px 16px 14px; } .metric-strip { justify-content: flex-start; } input[type=range] { width: 100%; } }
   </style>
 </head>
 <body>
   <header>
-    <h1>Celestial Dynamics Method Dashboard</h1>
-    <p>Generated Sun-Earth comparison for Euler, Midpoint, Heun, RK4, and Verlet over 25 years.</p>
+    <div>
+      <h1>Celestial Dynamics Method Dashboard</h1>
+      <p>Generated Sun-Earth comparison for Euler, Midpoint, Heun, RK4, and Verlet over 25 years.</p>
+    </div>
+    <div class="metric-strip">
+      <div class="metric"><span>Methods</span><strong>5</strong></div>
+      <div class="metric"><span>Duration</span><strong>25 y</strong></div>
+      <div class="metric"><span>Views</span><strong>3</strong></div>
+    </div>
   </header>
   <main>
-    <section>
-      <div class="toolbar">
-        <button id="play" class="active">Pause</button>
-        <button data-speed="1">1x</button>
-        <button data-speed="3" class="active">3x</button>
-        <button data-speed="8">8x</button>
+    <section class="panel">
+      <div class="panel-header"><h2>Orbit playback</h2><span>Sun-Earth comparison</span></div>
+      <div class="panel-body">
+        <div class="toolbar">
+          <div class="button-group">
+            <button id="play" class="active">Pause</button>
+            <button data-speed="1">1x</button>
+            <button data-speed="3" class="active">3x</button>
+            <button data-speed="8">8x</button>
+          </div>
+          <button id="exportFrame" class="secondary">Export frame</button>
+          <input id="scrubber" type="range" min="0" value="0" aria-label="Dashboard frame">
+        </div>
+        <canvas id="orbit" width="900" height="650"></canvas>
+        <div id="readout" class="readout"></div>
+        <div id="legend" class="legend"></div>
       </div>
-      <canvas id="orbit" width="900" height="650"></canvas>
-      <div id="legend" class="legend"></div>
     </section>
-    <section>
-      <canvas id="energy" width="620" height="300"></canvas>
-      <canvas id="momentum" width="620" height="300" style="margin-top: 16px;"></canvas>
-      <h2 style="font-size:18px; margin: 16px 0 8px;">25-Year Summary</h2>
-      <table>
-        <thead><tr><th>Method</th><th>Energy ratio</th><th>Max |energy err|</th><th>Max |L drift|</th></tr></thead>
-        <tbody>
-          <tr><td>Euler</td><td>1.45946e-01</td><td>8.54054e-01</td><td>1.09354e+00</td></tr>
-          <tr><td>Midpoint</td><td>9.42958e-01</td><td>5.70418e-02</td><td>2.97638e-02</td></tr>
-          <tr><td>Heun</td><td>8.49014e-01</td><td>1.50986e-01</td><td>8.44417e-02</td></tr>
-          <tr><td>RK4</td><td>1.00042e+00</td><td>4.21667e-04</td><td>2.10766e-04</td></tr>
-          <tr><td>Verlet</td><td>9.99998e-01</td><td>1.38278e-04</td><td>2.18102e-15</td></tr>
-        </tbody>
-      </table>
+    <section class="panel">
+      <div class="panel-header"><h2>Conservation diagnostics</h2><span>relative drift</span></div>
+      <div class="panel-body">
+        <canvas id="energy" width="620" height="300"></canvas>
+        <canvas id="momentum" width="620" height="300" style="margin-top: 14px;"></canvas>
+      </div>
+      <div class="panel-header"><h2>25-Year Summary</h2><span>visible rows track legend</span></div>
+      <div class="panel-body" style="padding-top:0;">
+        <table>
+          <thead><tr><th>Method</th><th>Energy ratio</th><th>Max |energy err|</th><th>Max |L drift|</th></tr></thead>
+          <tbody>
+            <tr data-method="Euler"><td>Euler</td><td>1.45946e-01</td><td>8.54054e-01</td><td>1.09354e+00</td></tr>
+            <tr data-method="Midpoint"><td>Midpoint</td><td>9.42958e-01</td><td>5.70418e-02</td><td>2.97638e-02</td></tr>
+            <tr data-method="Heun"><td>Heun</td><td>8.49014e-01</td><td>1.50986e-01</td><td>8.44417e-02</td></tr>
+            <tr data-method="RK4"><td>RK4</td><td>1.00042e+00</td><td>4.21667e-04</td><td>2.10766e-04</td></tr>
+            <tr data-method="Verlet"><td>Verlet</td><td>9.99998e-01</td><td>1.38278e-04</td><td>2.18102e-15</td></tr>
+          </tbody>
+        </table>
+      </div>
     </section>
   </main>
   <script>
@@ -71,7 +112,12 @@
     const momentum = document.getElementById('momentum');
     const momentumCtx = momentum.getContext('2d');
     const play = document.getElementById('play');
+    const scrubber = document.getElementById('scrubber');
+    const readout = document.getElementById('readout');
+    const exportFrame = document.getElementById('exportFrame');
     let frame = 0, running = true, speed = 3;
+    const visible = Object.fromEntries(methods.map(m => [m.name, true]));
+    scrubber.max = methods[0].x.length - 1;
     document.querySelectorAll('[data-speed]').forEach(button => {
       button.addEventListener('click', () => {
         speed = Number(button.dataset.speed);
@@ -84,7 +130,21 @@
       play.textContent = running ? 'Pause' : 'Play';
       play.classList.toggle('active', running);
     });
-    document.getElementById('legend').innerHTML = methods.map(m => `<span><i class="swatch" style="background:${m.color}"></i>${m.name}</span>`).join('');
+    scrubber.addEventListener('input', () => { frame = Number(scrubber.value); running = false; play.textContent = 'Play'; play.classList.remove('active'); drawOrbit(); drawCharts(); });
+    exportFrame.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = `sun-earth-frame-${String(frame).padStart(4, '0')}.png`;
+      link.href = orbit.toDataURL('image/png');
+      link.click();
+    });
+    document.getElementById('legend').innerHTML = methods.map(m => `<label><input type="checkbox" data-method="${m.name}" checked><i class="swatch" style="background:${m.color}"></i>${m.name}</label>`).join('');
+    document.querySelectorAll('#legend input[data-method]').forEach(input => {
+      input.addEventListener('change', () => {
+        visible[input.dataset.method] = input.checked;
+        document.querySelectorAll('tr[data-method]').forEach(row => row.classList.toggle('dimmed', !visible[row.dataset.method]));
+        drawOrbit(); drawCharts();
+      });
+    });
     function bounds() {
       const xs = methods.flatMap(m => m.x), ys = methods.flatMap(m => m.y);
       return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
@@ -105,6 +165,7 @@
       orbitCtx.arc(sx, sy, 7, 0, Math.PI * 2);
       orbitCtx.fill();
       methods.forEach(m => {
+        if (!visible[m.name]) return;
         orbitCtx.strokeStyle = m.color;
         orbitCtx.lineWidth = 2;
         orbitCtx.beginPath();
@@ -119,8 +180,11 @@
         orbitCtx.arc(px, py, 5, 0, Math.PI * 2);
         orbitCtx.fill();
       });
-      orbitCtx.fillStyle = '#1f2933';
+      orbitCtx.fillStyle = '#172033';
       orbitCtx.fillText(`${(25 * frame / (methods[0].x.length - 1)).toFixed(2)} years`, 18, 28);
+      scrubber.value = frame;
+      const selected = methods.filter(m => visible[m.name]).map(m => `${m.name}: (${m.x[frame].toFixed(3)}, ${m.y[frame].toFixed(3)}) AU`);
+      readout.textContent = selected.join('   |   ');
     }
     function chart(ctx, key, title) {
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -128,9 +192,10 @@
       const values = methods.flatMap(m => m[key]);
       const min = Math.min(...values), max = Math.max(...values);
       const pad = 42;
-      ctx.fillStyle = '#1f2933'; ctx.fillText(title, 16, 22);
+      ctx.fillStyle = '#172033'; ctx.fillText(title, 16, 22);
       ctx.strokeStyle = '#d8dee6'; ctx.strokeRect(pad, pad, ctx.canvas.width - 2 * pad, ctx.canvas.height - 2 * pad);
       methods.forEach(m => {
+        if (!visible[m.name]) return;
         ctx.strokeStyle = m.color; ctx.lineWidth = 2; ctx.beginPath();
         m[key].forEach((value, i) => {
           const x = pad + i * (ctx.canvas.width - 2 * pad) / (m[key].length - 1);
@@ -139,14 +204,20 @@
         });
         ctx.stroke();
       });
+      const cursorX = pad + frame * (ctx.canvas.width - 2 * pad) / (methods[0][key].length - 1);
+      ctx.strokeStyle = '#667085'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(cursorX, pad); ctx.lineTo(cursorX, ctx.canvas.height - pad); ctx.stroke(); ctx.setLineDash([]);
+    }
+    function drawCharts() {
+      chart(energyCtx, 'energy', 'Relative energy error');
+      chart(momentumCtx, 'angularMomentum', 'Relative angular momentum drift');
     }
     function tick() {
       if (running) frame = (frame + speed) % methods[0].x.length;
       drawOrbit();
+      drawCharts();
       requestAnimationFrame(tick);
     }
-    chart(energyCtx, 'energy', 'Relative energy error');
-    chart(momentumCtx, 'angularMomentum', 'Relative angular momentum drift');
     tick();
   </script>
 </body>
