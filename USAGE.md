@@ -41,10 +41,29 @@ Regenerate every example plot:
 Rscript run_all_examples.R
 ```
 
+Regenerate the Sun-Earth all-method comparison only:
+
+```bash
+Rscript examples/comparisons/sun_earth_all_methods.R
+```
+
+Regenerate generated result tables, energy/angular-momentum diagnostics,
+convergence plots, and the method comparison dashboard:
+
+```bash
+Rscript analysis/generate_results.R
+```
+
 Regenerate two-body plots only:
 
 ```bash
 Rscript examples/two_body_examples/run_all_two_body_examples.R
+```
+
+Regenerate n-body plots only:
+
+```bash
+Rscript examples/n_body_examples/run_all_n_body_examples.R
 ```
 
 Regenerate three-body plots only:
@@ -73,6 +92,14 @@ source("examples/projectile_trajectories/projectile_example.R")
 
 ![Euler Method Trajectory](images/projectile/euler_trajectory.png)
 
+Sun-Earth all-method comparison:
+
+```r
+source("examples/comparisons/sun_earth_all_methods.R")
+```
+
+![Sun-Earth All Methods](images/comparisons/sun_earth_all_methods.png)
+
 Earth-Moon system using Euler's method:
 
 ```r
@@ -89,6 +116,22 @@ source("examples/three_body_examples/special_solutions/three_earths.R")
 
 ![Three Earths](images/three_body/special_solutions/three_earths.png)
 
+Four-body Sun-Earth-Mars-Jupiter example:
+
+```r
+source("examples/n_body_examples/sun_earth_mars_jupiter.R")
+```
+
+![Sun-Earth-Mars-Jupiter](images/n_body/sun_earth_mars_jupiter.png)
+
+Special four-body rotating square:
+
+```r
+source("examples/n_body_examples/special_solutions/rotating_square_four_body.R")
+```
+
+![Rotating Square Four-Body](images/n_body/special_solutions/rotating_square_four_body.png)
+
 ## Project Structure
 
 ```text
@@ -99,6 +142,12 @@ Celestial_Dynamics_Iteration_Methods/
 ├── RESULTS.md
 ├── constants.R
 ├── run_all_examples.R
+├── analysis/
+│   ├── generate_results.R
+│   └── generated/
+│       ├── convergence_summary.csv
+│       ├── method_summary.csv
+│       └── method_comparison_dashboard.html
 ├── .github/
 │   └── workflows/
 │       ├── r-validation.yml
@@ -107,10 +156,18 @@ Celestial_Dynamics_Iteration_Methods/
 │   ├── two_body/
 │   │   ├── plot_two_body.R
 │   │   ├── two_body_helpers.R
+│   │   ├── two_body_method_registry.R
 │   │   ├── two_body_euler.R
 │   │   ├── two_body_heuns.R
 │   │   ├── two_body_midpoint.R
-│   │   └── two_body_runge_kutta.R
+│   │   ├── two_body_runge_kutta.R
+│   │   └── two_body_velocity_verlet.R
+│   ├── n_body/
+│   │   ├── four_body_initial_conditions.R
+│   │   ├── n_body_helpers.R
+│   │   ├── n_body_runge_kutta.R
+│   │   ├── n_body_velocity_verlet.R
+│   │   └── plot_n_body.R
 │   └── three_body/
 │       ├── choreography_initial_conditions.R
 │       ├── circular_restricted_three_body.R
@@ -122,6 +179,10 @@ Celestial_Dynamics_Iteration_Methods/
 │       ├── sitnikov_problem.R
 │       └── three_body_runge_kutta.R
 ├── examples/
+│   ├── comparisons/
+│   ├── n_body_examples/
+│   │   ├── run_all_n_body_examples.R
+│   │   └── special_solutions/
 │   ├── projectile_trajectories/
 │   ├── two_body_examples/
 │   │   ├── run_all_two_body_examples.R
@@ -135,6 +196,8 @@ Celestial_Dynamics_Iteration_Methods/
 │       ├── restricted/
 │       └── special_solutions/
 ├── images/
+│   ├── analysis/
+│   ├── n_body/
 │   ├── projectile/
 │   ├── two_body/
 │   └── three_body/
@@ -161,4 +224,10 @@ Rscript tests/validate_plot_generation.R
 ```
 
 The GitHub Actions workflow `R validation` runs `tests/run_all_tests.R` on pushes and pull requests.
-The `Regenerate plots` workflow is manual; it runs `run_all_examples.R`, validates the outputs, and uploads the regenerated `images/` directory as an artifact.
+The `Regenerate plots` workflow is manual; it runs `run_all_examples.R`, regenerates analysis artifacts, validates the outputs, and uploads regenerated image and analysis directories as artifacts.
+
+The generated comparison dashboard is written to:
+
+```text
+analysis/generated/method_comparison_dashboard.html
+```

@@ -8,7 +8,9 @@
   - [Midpoint Method](#midpoint-method)
   - [Heun's Method](#heuns-method)
   - [Runge-Kutta (RK4) Method](#runge-kutta-rk4-method)
+  - [Velocity Verlet Method](#velocity-verlet-method)
 - [Solutions of the Three-Body Problem](#solutions-of-the-three-body-problem)
+- [General N-Body Engine](#general-n-body-engine)
 - [References](#references)
 
 ## Intro
@@ -99,6 +101,21 @@ Taking weighted averages of all the gradients:
 - $v_{x1} = v_{x0} + (k_{1vx} + 2k_{2vx} + 2k_{3vx} + k_{4vx}) / 6$
 - $a_{x1} = -G m / x_1^2$
 
+### Velocity Verlet Method
+
+Velocity Verlet is a second-order symplectic method.
+It is especially useful for orbital dynamics because it updates positions and
+velocities in a way that tends to keep long-term energy error bounded rather
+than letting it drift monotonically.
+
+Using the current acceleration $a_{x0}$:
+- $x_1 = x_0 + v_{x0} dt + \frac{1}{2} a_{x0} dt^2$
+- $a_{x1} = -G m / x_1^2$
+- $v_{x1} = v_{x0} + \frac{1}{2}(a_{x0} + a_{x1})dt$
+
+The method is lower order than RK4, but its symplectic structure makes it an
+important comparison method for long-running conservative systems.
+
 ## Solutions of the Three-Body Problem
 
 This repository includes several special and illustrative three-body cases.
@@ -137,6 +154,31 @@ This is not generally periodic, but it is a common astrophysical configuration a
 The Butterfly I choreography uses cataloged equal-mass periodic initial conditions with
 $x_1=-1$, $x_2=0$, $x_3=1$, $v_1=v_3=(p_1,p_2)$, and $v_2=-2v_1$ in dimensionless units.
 The helper scales those catalog values into SI units in the same way as the figure-8 helper.
+
+## General N-Body Engine
+
+The n-body engine stores positions and velocities in arrays with dimensions
+`step x body x coordinate`.
+For each body, acceleration is computed by summing the pairwise gravitational
+contribution from every other body.
+This makes the same solver usable for two, three, four, or more bodies without
+duplicating the force equations for each system size.
+
+The specialized two-body and three-body files are kept because they are easier
+to read as educational derivations.
+The n-body engine is a general-purpose parallel implementation for larger
+examples and parity checks.
+
+Two special four-body central configurations are included as n-body examples.
+In the equal-mass square, the four bodies sit at the corners of a square and
+rotate rigidly about the center. For half-side length $a$, the required angular
+speed is
+$\omega^2 = \frac{Gm}{a^3}\left(\frac{1}{4} + \frac{1}{8\sqrt{2}}\right)$.
+
+The triangular central configuration places one mass at the center and three
+equal outer masses at the vertices of an equilateral triangle.
+The central body remains fixed by symmetry while the outer triangle rotates
+rigidly around it.
 
 ## References
 

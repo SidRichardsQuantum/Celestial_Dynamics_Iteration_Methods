@@ -17,6 +17,9 @@ jobs:
       - name: Regenerate example plots
         run: Rscript run_all_examples.R
 
+      - name: Regenerate analysis artifacts
+        run: Rscript analysis/generate_results.R
+
       - name: Validate regenerated plots
         run: Rscript tests/run_all_tests.R
 
@@ -25,3 +28,11 @@ jobs:
         with:
           name: regenerated-images
           path: images/
+
+      - name: Upload regenerated analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: regenerated-analysis
+          path: |
+            analysis/generated/
+            RESULTS.md
