@@ -1,6 +1,6 @@
-source("celestial_systems/two_body/two_body_method_registry.R")
+source("R/systems/two_body/two_body_method_registry.R")
 source("tests/helpers_three_body.R")
-source("celestial_systems/three_body/lagrange_initial_conditions.R")
+source("R/systems/three_body/lagrange_initial_conditions.R")
 
 assert_less_than = function(actual, limit, label) {
   if (!is.finite(actual) || actual >= limit) {

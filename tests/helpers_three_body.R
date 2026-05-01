@@ -1,5 +1,5 @@
-source("constants.R")
-source("celestial_systems/three_body/three_body_runge_kutta.R")
+source("R/constants.R")
+source("R/systems/three_body/three_body_runge_kutta.R")
 
 assert_near = function(actual, expected, tolerance, label) {
   error = abs(actual - expected)

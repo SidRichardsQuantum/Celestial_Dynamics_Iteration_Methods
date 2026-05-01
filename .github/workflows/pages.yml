@@ -41,10 +41,11 @@ jobs:
 
       - name: Prepare Pages site
         run: |
-          mkdir -p _site/analysis _site/images
+          mkdir -p _site/analysis _site/images _site/docs
           cp -R analysis/generated _site/analysis/
           cp -R images/. _site/images/
-          cp README.md RESULTS.md THEORY.md USAGE.md _site/
+          cp README.md LICENSE _site/
+          cp -R docs/. _site/docs/
           touch _site/.nojekyll
           cat > _site/index.html <<'HTML'
           <!doctype html>

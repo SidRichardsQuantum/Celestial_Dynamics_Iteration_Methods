@@ -1,12 +1,12 @@
-source("celestial_systems/two_body/two_body_method_registry.R")
-source("celestial_systems/plotting/plot_style.R")
-source("celestial_systems/three_body/three_body_runge_kutta.R")
-source("celestial_systems/three_body/figure_8_initial_conditions.R")
-source("celestial_systems/three_body/lagrange_initial_conditions.R")
-source("celestial_systems/three_body/euler_collinear_initial_conditions.R")
-source("celestial_systems/three_body/choreography_initial_conditions.R")
-source("celestial_systems/n_body/n_body_runge_kutta.R")
-source("celestial_systems/n_body/four_body_initial_conditions.R")
+source("R/systems/two_body/two_body_method_registry.R")
+source("R/systems/plotting/plot_style.R")
+source("R/systems/three_body/three_body_runge_kutta.R")
+source("R/systems/three_body/figure_8_initial_conditions.R")
+source("R/systems/three_body/lagrange_initial_conditions.R")
+source("R/systems/three_body/euler_collinear_initial_conditions.R")
+source("R/systems/three_body/choreography_initial_conditions.R")
+source("R/systems/n_body/n_body_runge_kutta.R")
+source("R/systems/n_body/four_body_initial_conditions.R")
 
 generated_dir = "analysis/generated"
 analysis_image_dir = "images/analysis"
@@ -565,16 +565,17 @@ generated_results = c(
   "- `analysis/generated/plot_manifest.csv`",
   "- `analysis/generated/artifact_baseline.csv`",
   "- `analysis/generated/index.html`",
+  "- `analysis/generated/artifact_index.html`",
   "- `analysis/generated/method_comparison_dashboard.html`",
   "- `images/two_body/sun_earth/sun_earth_runge_kutta.html`",
   "- `images/three_body/special_solutions/three_earths.html`",
   "- `images/n_body/sun_earth_mars_jupiter.html`",
   "",
-  "![Sun-Earth energy error](images/analysis/sun_earth_energy_error.png)",
+  "![Sun-Earth energy error](../images/analysis/sun_earth_energy_error.png)",
   "",
-  "![Sun-Earth angular momentum drift](images/analysis/sun_earth_angular_momentum_drift.png)",
+  "![Sun-Earth angular momentum drift](../images/analysis/sun_earth_angular_momentum_drift.png)",
   "",
-  "![Convergence rates](images/analysis/convergence_rates.png)"
+  "![Convergence rates](../images/analysis/convergence_rates.png)"
 )
 
 update_generated_results_section = function(path, generated_lines) {
@@ -596,7 +597,7 @@ update_generated_results_section = function(path, generated_lines) {
   writeLines(updated, path)
 }
 
-update_generated_results_section("RESULTS.md", generated_results)
+update_generated_results_section("docs/RESULTS.md", generated_results)
 
 dashboard_results = lapply(names(results_25y), function(method_name) {
   result = results_25y[[method_name]]
@@ -855,14 +856,6 @@ dashboard_html = c(
 )
 writeLines(dashboard_html, dashboard_path)
 
-plot_manifest = if (file.exists(cd_plot_manifest_path)) {
-  read.csv(cd_plot_manifest_path, stringsAsFactors = FALSE)
-} else {
-  cd_empty_manifest()
-}
-plot_manifest = plot_manifest[order(plot_manifest$plot_type,
-                                    plot_manifest$filepath), ]
-
 html_escape = function(value) {
   value = as.character(value)
   value[is.na(value)] = ""
@@ -872,6 +865,280 @@ html_escape = function(value) {
   value = gsub("\"", "&quot;", value, fixed = TRUE)
   value
 }
+
+site_relative_path = function(path) {
+  if (grepl("^(https?:|mailto:|#)", path)) {
+    return(path)
+  }
+  normalized = path
+  while (startsWith(normalized, "../")) {
+    normalized = sub("^\\.\\./", "", normalized)
+  }
+  if (startsWith(normalized, "analysis/generated/")) {
+    return(sub("^analysis/generated/", "", normalized))
+  }
+  if (startsWith(normalized, "images/")) {
+    return(paste0("../../", normalized))
+  }
+  paste0("../../", normalized)
+}
+
+render_inline_markdown = function(text) {
+  pattern = "\\[([^]]+)\\]\\(([^)]+)\\)"
+  matches = gregexpr(pattern, text, perl = TRUE)[[1]]
+  if (matches[1] == -1) {
+    escaped = html_escape(text)
+    return(gsub("`([^`]+)`", "<code>\\1</code>", escaped, perl = TRUE))
+  }
+
+  captures = regmatches(text, gregexpr(pattern, text, perl = TRUE))[[1]]
+  starts = as.integer(matches)
+  lengths = attr(matches, "match.length")
+  output = character(0)
+  cursor = 1
+
+  for (i in seq_along(captures)) {
+    start = starts[i]
+    finish = start + lengths[i] - 1
+    if (start > cursor) {
+      output = c(output, html_escape(substr(text, cursor, start - 1)))
+    }
+    parts = regexec(pattern, captures[i], perl = TRUE)
+    values = regmatches(captures[i], parts)[[1]]
+    label = html_escape(values[2])
+    href = html_escape(site_relative_path(values[3]))
+    output = c(output, paste0("<a href=\"", href, "\">", label, "</a>"))
+    cursor = finish + 1
+  }
+
+  if (cursor <= nchar(text)) {
+    output = c(output, html_escape(substr(text, cursor, nchar(text))))
+  }
+
+  gsub("`([^`]+)`", "<code>\\1</code>", paste0(output, collapse = ""),
+       perl = TRUE)
+}
+
+slugify_heading = function(text) {
+  slug = gsub("`", "", text, fixed = TRUE)
+  slug = gsub("'", "", slug, fixed = TRUE)
+  slug = gsub(intToUtf8(0x2019), "", slug, fixed = TRUE)
+  slug = tolower(slug)
+  slug = gsub("[^a-z0-9]+", "-", slug)
+  slug = gsub("^-|-$", "", slug)
+  slug
+}
+
+render_results_markdown = function(input_path, output_path) {
+  lines = readLines(input_path, warn = FALSE)
+  output = character(0)
+  list_open = FALSE
+  table_open = FALSE
+  table_header_pending = FALSE
+  table_header_written = FALSE
+  table_body_open = FALSE
+  code_open = FALSE
+  paragraph = character(0)
+
+  close_paragraph = function() {
+    if (length(paragraph) > 0) {
+      output <<- c(output, paste0("<p>", render_inline_markdown(
+        paste(paragraph, collapse = " ")
+      ), "</p>"))
+      paragraph <<- character(0)
+    }
+  }
+  close_list = function() {
+    if (list_open) {
+      output <<- c(output, "</ul>")
+      list_open <<- FALSE
+    }
+  }
+  close_table = function() {
+    if (table_open) {
+      if (table_body_open) {
+        output <<- c(output, "</tbody>")
+      } else if (table_header_pending) {
+        output <<- c(output, "</thead>")
+      }
+      output <<- c(output, "</table></div>")
+      table_open <<- FALSE
+      table_header_pending <<- FALSE
+      table_header_written <<- FALSE
+      table_body_open <<- FALSE
+    }
+  }
+  close_blocks = function() {
+    close_paragraph()
+    close_list()
+    close_table()
+  }
+  table_cells = function(line) {
+    stripped = sub("^\\|", "", sub("\\|$", "", trimws(line)))
+    trimws(strsplit(stripped, "\\|", fixed = FALSE)[[1]])
+  }
+  render_table_row = function(line, header = FALSE) {
+    tag = if (header) "th" else "td"
+    cells = vapply(table_cells(line), render_inline_markdown, character(1))
+    paste0("<tr>", paste0("<", tag, ">", cells, "</", tag, ">",
+                          collapse = ""), "</tr>")
+  }
+
+  for (line_index in seq_along(lines)) {
+    line = lines[[line_index]]
+    if (line_index == 1 && identical(trimws(line), "# Results")) {
+      next
+    }
+    if (grepl("^```", line)) {
+      if (code_open) {
+        output = c(output, "</code></pre>")
+        code_open = FALSE
+      } else {
+        close_blocks()
+        output = c(output, "<pre><code>")
+        code_open = TRUE
+      }
+      next
+    }
+    if (code_open) {
+      output = c(output, html_escape(line))
+      next
+    }
+    if (!nzchar(trimws(line))) {
+      close_blocks()
+      next
+    }
+    if (grepl("^<!--", trimws(line))) {
+      close_blocks()
+      next
+    }
+    if (grepl("^#{1,6} ", line)) {
+      close_blocks()
+      level = nchar(sub("^(#+).*", "\\1", line))
+      text = sub("^#{1,6} ", "", line)
+      id = slugify_heading(text)
+      output = c(output, sprintf("<h%d id=\"%s\">%s</h%d>", level, id,
+                                 render_inline_markdown(text), level))
+      next
+    }
+    if (grepl("^!\\[[^]]*\\]\\([^)]+\\)", line)) {
+      close_blocks()
+      parts = regmatches(line, regexec("^!\\[([^]]*)\\]\\(([^)]+)\\)",
+                                       line, perl = TRUE))[[1]]
+      alt = html_escape(parts[2])
+      src = html_escape(site_relative_path(parts[3]))
+      output = c(output, paste0("<figure><img src=\"", src, "\" alt=\"",
+                                alt, "\"><figcaption>", alt,
+                                "</figcaption></figure>"))
+      next
+    }
+    if (grepl("^\\|", trimws(line))) {
+      close_paragraph()
+      close_list()
+      if (!table_open) {
+        output = c(output, "<div class=\"table-wrap\"><table>", "<thead>")
+        table_open = TRUE
+        table_header_pending = TRUE
+        table_header_written = FALSE
+      }
+      if (grepl("^\\|[[:space:]|:\\-]+\\|?$", trimws(line))) {
+        next
+      }
+      if (table_header_pending && !table_body_open &&
+          table_header_written) {
+        output = c(output, "</thead>", "<tbody>")
+        table_body_open = TRUE
+        table_header_pending = FALSE
+      }
+      output = c(output, render_table_row(line, header = !table_body_open))
+      if (!table_body_open) {
+        table_header_written = TRUE
+      }
+      next
+    }
+    if (grepl("^[[:space:]]*- ", line)) {
+      close_paragraph()
+      close_table()
+      if (!list_open) {
+        output = c(output, "<ul>")
+        list_open = TRUE
+      }
+      item = sub("^[[:space:]]*- ", "", line)
+      output = c(output, paste0("<li>", render_inline_markdown(item), "</li>"))
+      next
+    }
+    paragraph = c(paragraph, trimws(line))
+  }
+  close_blocks()
+
+  page = c(
+    "<!doctype html>",
+    "<html lang=\"en\">",
+    "<head>",
+    "  <meta charset=\"utf-8\">",
+    "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+    "  <title>Celestial Dynamics Results</title>",
+    "  <style>",
+    "    :root { color-scheme: light; --ink: #172033; --muted: #667085; --line: #d8dee6; --soft: #eef2f6; --paper: #f6f8fb; --accent: #0f766e; }",
+    "    * { box-sizing: border-box; }",
+    "    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, sans-serif; color: var(--ink); background: #fff; }",
+    "    header { border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #fff 0, var(--paper) 100%); }",
+    "    .topbar, main { max-width: 1120px; margin: 0 auto; padding: 0 24px; }",
+    "    .topbar { padding-top: 24px; padding-bottom: 18px; }",
+    "    nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }",
+    "    nav a { border: 1px solid #aab3bf; border-radius: 6px; padding: 8px 11px; color: var(--ink); text-decoration: none; line-height: 1; background: #fff; }",
+    "    nav a:hover { border-color: var(--accent); color: var(--accent); }",
+    "    main { padding-top: 24px; padding-bottom: 42px; }",
+    "    h1 { margin: 0; font-size: 34px; line-height: 1.1; letter-spacing: 0; }",
+    "    h2 { margin-top: 32px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 24px; }",
+    "    h3 { margin-top: 26px; font-size: 18px; }",
+    "    p, li { line-height: 1.62; }",
+    "    a { color: var(--accent); text-underline-offset: 3px; }",
+    "    code { background: var(--soft); border-radius: 4px; padding: 1px 4px; }",
+    "    pre { overflow-x: auto; background: #101828; color: #f8fafc; border-radius: 8px; padding: 14px; }",
+    "    pre code { background: transparent; padding: 0; }",
+    "    .table-wrap { overflow-x: auto; margin: 14px 0 18px; border: 1px solid var(--line); border-radius: 8px; }",
+    "    table { width: 100%; border-collapse: collapse; font-size: 14px; background: #fff; }",
+    "    th, td { padding: 9px 10px; border-bottom: 1px solid var(--soft); text-align: left; white-space: nowrap; }",
+    "    th { color: var(--muted); background: #fbfcfe; }",
+    "    tr:last-child td { border-bottom: 0; }",
+    "    figure { margin: 18px 0 24px; }",
+    "    img { max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; background: #fff; }",
+    "    figcaption { margin-top: 6px; color: var(--muted); font-size: 13px; }",
+    "    @media (max-width: 760px) { .topbar, main { padding-left: 16px; padding-right: 16px; } h1 { font-size: 28px; } }",
+    "  </style>",
+    "</head>",
+    "<body>",
+    "  <header>",
+    "    <div class=\"topbar\">",
+    "      <h1>Celestial Dynamics Results</h1>",
+    "      <nav aria-label=\"Generated result views\">",
+    "        <a href=\"method_comparison_dashboard.html\">Method dashboard</a>",
+    "        <a href=\"artifact_index.html\">Artifact browser</a>",
+    "        <a href=\"method_summary.csv\">Sun-Earth CSV</a>",
+    "        <a href=\"runtime_benchmark.csv\">Runtime CSV</a>",
+    "        <a href=\"../../README.md\">Repository README</a>",
+    "      </nav>",
+    "    </div>",
+    "  </header>",
+    "  <main>",
+    output,
+    "  </main>",
+    "</body>",
+    "</html>"
+  )
+  writeLines(page, output_path)
+}
+
+render_results_markdown("docs/RESULTS.md", file.path(generated_dir, "index.html"))
+
+plot_manifest = if (file.exists(cd_plot_manifest_path)) {
+  read.csv(cd_plot_manifest_path, stringsAsFactors = FALSE)
+} else {
+  cd_empty_manifest()
+}
+plot_manifest = plot_manifest[order(plot_manifest$plot_type,
+                                    plot_manifest$filepath), ]
 
 manifest_cell = function(row, name) {
   value = row[[name]]
@@ -922,7 +1189,7 @@ manifest_rows = if (nrow(plot_manifest) > 0) {
   "<tr><td colspan=\"6\">No plot manifest rows found.</td></tr>"
 }
 
-index_path = file.path(generated_dir, "index.html")
+artifact_index_path = file.path(generated_dir, "artifact_index.html")
 index_html = c(
   "<!doctype html>",
   "<html lang=\"en\">",
@@ -980,6 +1247,7 @@ index_html = c(
   "      </div>",
   "    </header>",
   "    <div class=\"links\">",
+  "      <a class=\"button\" href=\"index.html\">Results narrative</a>",
   "      <a class=\"button\" href=\"method_comparison_dashboard.html\">Method dashboard</a>",
   "      <a class=\"button\" href=\"method_summary.csv\">Sun-Earth summary CSV</a>",
   "      <a class=\"button\" href=\"earth_moon_method_summary.csv\">Earth-Moon summary CSV</a>",
@@ -1035,7 +1303,7 @@ index_html = c(
   "</body>",
   "</html>"
 )
-writeLines(index_html, index_path)
+writeLines(index_html, artifact_index_path)
 
 cat("Generated analysis artifacts:\n")
 cat(sprintf("- %s\n", file.path(generated_dir, "method_summary.csv")))
@@ -1045,7 +1313,8 @@ cat(sprintf("- %s\n", file.path(generated_dir, "three_body_special_summary.csv")
 cat(sprintf("- %s\n", file.path(generated_dir, "n_body_conservation_summary.csv")))
 cat(sprintf("- %s\n", file.path(generated_dir, "runtime_benchmark.csv")))
 cat(sprintf("- %s\n", cd_plot_manifest_path))
-cat("- RESULTS.md generated analysis section\n")
+cat("- docs/RESULTS.md generated analysis section\n")
+cat(sprintf("- %s\n", file.path(generated_dir, "index.html")))
 cat(sprintf("- %s\n", dashboard_path))
-cat(sprintf("- %s\n", index_path))
+cat(sprintf("- %s\n", artifact_index_path))
 cat(sprintf("- %s\n", analysis_image_dir))

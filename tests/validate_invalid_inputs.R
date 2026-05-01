@@ -1,5 +1,5 @@
-source("celestial_systems/two_body/two_body_method_registry.R")
-source("celestial_systems/three_body/three_body_runge_kutta.R")
+source("R/systems/two_body/two_body_method_registry.R")
+source("R/systems/three_body/three_body_runge_kutta.R")
 
 assert_errors = function(expr, label) {
   did_error = FALSE

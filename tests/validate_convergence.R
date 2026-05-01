@@ -1,4 +1,4 @@
-source("celestial_systems/two_body/two_body_method_registry.R")
+source("R/systems/two_body/two_body_method_registry.R")
 
 assert_true = function(condition, label) {
   if (!isTRUE(condition)) {

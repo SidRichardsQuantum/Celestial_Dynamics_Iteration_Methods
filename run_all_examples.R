@@ -1,12 +1,12 @@
 examples = c(
-  "examples/projectile_trajectories/projectile_example.R",
+  "examples/projectile/projectile_example.R",
   "examples/comparisons/sun_earth_all_methods.R",
-  "examples/two_body_examples/run_all_two_body_examples.R",
-  "examples/n_body_examples/run_all_n_body_examples.R",
-  "examples/three_body_examples/run_all_three_body_examples.R"
+  "examples/two_body/run_all_two_body_examples.R",
+  "examples/n_body/run_all_n_body_examples.R",
+  "examples/three_body/run_all_three_body_examples.R"
 )
 
-source("celestial_systems/plotting/plot_style.R")
+source("R/systems/plotting/plot_style.R")
 if (file.exists(cd_plot_manifest_path)) {
   invisible(file.remove(cd_plot_manifest_path))
 }

@@ -9,10 +9,10 @@ The project is implemented primarily in R, with an optional Python helper for re
 View the generated results site:
 [https://sidrichardsquantum.github.io/Celestial_Dynamics_Iteration_Methods/](https://sidrichardsquantum.github.io/Celestial_Dynamics_Iteration_Methods/)
 
-For setup, commands, examples, and repository layout, see [USAGE.md](USAGE.md).
-For method descriptions, see [THEORY.md](THEORY.md).
+For setup, commands, examples, and repository layout, see [docs/USAGE.md](docs/USAGE.md).
+For method descriptions, see [docs/THEORY.md](docs/THEORY.md).
 For generated results, evaluation, and comparison dashboards, see
-[RESULTS.md](RESULTS.md).
+[docs/RESULTS.md](docs/RESULTS.md).
 
 ## Overview
 
@@ -35,7 +35,7 @@ The simulations generate trajectories and energy-conservation diagnostics for:
 - special three-body solutions, including figure-8, Lagrange, Euler collinear, and Butterfly I
 - restricted three-body examples, including CR3BP and Sitnikov cases
 
-`constants.R` defines `G` as positive; attraction is handled by explicit signs in the force equations.
+`R/constants.R` defines `G` as positive; attraction is handled by explicit signs in the force equations.
 
 ## Quick Start
 
@@ -65,13 +65,14 @@ Rscript tests/validate_three_body.R
 
 ## Repository Highlights
 
-- `iteration_methods/`: projectile-oriented method implementations
-- `celestial_systems/two_body/`: two-body solvers, method registry, and shared plotting/physics helpers
-- `celestial_systems/n_body/`: general 2D n-body RK4 and Velocity Verlet engines
-- `celestial_systems/three_body/`: full and restricted three-body helpers
+- `R/methods/`: projectile-oriented method implementations
+- `R/systems/two_body/`: two-body solvers, method registry, and shared plotting/physics helpers
+- `R/systems/n_body/`: general 2D n-body RK4 and Velocity Verlet engines
+- `R/systems/three_body/`: full and restricted three-body helpers
 - `examples/`: runnable examples grouped by model type, including method comparisons
 - `images/`: generated plots grouped by example type
 - `analysis/`: reproducible result-table, diagnostic-plot, and dashboard generation
+- `docs/`: usage, theory, and canonical results narrative
 - `tests/`: validation scripts used locally and in CI
 - `.github/workflows/`: validation, plot-regeneration, and GitHub Pages deployment workflows
 

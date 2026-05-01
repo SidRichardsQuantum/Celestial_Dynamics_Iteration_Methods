@@ -48,6 +48,7 @@ required_analysis_artifacts = c(
   file.path("analysis", "generated", "n_body_conservation_summary.csv"),
   file.path("analysis", "generated", "runtime_benchmark.csv"),
   file.path("analysis", "generated", "plot_manifest.csv"),
+  file.path("analysis", "generated", "artifact_index.html"),
   file.path("analysis", "generated", "index.html"),
   file.path("analysis", "generated", "method_comparison_dashboard.html")
 )

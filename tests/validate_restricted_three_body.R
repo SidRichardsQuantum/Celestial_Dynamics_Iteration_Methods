@@ -1,6 +1,6 @@
 source("tests/helpers_three_body.R")
-source("celestial_systems/three_body/circular_restricted_three_body.R")
-source("celestial_systems/three_body/sitnikov_problem.R")
+source("R/systems/three_body/circular_restricted_three_body.R")
+source("R/systems/three_body/sitnikov_problem.R")
 
 mu = M_MOON / (M_EARTH + M_MOON)
 points = cr3bp_lagrange_points(mu)

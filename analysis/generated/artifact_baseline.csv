@@ -1,12 +1,13 @@
 "filepath","artifact_type","size_bytes","width","height"
+"analysis/generated/artifact_index.html","html",30860,NA,NA
 "analysis/generated/convergence_summary.csv","data",1193,NA,NA
 "analysis/generated/earth_moon_method_summary.csv","data",745,NA,NA
-"analysis/generated/index.html","html",30796,NA,NA
+"analysis/generated/index.html","html",32702,NA,NA
 "analysis/generated/method_comparison_dashboard.html","html",161539,NA,NA
 "analysis/generated/method_summary.csv","data",572,NA,NA
 "analysis/generated/n_body_conservation_summary.csv","data",431,NA,NA
 "analysis/generated/plot_manifest.csv","data",21381,NA,NA
-"analysis/generated/runtime_benchmark.csv","data",1710,NA,NA
+"analysis/generated/runtime_benchmark.csv","data",1706,NA,NA
 "analysis/generated/three_body_special_summary.csv","data",591,NA,NA
 "images/analysis/convergence_rates.png","png",94677,1100,720
 "images/analysis/sun_earth_angular_momentum_drift.png","png",70317,1000,720

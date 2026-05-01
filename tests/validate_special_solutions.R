@@ -1,8 +1,8 @@
 source("tests/helpers_three_body.R")
-source("celestial_systems/three_body/figure_8_initial_conditions.R")
-source("celestial_systems/three_body/lagrange_initial_conditions.R")
-source("celestial_systems/three_body/euler_collinear_initial_conditions.R")
-source("celestial_systems/three_body/choreography_initial_conditions.R")
+source("R/systems/three_body/figure_8_initial_conditions.R")
+source("R/systems/three_body/lagrange_initial_conditions.R")
+source("R/systems/three_body/euler_collinear_initial_conditions.R")
+source("R/systems/three_body/choreography_initial_conditions.R")
 
 ic = figure_8_initial_conditions(distance_real = AU, body_mass = M_EARTH)
 result = run_three_body_case(ic)

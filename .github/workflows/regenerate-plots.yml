@@ -35,4 +35,4 @@ jobs:
           name: regenerated-analysis
           path: |
             analysis/generated/
-            RESULTS.md
+            docs/RESULTS.md
