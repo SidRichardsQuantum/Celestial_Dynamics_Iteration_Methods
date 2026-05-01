@@ -299,6 +299,49 @@ cd_add_external_legend = function(labels, colors, lty = 1, lwd = 2.4,
          cex = 0.86)
 }
 
+cd_format_diagnostic_value = function(value, digits = 3) {
+  if (!is.finite(value)) {
+    return("n/a")
+  }
+  magnitude = abs(value)
+  if (magnitude >= 1e-3 && magnitude < 1e4) {
+    decimal_digits = if (magnitude < 10) digits else max(1, digits - 1)
+    return(formatC(value, format = "f", digits = decimal_digits))
+  }
+  format(signif(value, digits), scientific = TRUE, trim = TRUE)
+}
+
+cd_relative_error_series = function(values) {
+  (values - values[1]) / abs(values[1])
+}
+
+cd_diagnostic_lines = function(energy, angular_momentum, separation_label,
+                               separation_value_au) {
+  c(
+    sprintf("Energy ratio: %s",
+            cd_format_diagnostic_value(tail(energy, 1) / energy[1])),
+    sprintf("max |dE/E0|: %s",
+            cd_format_diagnostic_value(
+              max(abs(cd_relative_error_series(energy))))),
+    sprintf("max |dL/L0|: %s",
+            cd_format_diagnostic_value(relative_drift(angular_momentum))),
+    sprintf("%s: %s AU",
+            separation_label,
+            cd_format_diagnostic_value(separation_value_au))
+  )
+}
+
+cd_add_external_diagnostics = function(lines, title = "Diagnostics") {
+  legend("bottomright",
+         inset = c(-0.32, 0),
+         xpd = NA,
+         title = title,
+         legend = lines,
+         bty = "n",
+         text.col = cd_colors$ink,
+         cex = 0.74)
+}
+
 cd_json_string = function(value) {
   escaped = gsub("\\\\", "\\\\\\\\", value)
   escaped = gsub("\"", "\\\\\"", escaped)

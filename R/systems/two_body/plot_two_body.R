@@ -1,5 +1,6 @@
 if (!exists("cd_source", mode = "function")) source("R/load.R")
 cd_source("R/constants.R")
+cd_source("R/systems/two_body/two_body_helpers.R")
 cd_source("R/systems/plotting/plot_style.R")
 
 plot_two_body_result = function(result, filepath, title, labels, colors,
@@ -43,6 +44,16 @@ plot_two_body_result = function(result, filepath, title, labels, colors,
                          lty = c(1, 1, 2),
                          lwd = c(2.4, 2.4, 1.4),
                          pch = c(NA, NA, 4))
+
+  energy = two_body_energy_series(result)
+  angular_momentum = two_body_angular_momentum_series(result)
+  final_separation_au =
+    sqrt((tail(result$x_a, 1) - tail(result$x_b, 1))^2 +
+           (tail(result$y_a, 1) - tail(result$y_b, 1))^2) / AU
+  cd_add_external_diagnostics(
+    cd_diagnostic_lines(energy, angular_momentum,
+                        "final separation", final_separation_au)
+  )
 
   cat(sprintf("Plot saved to: %s\n", filepath))
   cd_record_plot_manifest(

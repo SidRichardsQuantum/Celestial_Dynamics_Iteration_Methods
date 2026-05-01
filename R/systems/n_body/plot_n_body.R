@@ -1,5 +1,6 @@
 if (!exists("cd_source", mode = "function")) source("R/load.R")
 cd_source("R/constants.R")
+cd_source("R/systems/n_body/n_body_helpers.R")
 cd_source("R/systems/plotting/plot_style.R")
 
 plot_n_body_result = function(result, filepath, title,
@@ -47,6 +48,16 @@ plot_n_body_result = function(result, filepath, title,
                          lty = c(rep(1, body_count), 2),
                          lwd = c(rep(2.4, body_count), 1.4),
                          pch = c(rep(NA, body_count), 4))
+
+  energy = n_body_energy_series(result)
+  angular_momentum = n_body_angular_momentum_series(result)
+  final_distances = n_body_pairwise_distances(result$positions[dim(result$positions)[1], , ])
+  final_pair_separations_au = final_distances[upper.tri(final_distances)] / AU
+  cd_add_external_diagnostics(
+    cd_diagnostic_lines(energy, angular_momentum,
+                        "min final pair sep",
+                        min(final_pair_separations_au))
+  )
 
   cat(sprintf("Plot saved to: %s\n", filepath))
   cd_record_plot_manifest(

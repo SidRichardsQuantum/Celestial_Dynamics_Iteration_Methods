@@ -1,5 +1,6 @@
 if (!exists("cd_source", mode = "function")) source("R/load.R")
 cd_source("R/constants.R")
+cd_source("R/systems/three_body/three_body_helpers.R")
 cd_source("R/systems/plotting/plot_style.R")
 
 plot_three_body_result = function(result, filepath, title, labels,
@@ -51,6 +52,18 @@ plot_three_body_result = function(result, filepath, title, labels,
                          lty = c(1, 1, 1, 2),
                          lwd = c(rep(2.4, 3), 1.4),
                          pch = c(NA, NA, NA, 4))
+
+  energy = three_body_energy_series(result)
+  angular_momentum = three_body_angular_momentum_series(result)
+  final_separations = three_body_separations(
+    c(tail(result$x_a, 1), tail(result$y_a, 1)),
+    c(tail(result$x_b, 1), tail(result$y_b, 1)),
+    c(tail(result$x_c, 1), tail(result$y_c, 1))
+  ) / AU
+  cd_add_external_diagnostics(
+    cd_diagnostic_lines(energy, angular_momentum,
+                        "max final pair sep", max(final_separations))
+  )
 
   cat(sprintf("Plot saved to: %s\n", filepath))
   cd_record_plot_manifest(
