@@ -1,4 +1,5 @@
-source("R/constants.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/constants.R")
 
 n_body_validate_inputs = function(T, N, masses, positions, velocities) {
   if (!is.finite(T) || T <= 0) {

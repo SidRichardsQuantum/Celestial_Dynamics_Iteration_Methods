@@ -1,7 +1,8 @@
-source("R/constants.R")
-source("R/systems/n_body/four_body_initial_conditions.R")
-source("R/systems/n_body/n_body_runge_kutta.R")
-source("R/systems/n_body/plot_n_body.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/constants.R")
+cd_source("R/systems/n_body/four_body_initial_conditions.R")
+cd_source("R/systems/n_body/n_body_runge_kutta.R")
+cd_source("R/systems/n_body/plot_n_body.R")
 
 ic = rotating_square_four_body_initial_conditions(
   half_side_real = 0.25 * AU,

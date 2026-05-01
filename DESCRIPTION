@@ -1,0 +1,14 @@
+Package: CelestialDynamicsIterationMethods
+Type: Package
+Title: Compare Iteration Methods with Celestial Dynamics Simulations
+Version: 0.1.0
+Authors@R:
+    person("Sid", "Richards", role = c("aut", "cre"),
+           email = "sid@example.com")
+Description: Numerical simulation helpers, examples, and diagnostics for
+    comparing time-stepping methods with projectile, two-body, three-body, and
+    n-body gravitational systems.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends:
+    R (>= 4.1.0)

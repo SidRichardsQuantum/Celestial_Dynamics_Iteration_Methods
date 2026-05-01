@@ -94,6 +94,26 @@ Rscript examples/three_body/run_all_three_body_examples.R
 
 Run examples from the repository root so their `source(...)` paths resolve correctly.
 
+Repository scripts bootstrap `R/load.R`, then use `cd_source()` or the
+module-level helpers such as `cd_load_two_body()` and `cd_load_three_body()`.
+Use those helpers for new scripts instead of adding long chains of direct
+`source("R/...")` calls.
+
+The repository also has lightweight R package metadata (`DESCRIPTION` and
+`NAMESPACE`). This supports package build/load checks while preserving the
+script-driven example and artifact workflow.
+
+Build and check the internal package surface:
+
+```bash
+R CMD build . --no-build-vignettes --no-manual
+R CMD check CelestialDynamicsIterationMethods_*.tar.gz --no-manual --ignore-vignettes
+```
+
+The package namespace is intentionally conservative for now: functions are
+loaded for package checks, but stable public exports should be added only after
+the API is deliberately chosen.
+
 Run the experimental near-periodic three-body search:
 
 ```bash
@@ -156,6 +176,8 @@ source("examples/n_body/special_solutions/rotating_square_four_body.R")
 
 ```text
 Celestial_Dynamics_Iteration_Methods/
+├── DESCRIPTION
+├── NAMESPACE
 ├── README.md
 ├── docs/USAGE.md
 ├── docs/THEORY.md
@@ -163,6 +185,7 @@ Celestial_Dynamics_Iteration_Methods/
 ├── R/constants.R
 ├── run_all_examples.R
 ├── analysis/
+│   ├── README.md
 │   ├── generate_results.R
 │   ├── update_artifact_baseline.R
 │   └── generated/
@@ -210,6 +233,7 @@ Celestial_Dynamics_Iteration_Methods/
 │       ├── sitnikov_problem.R
 │       └── three_body_runge_kutta.R
 ├── examples/
+│   ├── README.md
 │   ├── comparisons/
 │   ├── n_body/
 │   │   ├── run_all_n_body_examples.R

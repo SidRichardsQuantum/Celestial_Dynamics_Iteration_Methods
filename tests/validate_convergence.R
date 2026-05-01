@@ -1,4 +1,5 @@
-source("R/systems/two_body/two_body_method_registry.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/systems/two_body/two_body_method_registry.R")
 
 assert_true = function(condition, label) {
   if (!isTRUE(condition)) {

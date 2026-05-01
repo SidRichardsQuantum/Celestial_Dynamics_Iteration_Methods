@@ -1,9 +1,8 @@
+if (!exists("cd_source", mode = "function")) source("R/load.R")
 # Runs different numerical methods for the same example
 
 # Source all method implementations
-source("R/methods/euler_method.R")
-source("R/methods/heuns_method.R")
-source("R/methods/midpoint_method.R")
+cd_load_projectile_methods()
 
 # Function to run example with specified method
 run_example <- function(method_name, T = 100, y_0 = 0, v_0 = 200, theta = pi/4, N = 50) {

@@ -1,5 +1,6 @@
-source("R/constants.R")
-source("R/systems/plotting/plot_style.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/constants.R")
+cd_source("R/systems/plotting/plot_style.R")
 
 plot_n_body_result = function(result, filepath, title,
                               colors = NULL,

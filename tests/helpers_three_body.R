@@ -1,5 +1,6 @@
-source("R/constants.R")
-source("R/systems/three_body/three_body_runge_kutta.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/constants.R")
+cd_source("R/systems/three_body/three_body_runge_kutta.R")
 
 assert_near = function(actual, expected, tolerance, label) {
   error = abs(actual - expected)

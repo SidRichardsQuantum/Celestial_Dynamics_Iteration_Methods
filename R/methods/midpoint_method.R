@@ -1,6 +1,7 @@
+if (!exists("cd_source", mode = "function")) source("R/load.R")
 # Load physical constants
-source("R/constants.R")
-source("R/systems/plotting/plot_style.R")
+cd_source("R/constants.R")
+cd_source("R/systems/plotting/plot_style.R")
 
 # Midpoint method
 Midpoint = function(T, y_0, v_0, theta, N) {

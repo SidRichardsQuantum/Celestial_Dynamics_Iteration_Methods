@@ -1,4 +1,5 @@
-source("R/constants.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/constants.R")
 
 two_body_validate_inputs = function(T, N, m_a, m_b,
                                     r_ax0, r_ay0, r_bx0, r_by0,

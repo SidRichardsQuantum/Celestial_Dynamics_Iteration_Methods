@@ -1,12 +1,8 @@
-source("R/systems/two_body/two_body_method_registry.R")
-source("R/systems/plotting/plot_style.R")
-source("R/systems/three_body/three_body_runge_kutta.R")
-source("R/systems/three_body/figure_8_initial_conditions.R")
-source("R/systems/three_body/lagrange_initial_conditions.R")
-source("R/systems/three_body/euler_collinear_initial_conditions.R")
-source("R/systems/three_body/choreography_initial_conditions.R")
-source("R/systems/n_body/n_body_runge_kutta.R")
-source("R/systems/n_body/four_body_initial_conditions.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_load_two_body()
+cd_load_plotting()
+cd_load_three_body()
+cd_load_n_body()
 
 generated_dir = "analysis/generated"
 analysis_image_dir = "images/analysis"

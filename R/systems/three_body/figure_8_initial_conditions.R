@@ -1,4 +1,5 @@
-source("R/constants.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/constants.R")
 
 figure_8_initial_conditions = function(distance_real = AU, body_mass = M_EARTH) {
   if (!is.finite(distance_real) || distance_real <= 0) {

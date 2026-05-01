@@ -1,6 +1,7 @@
+if (!exists("cd_source", mode = "function")) source("R/load.R")
 # Pair of massive bodies interacting in 2D
 # Euler Method for Two-Body System
-source("R/systems/two_body/two_body_helpers.R")
+cd_source("R/systems/two_body/two_body_helpers.R")
 
 euler_two_body = function(T, N, m_a, m_b, r_ax0, r_ay0, r_bx0, r_by0, v_ax0, v_ay0, v_bx0, v_by0) {
   two_body_validate_inputs(T, N, m_a, m_b,

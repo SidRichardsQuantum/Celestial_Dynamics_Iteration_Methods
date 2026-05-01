@@ -1,7 +1,8 @@
+if (!exists("cd_source", mode = "function")) source("R/load.R")
 # Earth-Moon system (circular orbit)
 # Runge-Kutta method
-source("R/systems/two_body/two_body_runge_kutta.R")
-source("R/systems/two_body/plot_two_body.R")
+cd_source("R/systems/two_body/two_body_runge_kutta.R")
+cd_source("R/systems/two_body/plot_two_body.R")
 
 # Store T and N values for use in plot title
 T = 10 * LUNAR_MONTH # 10 lunar months

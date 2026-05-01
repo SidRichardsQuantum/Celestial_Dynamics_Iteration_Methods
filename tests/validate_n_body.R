@@ -1,9 +1,10 @@
-source("R/constants.R")
-source("R/systems/two_body/two_body_method_registry.R")
-source("R/systems/three_body/three_body_runge_kutta.R")
-source("R/systems/n_body/four_body_initial_conditions.R")
-source("R/systems/n_body/n_body_runge_kutta.R")
-source("R/systems/n_body/n_body_velocity_verlet.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/constants.R")
+cd_source("R/systems/two_body/two_body_method_registry.R")
+cd_source("R/systems/three_body/three_body_runge_kutta.R")
+cd_source("R/systems/n_body/four_body_initial_conditions.R")
+cd_source("R/systems/n_body/n_body_runge_kutta.R")
+cd_source("R/systems/n_body/n_body_velocity_verlet.R")
 
 assert_less_than = function(actual, limit, label) {
   if (!is.finite(actual) || actual >= limit) {

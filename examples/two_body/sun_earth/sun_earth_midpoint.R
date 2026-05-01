@@ -1,7 +1,8 @@
+if (!exists("cd_source", mode = "function")) source("R/load.R")
 # Earth-Sun system (circular orbit)
 # Midpoint method
-source("R/systems/two_body/two_body_midpoint.R")
-source("R/systems/two_body/plot_two_body.R")
+cd_source("R/systems/two_body/two_body_midpoint.R")
+cd_source("R/systems/two_body/plot_two_body.R")
 
 # Store T and N values for use in plot title
 T = 25 * YEAR # 25 years

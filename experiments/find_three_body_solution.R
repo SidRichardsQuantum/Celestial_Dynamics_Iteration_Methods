@@ -1,6 +1,7 @@
-source("R/constants.R")
-source("R/systems/three_body/three_body_runge_kutta.R")
-source("R/systems/three_body/plot_three_body.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/constants.R")
+cd_source("R/systems/three_body/three_body_runge_kutta.R")
+cd_source("R/systems/three_body/plot_three_body.R")
 
 # Experimental search for equal-mass, symmetric, near-periodic three-body orbits.
 # This is not a proof or a robust optimizer; it is a lightweight numerical

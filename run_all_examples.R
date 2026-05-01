@@ -1,3 +1,4 @@
+if (!exists("cd_source", mode = "function")) source("R/load.R")
 examples = c(
   "examples/projectile/projectile_example.R",
   "examples/comparisons/sun_earth_all_methods.R",
@@ -6,7 +7,7 @@ examples = c(
   "examples/three_body/run_all_three_body_examples.R"
 )
 
-source("R/systems/plotting/plot_style.R")
+cd_load_plotting()
 if (file.exists(cd_plot_manifest_path)) {
   invisible(file.remove(cd_plot_manifest_path))
 }

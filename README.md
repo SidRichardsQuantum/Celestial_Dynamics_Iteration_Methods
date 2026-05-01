@@ -65,6 +65,8 @@ Rscript tests/validate_three_body.R
 
 ## Repository Highlights
 
+- `DESCRIPTION` and `NAMESPACE`: lightweight R package metadata
+- `R/load.R`: project-root-aware loading helpers used by scripts and tests
 - `R/methods/`: projectile-oriented method implementations
 - `R/systems/two_body/`: two-body solvers, method registry, and shared plotting/physics helpers
 - `R/systems/n_body/`: general 2D n-body RK4 and Velocity Verlet engines

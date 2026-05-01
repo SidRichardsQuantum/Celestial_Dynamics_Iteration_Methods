@@ -1,4 +1,5 @@
-source("R/constants.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/constants.R")
 
 choreography_initial_conditions = function(name = "butterfly_i",
                                            outer_separation_real = AU,

@@ -1,4 +1,5 @@
-source("R/systems/n_body/n_body_helpers.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/systems/n_body/n_body_helpers.R")
 
 velocity_verlet_n_body = function(T, N, masses, positions, velocities,
                                   body_names = NULL) {

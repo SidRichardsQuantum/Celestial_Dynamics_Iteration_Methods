@@ -1,6 +1,7 @@
-source("tests/helpers_three_body.R")
-source("R/systems/three_body/circular_restricted_three_body.R")
-source("R/systems/three_body/sitnikov_problem.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("tests/helpers_three_body.R")
+cd_source("R/systems/three_body/circular_restricted_three_body.R")
+cd_source("R/systems/three_body/sitnikov_problem.R")
 
 mu = M_MOON / (M_EARTH + M_MOON)
 points = cr3bp_lagrange_points(mu)

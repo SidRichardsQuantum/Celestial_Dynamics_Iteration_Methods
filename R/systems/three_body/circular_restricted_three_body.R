@@ -1,4 +1,5 @@
-source("R/systems/plotting/plot_style.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/systems/plotting/plot_style.R")
 
 cr3bp_lagrange_points = function(mu) {
   if (!is.finite(mu) || mu <= 0 || mu >= 0.5) {

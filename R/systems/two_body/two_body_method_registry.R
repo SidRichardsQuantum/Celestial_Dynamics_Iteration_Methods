@@ -1,9 +1,10 @@
-source("R/constants.R")
-source("R/systems/two_body/two_body_euler.R")
-source("R/systems/two_body/two_body_midpoint.R")
-source("R/systems/two_body/two_body_heuns.R")
-source("R/systems/two_body/two_body_runge_kutta.R")
-source("R/systems/two_body/two_body_velocity_verlet.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/constants.R")
+cd_source("R/systems/two_body/two_body_euler.R")
+cd_source("R/systems/two_body/two_body_midpoint.R")
+cd_source("R/systems/two_body/two_body_heuns.R")
+cd_source("R/systems/two_body/two_body_runge_kutta.R")
+cd_source("R/systems/two_body/two_body_velocity_verlet.R")
 
 two_body_method_registry = function() {
   list(

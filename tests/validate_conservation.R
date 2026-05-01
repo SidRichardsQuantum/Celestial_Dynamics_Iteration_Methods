@@ -1,6 +1,7 @@
-source("R/systems/two_body/two_body_method_registry.R")
-source("tests/helpers_three_body.R")
-source("R/systems/three_body/lagrange_initial_conditions.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/systems/two_body/two_body_method_registry.R")
+cd_source("tests/helpers_three_body.R")
+cd_source("R/systems/three_body/lagrange_initial_conditions.R")
 
 assert_less_than = function(actual, limit, label) {
   if (!is.finite(actual) || actual >= limit) {

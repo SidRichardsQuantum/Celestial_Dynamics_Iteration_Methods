@@ -1,7 +1,8 @@
+if (!exists("cd_source", mode = "function")) source("R/load.R")
 # Earth-Moon-Spacecraft system (three-body problem)
 # Runge-Kutta method
-source("R/systems/three_body/three_body_runge_kutta.R")
-source("R/systems/three_body/plot_three_body.R")
+cd_source("R/systems/three_body/three_body_runge_kutta.R")
+cd_source("R/systems/three_body/plot_three_body.R")
 
 # Store T and N values for use in plot title
 T = 5 * LUNAR_MONTH # 5 lunar months

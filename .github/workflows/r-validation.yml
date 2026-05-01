@@ -20,3 +20,12 @@ jobs:
 
       - name: Run validation scripts
         run: Rscript tests/run_all_tests.R
+
+      - name: Build and load package
+        run: |
+          mkdir -p /tmp/cdim-lib /tmp/cdim-build
+          R CMD build . --no-build-vignettes --no-manual
+          mv CelestialDynamicsIterationMethods_*.tar.gz /tmp/cdim-build/
+          R CMD check /tmp/cdim-build/CelestialDynamicsIterationMethods_*.tar.gz --no-manual --ignore-vignettes
+          R CMD INSTALL -l /tmp/cdim-lib /tmp/cdim-build/CelestialDynamicsIterationMethods_*.tar.gz
+          Rscript -e '.libPaths("/tmp/cdim-lib"); library(CelestialDynamicsIterationMethods); ns <- asNamespace("CelestialDynamicsIterationMethods"); stopifnot(exists("runge_kutta_two_body", ns), exists("cd_source", ns))'

@@ -1,0 +1,5 @@
+importFrom(graphics, abline, arrows, grid, legend, lines, mtext, par, points,
+           text, title)
+importFrom(grDevices, dev.off, png)
+importFrom(stats, setNames, uniroot)
+importFrom(utils, capture.output, read.csv, tail, write.csv)

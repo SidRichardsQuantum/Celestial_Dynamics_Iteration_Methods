@@ -1,5 +1,6 @@
-source("R/constants.R")
-source("R/systems/three_body/sitnikov_problem.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/constants.R")
+cd_source("R/systems/three_body/sitnikov_problem.R")
 
 T = 8 * YEAR
 N = 20000

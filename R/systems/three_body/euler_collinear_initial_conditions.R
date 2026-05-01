@@ -1,4 +1,5 @@
-source("R/constants.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/constants.R")
 
 euler_collinear_initial_conditions = function(outer_separation_real = AU,
                                              body_mass = M_EARTH) {

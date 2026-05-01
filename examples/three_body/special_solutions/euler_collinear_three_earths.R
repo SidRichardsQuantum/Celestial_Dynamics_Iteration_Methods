@@ -1,9 +1,10 @@
-source("R/constants.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/constants.R")
 
 # Three equal Earth-mass bodies in the Euler collinear solution.
-source("R/systems/three_body/three_body_runge_kutta.R")
-source("R/systems/three_body/euler_collinear_initial_conditions.R")
-source("R/systems/three_body/plot_three_body.R")
+cd_source("R/systems/three_body/three_body_runge_kutta.R")
+cd_source("R/systems/three_body/euler_collinear_initial_conditions.R")
+cd_source("R/systems/three_body/plot_three_body.R")
 
 ic = euler_collinear_initial_conditions(outer_separation_real = AU,
                                         body_mass = M_EARTH)

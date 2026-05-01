@@ -1,0 +1,11 @@
+^\.github$
+^\.codex$
+^\.agents$
+^analysis$
+^docs$
+^examples$
+^experiments$
+^images$
+^requirements\.txt$
+^run_all_examples\.R$
+^tests$

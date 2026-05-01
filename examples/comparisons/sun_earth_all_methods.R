@@ -1,6 +1,7 @@
+if (!exists("cd_source", mode = "function")) source("R/load.R")
 # Sun-Earth comparison using every two-body iteration method.
-source("R/systems/two_body/two_body_method_registry.R")
-source("R/systems/plotting/plot_style.R")
+cd_source("R/systems/two_body/two_body_method_registry.R")
+cd_source("R/systems/plotting/plot_style.R")
 
 output_dir = file.path("images", "comparisons")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)

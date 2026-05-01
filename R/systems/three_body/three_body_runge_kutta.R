@@ -1,6 +1,7 @@
+if (!exists("cd_source", mode = "function")) source("R/load.R")
 # Three massive bodies interacting in 2D
 # This is the file "two_body_runge_kutta.R" adapted to include a third celestial
-source("R/systems/three_body/three_body_helpers.R")
+cd_source("R/systems/three_body/three_body_helpers.R")
 
 runge_kutta_three_body = function(T, N, 
                                   m_a, m_b, m_c,

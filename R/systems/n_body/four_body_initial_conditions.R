@@ -1,4 +1,5 @@
-source("R/constants.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/constants.R")
 
 rotating_square_four_body_initial_conditions = function(half_side_real = 0.25 * AU,
                                                         body_mass = M_EARTH) {

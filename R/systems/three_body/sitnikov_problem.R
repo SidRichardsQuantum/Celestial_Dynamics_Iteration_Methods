@@ -1,5 +1,6 @@
-source("R/constants.R")
-source("R/systems/plotting/plot_style.R")
+if (!exists("cd_source", mode = "function")) source("R/load.R")
+cd_source("R/constants.R")
+cd_source("R/systems/plotting/plot_style.R")
 
 sitnikov_runge_kutta = function(T, N, primary_mass = M_EARTH,
                                 primary_radius = 0.5 * AU,
