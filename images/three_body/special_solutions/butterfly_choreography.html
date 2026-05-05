@@ -6,37 +6,58 @@
   <title>Butterfly I Three-Earth Choreography
 T = 202.4 years, N = 100000 steps</title>
   <style>
-    :root { color-scheme: light; --ink: #172033; --muted: #667085; --line: #d8dee6; --soft: #eef2f6; --panel: #ffffff; --paper: #f6f8fb; --accent: #0f766e; }
+    :root { color-scheme: light dark; --bg: #f7f7f4; --surface: #ffffff; --surface-muted: #ededeb; --text: #1d2328; --muted: #5b6670; --line: #d7d9d6; --accent: #126c83; --accent-strong: #0f5364; --shadow: 0 18px 45px rgba(34, 41, 47, 0.08); --shadow-soft: 0 10px 30px rgba(34, 41, 47, 0.06); }
+    @media (prefers-color-scheme: dark) { :root { --bg: #101416; --surface: #171d20; --surface-muted: #20282b; --text: #edf1f2; --muted: #a9b4b8; --line: #2e393d; --accent: #66c5d7; --accent-strong: #9eddea; --shadow: 0 18px 45px rgba(0, 0, 0, 0.25); --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.18); } }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, sans-serif; color: var(--ink); background: linear-gradient(180deg, #ffffff 0, var(--paper) 260px); }
-    main { max-width: 1180px; margin: 0 auto; padding: 24px; }
-    header { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: end; margin-bottom: 14px; }
-    h1 { margin: 0; font-size: 26px; line-height: 1.15; letter-spacing: 0; }
-    .eyebrow { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .08em; margin-bottom: 6px; text-transform: uppercase; }
-    .status { color: var(--muted); font-size: 13px; white-space: nowrap; }
-    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; box-shadow: 0 12px 28px rgba(16, 24, 40, .06); }
-    .toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; padding: 12px 14px; border-bottom: 1px solid var(--line); background: #fbfcfe; }
-    .button-group { display: inline-flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-    button { border: 1px solid #aab3bf; background: #fff; color: var(--ink); border-radius: 6px; padding: 8px 11px; cursor: pointer; font: inherit; line-height: 1; }
-    button:hover { border-color: var(--accent); color: var(--accent); }
-    button:focus-visible, input:focus-visible { outline: 3px solid rgba(15, 118, 110, .22); outline-offset: 2px; }
-    button.active { background: var(--ink); color: #fff; border-color: var(--ink); }
-    button.secondary { color: var(--accent); border-color: rgba(15, 118, 110, .45); }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; text-rendering: optimizeLegibility; }
+    a { color: inherit; text-decoration-color: color-mix(in srgb, var(--accent) 65%, transparent); text-underline-offset: 0.2em; }
+    a:hover { color: var(--accent-strong); }
+    a:focus-visible, button:focus-visible, input:focus-visible, main:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+    .skip-link { position: fixed; top: 0.75rem; left: 0.75rem; z-index: 20; transform: translateY(-150%); border: 1px solid var(--accent-strong); border-radius: 8px; padding: 0.65rem 0.9rem; background: var(--surface); color: var(--accent-strong); font-weight: 800; text-decoration: none; box-shadow: var(--shadow); transition: transform 160ms ease; }
+    .skip-link:focus-visible { transform: translateY(0); }
+    .site-header { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding: 1rem clamp(1rem, 4vw, 3rem); border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+    .brand { display: inline-flex; align-items: center; gap: 0.7rem; font-weight: 700; text-decoration: none; }
+    .brand-mark { display: inline-grid; width: 2.2rem; height: 2.2rem; place-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--accent-strong); font-size: 0.82rem; letter-spacing: 0; }
+    .nav-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem 1rem; color: var(--muted); font-size: 0.95rem; }
+    .nav-links a { border-radius: 6px; padding: 0.15rem 0; text-decoration: none; }
+    main { width: min(1180px, calc(100% - 2rem)); margin: 0 auto; padding: clamp(3rem, 8vw, 6rem) 0; }
+    header.page-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1.5rem; align-items: end; margin-bottom: 1.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--line); }
+    h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.05; letter-spacing: 0; }
+    .eyebrow { margin: 0 0 0.75rem; color: var(--accent-strong); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .status { color: var(--muted); font-size: 0.9rem; white-space: nowrap; }
+    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-soft); }
+    .panel:hover, .panel:focus-within { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow: var(--shadow); }
+    .toolbar { display: flex; justify-content: space-between; gap: 0.75rem; align-items: center; flex-wrap: wrap; padding: 0.85rem 1rem; border-bottom: 1px solid var(--line); background: var(--surface-muted); }
+    .button-group { display: inline-flex; gap: 0.65rem; flex-wrap: wrap; align-items: center; }
+    button { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 8px; padding: 0.72rem 1rem; background: var(--surface); color: var(--text); cursor: pointer; font: inherit; font-weight: 700; line-height: 1; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03); transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease, transform 160ms ease; }
+    button:hover { transform: translateY(-1px); border-color: var(--accent); color: var(--accent-strong); }
+    button.active { border-color: var(--accent-strong); background: var(--accent-strong); color: #fff; }
+    button.active:hover { color: #fff; }
+    button.secondary { color: var(--accent-strong); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
     input[type=range] { width: 100%; accent-color: var(--accent); }
-    canvas { width: 100%; height: auto; background: #fff; display: block; }
-    .scrub-row { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 12px 14px 0; }
-    .meta { display: flex; gap: 16px; flex-wrap: wrap; padding: 9px 14px 12px; color: var(--muted); font-size: 13px; border-bottom: 1px solid var(--soft); }
-    .legend { display: flex; flex-wrap: wrap; gap: 10px 14px; padding: 12px 14px 14px; color: #344054; }
-    .legend label { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size: 14px; }
+    canvas { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; background: #fff; display: block; }
+    .scrub-row { display: grid; grid-template-columns: 1fr; gap: 0.5rem; padding: 0.85rem 1rem 0; }
+    .meta { display: flex; gap: 1rem; flex-wrap: wrap; padding: 0.55rem 1rem 0.75rem; color: var(--muted); font-size: 0.82rem; border-bottom: 1px solid var(--line); }
+    .legend { display: flex; flex-wrap: wrap; gap: 0.65rem 0.85rem; padding: 0.85rem 1rem 1rem; color: var(--muted); }
+    .legend label { display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; font-size: 0.9rem; }
     .legend input { accent-color: var(--accent); }
     .legend label:has(input:not(:checked)) { opacity: .48; }
-    .swatch { width: 12px; height: 12px; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(23, 32, 51, .14); }
-    @media (max-width: 760px) { main { padding: 16px; } header { align-items: start; grid-template-columns: 1fr; } .toolbar { align-items: stretch; } .button-group { width: 100%; } button { flex: 1 1 auto; } }
+    .swatch { width: 0.75rem; height: 0.75rem; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(29, 35, 40, .14); }
+    @media (max-width: 760px) { .site-header { align-items: flex-start; flex-direction: column; gap: 0.75rem; } .nav-links { justify-content: flex-start; } main { width: min(100% - 1rem, 1180px); } header.page-hero { align-items: start; grid-template-columns: 1fr; } .toolbar { align-items: stretch; } .button-group { width: 100%; } button { flex: 1 1 auto; } }
   </style>
 </head>
 <body>
-  <main>
-    <header>
+  <a class="skip-link" href="#top">Skip to main content</a>
+  <header class="site-header">
+    <a class="brand" href="../../../analysis/generated/index.html" aria-label="Celestial Dynamics home"><span class="brand-mark">SR</span><span>Celestial Dynamics</span></a>
+    <nav class="nav-links" aria-label="Primary navigation">
+      <a href="../../../analysis/generated/index.html">Results</a>
+      <a href="../../../analysis/generated/method_comparison_dashboard.html">Dashboard</a>
+      <a href="../../../analysis/generated/artifact_index.html">Artifacts</a>
+    </nav>
+  </header>
+  <main id="top" tabindex="-1">
+    <header class="page-hero">
       <div>
         <div class="eyebrow">Trajectory animation</div>
         <h1>Butterfly I Three-Earth Choreography
