@@ -133,6 +133,13 @@
     .results-content th, .results-content td { white-space: nowrap; text-align: left; }
     .results-content img { display: block; width: 100%; height: auto; }
   </style>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#top">Skip to main content</a>

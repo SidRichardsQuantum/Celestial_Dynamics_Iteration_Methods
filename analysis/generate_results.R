@@ -1026,6 +1026,18 @@ render_inline_markdown = function(text) {
        perl = TRUE)
 }
 
+mathjax_head = function() {
+  c(
+    "  <script>",
+    "    window.MathJax = {",
+    "      tex: { inlineMath: [['$', '$'], ['\\\\(', '\\\\)']] },",
+    "      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }",
+    "    };",
+    "  </script>",
+    "  <script defer src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js\"></script>"
+  )
+}
+
 slugify_heading = function(text) {
   slug = gsub("`", "", text, fixed = TRUE)
   slug = gsub("'", "", slug, fixed = TRUE)
@@ -1198,6 +1210,7 @@ render_results_markdown = function(input_path, output_path) {
     "    .results-content img { display: block; width: 100%; height: auto; }"
     )),
     "  </style>",
+    mathjax_head(),
   "</head>",
   "<body>",
     "  <a class=\"skip-link\" href=\"#top\">Skip to main content</a>",
