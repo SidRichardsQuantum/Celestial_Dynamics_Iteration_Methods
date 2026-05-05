@@ -1,6 +1,7 @@
 ^\.github$
 ^\.codex$
 ^\.agents$
+^_site$
 ^analysis$
 ^docs$
 ^examples$
@@ -9,3 +10,6 @@
 ^requirements\.txt$
 ^run_all_examples\.R$
 ^tests$
+^.*\.log$
+^.*\.tar\.gz$
+^.*\.Rcheck$
