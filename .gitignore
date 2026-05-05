@@ -13,6 +13,7 @@ renv/staging/
 # Local scratch output
 tmp/
 scratch/
+_site/
 *.log
 *.tar.gz
 *.Rcheck/
