@@ -106,7 +106,11 @@ jobs:
           </head>
           <body>
             <main>
-              <p>Opening <a href="analysis/generated/index.html">Celestial Dynamics Results</a>.</p>
+              <p>
+                Opening <a href="analysis/generated/index.html">Celestial Dynamics Results</a>.
+                Package page:
+                <a href="https://sidrichardsquantum.r-universe.dev/CelestialDynamicsIterationMethods">R-universe</a>.
+              </p>
             </main>
           </body>
           </html>

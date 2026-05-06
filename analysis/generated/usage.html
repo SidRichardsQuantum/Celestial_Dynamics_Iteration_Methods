@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Usage</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f7f4;
+      --surface: #ffffff;
+      --surface-muted: #ededeb;
+      --text: #1d2328;
+      --muted: #5b6670;
+      --line: #d7d9d6;
+      --accent: #126c83;
+      --accent-strong: #0f5364;
+      --accent-soft: #dceff3;
+      --code-bg: #eef2f1;
+      --shadow: 0 18px 45px rgba(34, 41, 47, 0.08);
+      --shadow-soft: 0 10px 30px rgba(34, 41, 47, 0.06);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #101416;
+        --surface: #171d20;
+        --surface-muted: #20282b;
+        --text: #edf1f2;
+        --muted: #a9b4b8;
+        --line: #2e393d;
+        --accent: #66c5d7;
+        --accent-strong: #9eddea;
+        --accent-soft: #17333a;
+        --code-bg: #11191c;
+        --shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+        --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.18);
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+      text-rendering: optimizeLegibility;
+    }
+    a { color: inherit; text-decoration-color: color-mix(in srgb, var(--accent) 65%, transparent); text-underline-offset: 0.2em; }
+    a:hover { color: var(--accent-strong); }
+    a:focus-visible, button:focus-visible, input:focus-visible, main:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+    .skip-link {
+      position: fixed; top: 0.75rem; left: 0.75rem; z-index: 20;
+      transform: translateY(-150%); border: 1px solid var(--accent-strong);
+      border-radius: 8px; padding: 0.65rem 0.9rem; background: var(--surface);
+      color: var(--accent-strong); font-weight: 800; text-decoration: none;
+      box-shadow: var(--shadow); transition: transform 160ms ease;
+    }
+    .skip-link:focus-visible { transform: translateY(0); }
+    .site-header {
+      position: sticky; top: 0; z-index: 10; display: flex; align-items: center;
+      justify-content: space-between; gap: 1.5rem; padding: 1rem clamp(1rem, 4vw, 3rem);
+      border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 0.7rem; font-weight: 700; text-decoration: none; }
+    .brand-mark {
+      display: inline-grid; width: 2.2rem; height: 2.2rem; place-items: center;
+      border: 1px solid var(--line); border-radius: 8px; background: var(--surface);
+      color: var(--accent-strong); font-size: 0.82rem; letter-spacing: 0;
+    }
+    .nav-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem 1rem; color: var(--muted); font-size: 0.95rem; }
+    .nav-links a { border-radius: 6px; padding: 0.15rem 0; text-decoration: none; }
+    .eyebrow { margin: 0 0 0.75rem; color: var(--accent-strong); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .button, button, a.button {
+      display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center;
+      border: 1px solid var(--line); border-radius: 8px; padding: 0.72rem 1rem;
+      background: var(--surface); color: var(--text); font: inherit; font-weight: 700;
+      line-height: 1; text-decoration: none; cursor: pointer; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+      transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+    }
+    .button.primary, button.active { border-color: var(--accent-strong); background: var(--accent-strong); color: #ffffff; }
+    .button:hover, button:hover, a.button:hover { transform: translateY(-1px); border-color: var(--accent); color: var(--accent-strong); }
+    button.active:hover { color: #ffffff; }
+    button.secondary { color: var(--accent-strong); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+    .section { width: min(1120px, calc(100% - 2rem)); margin: 0 auto; padding: clamp(3rem, 8vw, 6rem) 0; scroll-margin-top: 6rem; }
+    .page-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 1.5rem; border-bottom: 1px solid var(--line); padding-bottom: 2rem; }
+    .page-hero h1 { margin: 0; font-size: clamp(2.6rem, 8vw, 5.8rem); line-height: 0.95; letter-spacing: 0; }
+    .page-hero p { max-width: 760px; margin: 1rem 0 0; color: var(--muted); font-size: clamp(1rem, 2vw, 1.2rem); }
+    .metric-strip { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: flex-end; }
+    .metric { min-width: 7rem; border: 1px solid var(--line); border-radius: 8px; padding: 0.8rem 0.9rem; background: var(--surface); box-shadow: var(--shadow-soft); }
+    .metric span { display: block; color: var(--muted); font-size: 0.76rem; font-weight: 700; }
+    .metric strong { display: block; margin-top: 0.1rem; font-size: 1.2rem; line-height: 1.1; }
+    .panel, .project-card { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: var(--shadow-soft); }
+    .panel { overflow: hidden; }
+    .panel:hover, .panel:focus-within, .project-card:hover, .project-card:focus-within { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow: var(--shadow); }
+    .panel-header, .toolbar { display: flex; justify-content: space-between; gap: 0.75rem; align-items: center; border-bottom: 1px solid var(--line); padding: 0.85rem 1rem; background: var(--surface-muted); }
+    .panel-header span, .result-count, .readout, figcaption, .path, p, li { color: var(--muted); }
+    .panel-body { padding: 1rem; }
+    .links, .toolbar, .button-group, .filters, .legend { display: flex; flex-wrap: wrap; gap: 0.65rem; align-items: center; }
+    .links { margin: 1.5rem 0; }
+    h2 { letter-spacing: 0; }
+    h3 { line-height: 1.25; }
+    code { display: inline-block; max-width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 0.1rem 0.35rem; background: var(--code-bg); color: var(--text); font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 0.9em; }
+    pre { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; padding: 1rem; background: var(--code-bg); }
+    pre code { border: 0; padding: 0; background: transparent; }
+    table { width: 100%; border-collapse: collapse; background: var(--surface); }
+    th, td { border-bottom: 1px solid var(--line); padding: 0.65rem 0.6rem; vertical-align: top; }
+    th { color: var(--muted); font-size: 0.82rem; text-align: left; background: var(--surface-muted); }
+    tbody tr:nth-child(even) { background: color-mix(in srgb, var(--surface-muted) 60%, transparent); }
+    tr:last-child td { border-bottom: 0; }
+    .table-wrap { overflow-x: auto; margin: 1rem 0 1.25rem; border: 1px solid var(--line); border-radius: 8px; }
+    .tag { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 0.22rem 0.55rem; background: var(--surface-muted); color: var(--muted); font-size: 0.78rem; font-weight: 700; }
+    input[type=search] { width: min(340px, 100%); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem 0.8rem; background: var(--surface); color: var(--text); font: inherit; }
+    input[type=range] { accent-color: var(--accent); }
+    canvas, img { max-width: 100%; border: 1px solid var(--line); border-radius: 8px; background: #ffffff; }
+    canvas { width: 100%; height: auto; display: block; }
+    figure { margin: 1.25rem 0 1.6rem; }
+    figcaption { margin-top: 0.45rem; font-size: 0.82rem; }
+    .swatch { width: 0.75rem; height: 0.75rem; border-radius: 2px; display: inline-block; box-shadow: inset 0 0 0 1px rgba(29, 35, 40, .14); }
+    tr.hidden { display: none; }
+    tr.dimmed { opacity: .48; }
+    @media (max-width: 880px) { .page-hero { grid-template-columns: 1fr; } .metric-strip { justify-content: flex-start; } }
+    @media (max-width: 620px) { .site-header { align-items: flex-start; flex-direction: column; gap: 0.75rem; } .nav-links { justify-content: flex-start; } .section { width: min(100% - 1rem, 1120px); padding: clamp(2.5rem, 12vw, 4rem) 0; } .button, button, a.button { width: 100%; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; } .button:hover, button:hover, a.button:hover { transform: none; } }
+    .results-content { max-width: 900px; padding-top: 2rem; }
+    .results-content h2 { margin-top: 2.2rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.1; }
+    .results-content h2:first-child { margin-top: 0; }
+    .results-content h3 { margin-top: 1.7rem; font-size: 1.12rem; }
+    .results-content ul { padding-left: 1.2rem; }
+    .results-content li { margin: 0.2rem 0; }
+    .results-content .table-wrap { max-width: min(100%, calc(100vw - 2rem)); }
+    .results-content th, .results-content td { white-space: nowrap; text-align: left; }
+    .results-content img { display: block; width: 100%; height: auto; }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#top">Skip to main content</a>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Celestial Dynamics home"><span class="brand-mark">SR</span><span>Celestial Dynamics</span></a>
+    <nav class="nav-links" aria-label="Primary navigation">
+      <a href="index.html">Results</a>
+      <a href="method_comparison_dashboard.html">Dashboard</a>
+      <a href="artifact_index.html">Artifacts</a>
+      <a href="docs.html">Docs</a>
+      <a href="https://sidrichardsquantum.r-universe.dev/CelestialDynamicsIterationMethods">Package</a>
+      <a href="readme.html">README</a>
+    </nav>
+  </header>
+  <main id="top" tabindex="-1" class="section">
+    <section class="page-hero">
+      <div>
+        <p class="eyebrow">Setup and commands</p>
+        <h1>Usage</h1>
+        <p>Detailed setup, command reference, examples, repository layout, and generated artifacts.</p>
+      </div>
+      <div class="metric-strip">
+        <div class="metric"><span>Methods</span><strong>5</strong></div>
+        <div class="metric"><span>Systems</span><strong>4</strong></div>
+        <div class="metric"><span>Views</span><strong>3</strong></div>
+      </div>
+    </section>
+    <div class="links" aria-label="Generated result views">
+      <a class="button primary" href="method_comparison_dashboard.html">Method Dashboard</a>
+      <a class="button" href="artifact_index.html">Artifact Browser</a>
+      <a class="button" href="docs.html">Documentation</a>
+      <a class="button" href="https://sidrichardsquantum.r-universe.dev/CelestialDynamicsIterationMethods">R-universe Package</a>
+    </div>
+    <article class="results-content">
+<h2 id="installation">Installation</h2>
+<p>Install the development package directly from GitHub:</p>
+<pre><code>
+install.packages(&quot;remotes&quot;)
+remotes::install_github(&quot;SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods&quot;)
+</code></pre>
+<p>After R-universe has built the package, install from R-universe:</p>
+<pre><code>
+options(repos = c(
+  sidrichardsquantum = &quot;https://sidrichardsquantum.r-universe.dev&quot;,
+  CRAN = &quot;https://cloud.r-project.org&quot;
+))
+install.packages(&quot;CelestialDynamicsIterationMethods&quot;)
+</code></pre>
+<p>R-universe setup notes and the registry details are in <a href="r-universe.html">docs/R_UNIVERSE.md</a>.</p>
+<p>For source checkouts:</p>
+<pre><code>
+git clone https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods.git
+cd Celestial_Dynamics_Iteration_Methods
+</code></pre>
+<p>The R examples use base R. The optional Python helper <code>R/systems/three_body/figure_8_solution.py</code> requires packages listed in <code>requirements.txt</code>:</p>
+<pre><code>
+python -m pip install -r requirements.txt
+</code></pre>
+<h2 id="common-commands">Common Commands</h2>
+<p>Run all validation checks:</p>
+<pre><code>
+Rscript tests/run_all_tests.R
+</code></pre>
+<p>Run three-body validation only:</p>
+<pre><code>
+Rscript tests/validate_three_body.R
+</code></pre>
+<p>Run two-body validation only:</p>
+<pre><code>
+Rscript tests/validate_two_body.R
+</code></pre>
+<p>Regenerate every example plot and companion trajectory animation:</p>
+<pre><code>
+Rscript run_all_examples.R
+</code></pre>
+<p>Regenerate the Sun-Earth all-method comparison only:</p>
+<pre><code>
+Rscript examples/comparisons/sun_earth_all_methods.R
+</code></pre>
+<p>Regenerate generated result tables, conservation diagnostics, runtime benchmarks, convergence plots, the plot manifest, the results index, and the method comparison dashboard:</p>
+<pre><code>
+Rscript analysis/generate_results.R
+</code></pre>
+<p>Update the committed artifact size/dimension baseline after intentional plot or dashboard changes:</p>
+<pre><code>
+Rscript analysis/update_artifact_baseline.R
+</code></pre>
+<p>Open the generated local results index in a browser:</p>
+<pre><code>
+analysis/generated/index.html
+</code></pre>
+<p>The published GitHub Pages version is:</p>
+<pre><code>
+https://sidrichardsquantum.github.io/Celestial_Dynamics_Iteration_Methods/
+</code></pre>
+<p>Regenerate two-body plots only:</p>
+<pre><code>
+Rscript examples/two_body/run_all_two_body_examples.R
+</code></pre>
+<p>Regenerate n-body plots only:</p>
+<pre><code>
+Rscript examples/n_body/run_all_n_body_examples.R
+</code></pre>
+<p>Regenerate three-body plots only:</p>
+<pre><code>
+Rscript examples/three_body/run_all_three_body_examples.R
+</code></pre>
+<p>Run examples from the repository root so their <code>source(...)</code> paths resolve correctly.</p>
+<p>Repository scripts bootstrap <code>R/load.R</code>, then use <code>cd_source()</code> or the module-level helpers such as <code>cd_load_two_body()</code> and <code>cd_load_three_body()</code>. Use those helpers for new scripts instead of adding long chains of direct <code>source(&quot;R/...&quot;)</code> calls.</p>
+<p>The repository also has lightweight R package metadata (<code>DESCRIPTION</code> and <code>NAMESPACE</code>). This supports package build/load checks while preserving the script-driven example and artifact workflow.</p>
+<p>Build and check the internal package surface:</p>
+<pre><code>
+R CMD build . --no-build-vignettes --no-manual
+R CMD check CelestialDynamicsIterationMethods_*.tar.gz --no-manual --ignore-vignettes
+</code></pre>
+<p>The package namespace is intentionally conservative for now: functions are loaded for package checks, but stable public exports should be added only after the API is deliberately chosen.</p>
+<p>Run the experimental near-periodic three-body search:</p>
+<pre><code>
+Rscript experiments/find_three_body_solution.R
+</code></pre>
+<p>This search is intentionally exploratory. It performs a small randomized search over symmetric equal-mass initial conditions and writes a candidate plot to <code>images/three_body/experiments/candidate_solution.png</code>.</p>
+<h2 id="example-usage">Example Usage</h2>
+<p>Projectile trajectory:</p>
+<pre><code>
+source(&quot;examples/projectile/projectile_example.R&quot;)
+</code></pre>
+<figure><img src="../../docs/images/projectile/euler_trajectory.png" alt="Euler Method Trajectory"><figcaption>Euler Method Trajectory</figcaption></figure>
+<p>Sun-Earth all-method comparison:</p>
+<pre><code>
+source(&quot;examples/comparisons/sun_earth_all_methods.R&quot;)
+</code></pre>
+<figure><img src="../../docs/images/comparisons/sun_earth_all_methods.png" alt="Sun-Earth All Methods"><figcaption>Sun-Earth All Methods</figcaption></figure>
+<p>Earth-Moon system using Euler's method:</p>
+<pre><code>
+source(&quot;examples/two_body/earth_moon/earth_moon_euler.R&quot;)
+</code></pre>
+<figure><img src="../../docs/images/two_body/earth_moon/earth_moon_euler.png" alt="Earth and Moon"><figcaption>Earth and Moon</figcaption></figure>
+<p>Equal-mass figure-8 three-body solution:</p>
+<pre><code>
+source(&quot;examples/three_body/special_solutions/three_earths.R&quot;)
+</code></pre>
+<figure><img src="../../docs/images/three_body/special_solutions/three_earths.png" alt="Three Earths"><figcaption>Three Earths</figcaption></figure>
+<p>Four-body Sun-Earth-Mars-Jupiter example:</p>
+<pre><code>
+source(&quot;examples/n_body/sun_earth_mars_jupiter.R&quot;)
+</code></pre>
+<figure><img src="../../docs/images/n_body/sun_earth_mars_jupiter.png" alt="Sun-Earth-Mars-Jupiter"><figcaption>Sun-Earth-Mars-Jupiter</figcaption></figure>
+<p>Special four-body rotating square:</p>
+<pre><code>
+source(&quot;examples/n_body/special_solutions/rotating_square_four_body.R&quot;)
+</code></pre>
+<figure><img src="../../docs/images/n_body/special_solutions/rotating_square_four_body.png" alt="Rotating Square Four-Body"><figcaption>Rotating Square Four-Body</figcaption></figure>
+<h2 id="project-structure">Project Structure</h2>
+<pre><code>
+Celestial_Dynamics_Iteration_Methods/
+├── DESCRIPTION
+├── NAMESPACE
+├── README.md
+├── docs/USAGE.md
+├── docs/THEORY.md
+├── docs/RESULTS.md
+├── R/constants.R
+├── run_all_examples.R
+├── analysis/
+│   ├── README.md
+│   ├── generate_results.R
+│   ├── update_artifact_baseline.R
+│   └── generated/
+│       ├── artifact_baseline.csv
+│       ├── convergence_summary.csv
+│       ├── earth_moon_method_summary.csv
+│       ├── index.html
+│       ├── method_summary.csv
+│       ├── method_comparison_dashboard.html
+│       ├── n_body_conservation_summary.csv
+│       ├── plot_manifest.csv
+│       ├── runtime_benchmark.csv
+│       └── three_body_special_summary.csv
+├── .github/
+│   └── workflows/
+│       ├── pages.yml
+│       ├── r-validation.yml
+│       └── regenerate-plots.yml
+├── R/systems/
+│   ├── plotting/
+│   │   └── plot_style.R
+│   ├── two_body/
+│   │   ├── plot_two_body.R
+│   │   ├── two_body_helpers.R
+│   │   ├── two_body_method_registry.R
+│   │   ├── two_body_euler.R
+│   │   ├── two_body_heuns.R
+│   │   ├── two_body_midpoint.R
+│   │   ├── two_body_runge_kutta.R
+│   │   └── two_body_velocity_verlet.R
+│   ├── n_body/
+│   │   ├── four_body_initial_conditions.R
+│   │   ├── n_body_helpers.R
+│   │   ├── n_body_runge_kutta.R
+│   │   ├── n_body_velocity_verlet.R
+│   │   └── plot_n_body.R
+│   └── three_body/
+│       ├── choreography_initial_conditions.R
+│       ├── circular_restricted_three_body.R
+│       ├── euler_collinear_initial_conditions.R
+│       ├── figure_8_initial_conditions.R
+│       ├── figure_8_solution.py
+│       ├── lagrange_initial_conditions.R
+│       ├── plot_three_body.R
+│       ├── sitnikov_problem.R
+│       └── three_body_runge_kutta.R
+├── examples/
+│   ├── README.md
+│   ├── comparisons/
+│   ├── n_body/
+│   │   ├── run_all_n_body_examples.R
+│   │   └── special_solutions/
+│   ├── projectile/
+│   ├── two_body/
+│   │   ├── run_all_two_body_examples.R
+│   │   ├── earth_moon/
+│   │   └── sun_earth/
+│   └── three_body/
+│       ├── README.md
+│       ├── run_all_three_body_examples.R
+│       ├── general/
+│       ├── perturbations/
+│       ├── restricted/
+│       └── special_solutions/
+├── images/
+│   ├── analysis/
+│   ├── n_body/
+│   ├── projectile/
+│   ├── two_body/
+│   └── three_body/
+├── experiments/
+│   └── find_three_body_solution.R
+├── R/methods/
+└── tests/
+    ├── helpers_three_body.R
+    ├── run_all_tests.R
+    ├── validate_plot_generation.R
+    ├── validate_restricted_three_body.R
+    ├── validate_special_solutions.R
+    ├── validate_two_body.R
+    └── validate_three_body.R
+</code></pre>
+<h2 id="generated-artifacts">Generated Artifacts</h2>
+<p>Plots are generated artifacts, but this repository keeps representative PNGs under <code>images/</code> so the markdown result pages render directly. Trajectory examples also write companion HTML canvas animations next to the PNGs. If an example is changed, run the relevant example runner and then run:</p>
+<pre><code>
+Rscript tests/validate_plot_generation.R
+</code></pre>
+<p>The GitHub Actions workflow <code>R validation</code> runs <code>tests/run_all_tests.R</code> on pushes and pull requests. The <code>Regenerate plots</code> workflow is manual; it runs <code>run_all_examples.R</code>, regenerates analysis artifacts, validates the outputs, and uploads regenerated image and analysis directories as artifacts. The <code>Deploy GitHub Pages</code> workflow regenerates plots, animations, and analysis artifacts, validates them, and publishes a static site containing <code>analysis/generated/</code>, <code>images/</code>, <code>README.md</code>, and <code>docs/</code>.</p>
+<p>The generated comparison dashboard is written to:</p>
+<pre><code>
+analysis/generated/method_comparison_dashboard.html
+</code></pre>
+<p>The generated results index is written to:</p>
+<pre><code>
+analysis/generated/index.html
+</code></pre>
+<p>The plot manifest and artifact baseline used by validation are written to:</p>
+<pre><code>
+analysis/generated/plot_manifest.csv
+analysis/generated/artifact_baseline.csv
+</code></pre>
+<p>Representative generated animations include:</p>
+<pre><code>
+images/two_body/sun_earth/sun_earth_runge_kutta.html
+images/three_body/special_solutions/three_earths.html
+images/n_body/sun_earth_mars_jupiter.html
+</code></pre>
+    </article>
+  </main>
+</body>
+</html>

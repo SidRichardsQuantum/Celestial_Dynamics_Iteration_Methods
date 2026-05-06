@@ -7,6 +7,18 @@ cd_load_n_body()
 generated_dir = "analysis/generated"
 analysis_image_dir = "images/analysis"
 dashboard_path = file.path(generated_dir, "method_comparison_dashboard.html")
+package_url = "https://sidrichardsquantum.r-universe.dev/CelestialDynamicsIterationMethods"
+doc_link_map = c(
+  "README.md" = "readme.html",
+  "docs/USAGE.md" = "usage.html",
+  "docs/THEORY.md" = "theory.html",
+  "docs/RESULTS.md" = "index.html",
+  "docs/R_UNIVERSE.md" = "r-universe.html",
+  "analysis/README.md" = "analysis.html",
+  "examples/README.md" = "examples.html",
+  "examples/three_body/README.md" = "three-body-examples.html"
+)
+current_markdown_dir = "."
 
 dir.create(generated_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(analysis_image_dir, recursive = TRUE, showWarnings = FALSE)
@@ -778,10 +790,12 @@ dashboard_html = c(
   "  <header class=\"site-header\">",
   "    <a class=\"brand\" href=\"index.html\" aria-label=\"Celestial Dynamics home\"><span class=\"brand-mark\">SR</span><span>Celestial Dynamics</span></a>",
   "    <nav class=\"nav-links\" aria-label=\"Primary navigation\">",
-  "      <a href=\"index.html\">Results</a>",
-  "      <a href=\"method_comparison_dashboard.html\">Dashboard</a>",
-  "      <a href=\"artifact_index.html\">Artifacts</a>",
-  "      <a href=\"../../README.md\">README</a>",
+    "      <a href=\"index.html\">Results</a>",
+    "      <a href=\"method_comparison_dashboard.html\">Dashboard</a>",
+    "      <a href=\"artifact_index.html\">Artifacts</a>",
+    "      <a href=\"docs.html\">Docs</a>",
+    paste0("      <a href=\"", package_url, "\">Package</a>"),
+    "      <a href=\"readme.html\">README</a>",
   "    </nav>",
   "  </header>",
   "  <main id=\"top\" tabindex=\"-1\" class=\"section\">",
@@ -981,6 +995,23 @@ site_relative_path = function(path) {
   while (startsWith(normalized, "../")) {
     normalized = sub("^\\.\\./", "", normalized)
   }
+  normalized = sub("^\\./", "", normalized)
+  if (!identical(current_markdown_dir, ".") &&
+      !startsWith(normalized, "/")) {
+    candidate = file.path(current_markdown_dir, normalized)
+    candidate = gsub("/\\./", "/", candidate)
+    while (grepl("(^|/)[^/]+/\\.\\./", candidate)) {
+      candidate = sub("(^|/)[^/]+/\\.\\./", "\\1", candidate)
+    }
+    candidate = sub("^\\./", "", candidate)
+    if (candidate %in% names(doc_link_map)) {
+      return(unname(doc_link_map[[candidate]]))
+    }
+    normalized = candidate
+  }
+  if (normalized %in% names(doc_link_map)) {
+    return(unname(doc_link_map[[normalized]]))
+  }
   if (startsWith(normalized, "analysis/generated/")) {
     return(sub("^analysis/generated/", "", normalized))
   }
@@ -1048,7 +1079,12 @@ slugify_heading = function(text) {
   slug
 }
 
-render_results_markdown = function(input_path, output_path) {
+render_markdown_page = function(input_path, output_path, title, eyebrow,
+                                 description, primary_links = character()) {
+  old_markdown_dir = current_markdown_dir
+  current_markdown_dir <<- dirname(input_path)
+  on.exit(current_markdown_dir <<- old_markdown_dir, add = TRUE)
+
   lines = readLines(input_path, warn = FALSE)
   output = character(0)
   list_open = FALSE
@@ -1105,7 +1141,7 @@ render_results_markdown = function(input_path, output_path) {
 
   for (line_index in seq_along(lines)) {
     line = lines[[line_index]]
-    if (line_index == 1 && identical(trimws(line), "# Results")) {
+    if (line_index == 1 && grepl("^# ", trimws(line))) {
       next
     }
     if (grepl("^```", line)) {
@@ -1196,7 +1232,7 @@ render_results_markdown = function(input_path, output_path) {
     "<head>",
     "  <meta charset=\"utf-8\">",
     "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
-    "  <title>Celestial Dynamics Results</title>",
+    paste0("  <title>", html_escape(title), "</title>"),
     "  <style>",
     portfolio_css(c(
     "    .results-content { max-width: 900px; padding-top: 2rem; }",
@@ -1220,15 +1256,17 @@ render_results_markdown = function(input_path, output_path) {
     "      <a href=\"index.html\">Results</a>",
     "      <a href=\"method_comparison_dashboard.html\">Dashboard</a>",
     "      <a href=\"artifact_index.html\">Artifacts</a>",
-    "      <a href=\"../../README.md\">README</a>",
+    "      <a href=\"docs.html\">Docs</a>",
+    paste0("      <a href=\"", package_url, "\">Package</a>"),
+    "      <a href=\"readme.html\">README</a>",
     "    </nav>",
     "  </header>",
     "  <main id=\"top\" tabindex=\"-1\" class=\"section\">",
     "    <section class=\"page-hero\">",
     "      <div>",
-    "        <p class=\"eyebrow\">Numerical methods and orbital simulation</p>",
-    "        <h1>Celestial Dynamics Results</h1>",
-    "        <p>Generated results for projectile, two-body, three-body, restricted three-body, and n-body examples.</p>",
+    paste0("        <p class=\"eyebrow\">", html_escape(eyebrow), "</p>"),
+    paste0("        <h1>", html_escape(title), "</h1>"),
+    paste0("        <p>", html_escape(description), "</p>"),
     "      </div>",
     "      <div class=\"metric-strip\">",
     "        <div class=\"metric\"><span>Methods</span><strong>5</strong></div>",
@@ -1239,8 +1277,9 @@ render_results_markdown = function(input_path, output_path) {
     "    <div class=\"links\" aria-label=\"Generated result views\">",
     "      <a class=\"button primary\" href=\"method_comparison_dashboard.html\">Method Dashboard</a>",
     "      <a class=\"button\" href=\"artifact_index.html\">Artifact Browser</a>",
-    "      <a class=\"button\" href=\"method_summary.csv\">Sun-Earth CSV</a>",
-    "      <a class=\"button\" href=\"runtime_benchmark.csv\">Runtime CSV</a>",
+    "      <a class=\"button\" href=\"docs.html\">Documentation</a>",
+    paste0("      <a class=\"button\" href=\"", package_url, "\">R-universe Package</a>"),
+    primary_links,
     "    </div>",
     "    <article class=\"results-content\">",
     output,
@@ -1252,7 +1291,140 @@ render_results_markdown = function(input_path, output_path) {
   writeLines(page, output_path)
 }
 
-render_results_markdown("docs/RESULTS.md", file.path(generated_dir, "index.html"))
+render_markdown_page(
+  "docs/RESULTS.md",
+  file.path(generated_dir, "index.html"),
+  "Celestial Dynamics Results",
+  "Numerical methods and orbital simulation",
+  "Generated results for projectile, two-body, three-body, restricted three-body, and n-body examples.",
+  c(
+    "      <a class=\"button\" href=\"method_summary.csv\">Sun-Earth CSV</a>",
+    "      <a class=\"button\" href=\"runtime_benchmark.csv\">Runtime CSV</a>"
+  )
+)
+
+documentation_pages = data.frame(
+  source = c(
+    "README.md",
+    "docs/USAGE.md",
+    "docs/THEORY.md",
+    "docs/R_UNIVERSE.md",
+    "analysis/README.md",
+    "examples/README.md",
+    "examples/three_body/README.md"
+  ),
+  output = c(
+    "readme.html",
+    "usage.html",
+    "theory.html",
+    "r-universe.html",
+    "analysis.html",
+    "examples.html",
+    "three-body-examples.html"
+  ),
+  title = c(
+    "Project README",
+    "Usage",
+    "Theory",
+    "R-universe Setup",
+    "Analysis Workflow",
+    "Examples",
+    "Three-Body Examples"
+  ),
+  eyebrow = c(
+    "Project overview",
+    "Setup and commands",
+    "Numerical methods",
+    "Package distribution",
+    "Generated diagnostics",
+    "Runnable simulations",
+    "Three-body systems"
+  ),
+  description = c(
+    "The repository front page, package install commands, project overview, and links.",
+    "Detailed setup, command reference, examples, repository layout, and generated artifacts.",
+    "Numerical method descriptions and the modelling assumptions used in the simulations.",
+    "R-universe registry details and installation notes for the package.",
+    "How analysis tables, dashboards, diagnostics, and result artifacts are generated.",
+    "Runnable examples grouped by model type.",
+    "Special, restricted, perturbed, and general three-body example scripts."
+  ),
+  stringsAsFactors = FALSE
+)
+
+for (i in seq_len(nrow(documentation_pages))) {
+  render_markdown_page(
+    documentation_pages$source[i],
+    file.path(generated_dir, documentation_pages$output[i]),
+    documentation_pages$title[i],
+    documentation_pages$eyebrow[i],
+    documentation_pages$description[i]
+  )
+}
+
+doc_cards = vapply(seq_len(nrow(documentation_pages)), function(i) {
+  paste0(
+    "      <article class=\"project-card\"><div><h3>",
+    html_escape(documentation_pages$title[i]),
+    "</h3><p>",
+    html_escape(documentation_pages$description[i]),
+    "</p></div><div class=\"card-links\"><a href=\"",
+    html_escape(documentation_pages$output[i]),
+    "\">Open</a></div></article>"
+  )
+}, character(1))
+
+docs_index_html = c(
+  "<!doctype html>",
+  "<html lang=\"en\">",
+  "<head>",
+  "  <meta charset=\"utf-8\">",
+  "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+  "  <title>Celestial Dynamics Documentation</title>",
+  "  <style>",
+  portfolio_css(c(
+  "    .docs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; padding-top: 1.5rem; }",
+  "    .project-card { display: grid; gap: 1.25rem; align-content: space-between; min-height: 12rem; padding: 1.1rem; }",
+  "    .project-card h3 { margin: 0 0 0.45rem; }",
+  "    .project-card p { margin: 0; }",
+  "    .card-links { display: flex; flex-wrap: wrap; gap: 0.75rem; font-weight: 800; }"
+  )),
+  "  </style>",
+  "</head>",
+  "<body>",
+  "  <a class=\"skip-link\" href=\"#top\">Skip to main content</a>",
+  "  <header class=\"site-header\">",
+  "    <a class=\"brand\" href=\"index.html\" aria-label=\"Celestial Dynamics home\"><span class=\"brand-mark\">SR</span><span>Celestial Dynamics</span></a>",
+  "    <nav class=\"nav-links\" aria-label=\"Primary navigation\">",
+  "      <a href=\"index.html\">Results</a>",
+  "      <a href=\"method_comparison_dashboard.html\">Dashboard</a>",
+  "      <a href=\"artifact_index.html\">Artifacts</a>",
+  "      <a href=\"docs.html\">Docs</a>",
+  paste0("      <a href=\"", package_url, "\">Package</a>"),
+  "      <a href=\"readme.html\">README</a>",
+  "    </nav>",
+  "  </header>",
+  "  <main id=\"top\" tabindex=\"-1\" class=\"section\">",
+  "    <section class=\"page-hero\">",
+  "      <div>",
+  "        <p class=\"eyebrow\">Project documentation</p>",
+  "        <h1>Celestial Dynamics Documentation</h1>",
+  "        <p>Styled versions of the repository markdown documentation, generated with the same visual system as the results pages.</p>",
+  "      </div>",
+  "      <div class=\"metric-strip\">",
+  paste0("        <div class=\"metric\"><span>Pages</span><strong>", nrow(documentation_pages), "</strong></div>"),
+  "        <div class=\"metric\"><span>Package</span><strong>R</strong></div>",
+  "        <div class=\"metric\"><span>Theme</span><strong>SR</strong></div>",
+  "      </div>",
+  "    </section>",
+  "    <section class=\"docs-grid\" aria-label=\"Documentation pages\">",
+  doc_cards,
+  "    </section>",
+  "  </main>",
+  "</body>",
+  "</html>"
+)
+writeLines(docs_index_html, file.path(generated_dir, "docs.html"))
 
 plot_manifest = if (file.exists(cd_plot_manifest_path)) {
   read.csv(cd_plot_manifest_path, stringsAsFactors = FALSE)
@@ -1337,7 +1509,9 @@ index_html = c(
   "      <a href=\"index.html\">Results</a>",
   "      <a href=\"method_comparison_dashboard.html\">Dashboard</a>",
   "      <a href=\"artifact_index.html\">Artifacts</a>",
-  "      <a href=\"../../README.md\">README</a>",
+  "      <a href=\"docs.html\">Docs</a>",
+  paste0("      <a href=\"", package_url, "\">Package</a>"),
+  "      <a href=\"readme.html\">README</a>",
   "    </nav>",
   "  </header>",
   "  <main id=\"top\" tabindex=\"-1\" class=\"section\">",
@@ -1356,6 +1530,7 @@ index_html = c(
   "    <div class=\"links\">",
   "      <a class=\"button primary\" href=\"index.html\">Results narrative</a>",
   "      <a class=\"button\" href=\"method_comparison_dashboard.html\">Method dashboard</a>",
+  paste0("      <a class=\"button\" href=\"", package_url, "\">R-universe package</a>"),
   "      <a class=\"button\" href=\"method_summary.csv\">Sun-Earth summary CSV</a>",
   "      <a class=\"button\" href=\"earth_moon_method_summary.csv\">Earth-Moon summary CSV</a>",
   "      <a class=\"button\" href=\"runtime_benchmark.csv\">Runtime benchmark CSV</a>",

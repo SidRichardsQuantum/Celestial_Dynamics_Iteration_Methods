@@ -14,11 +14,6 @@ The project is implemented primarily in R, with an optional Python helper for re
 **R-universe:**
 [https://sidrichardsquantum.r-universe.dev/CelestialDynamicsIterationMethods](https://sidrichardsquantum.r-universe.dev/CelestialDynamicsIterationMethods)
 
-For setup, commands, examples, and repository layout, see [docs/USAGE.md](docs/USAGE.md).
-For method descriptions, see [docs/THEORY.md](docs/THEORY.md).
-For generated results, evaluation, and comparison dashboards, see
-[docs/RESULTS.md](docs/RESULTS.md).
-
 ## Overview
 
 This project compares:
@@ -42,7 +37,7 @@ The simulations generate trajectories and energy-conservation diagnostics for:
 
 `R/constants.R` defines `G` as positive; attraction is handled by explicit signs in the force equations.
 
-## Quick Start
+## Installation
 
 Install the development package directly from GitHub:
 
@@ -64,7 +59,9 @@ install.packages("CelestialDynamicsIterationMethods")
 R-universe setup notes and the registry details are in
 [docs/R_UNIVERSE.md](docs/R_UNIVERSE.md).
 
-Run all validations:
+## Common Commands
+
+Run the validation suite:
 
 ```bash
 Rscript tests/run_all_tests.R
@@ -82,11 +79,15 @@ Regenerate analysis tables, diagnostics, and the dashboard:
 Rscript analysis/generate_results.R
 ```
 
-Run only three-body checks:
+For source checkouts, example-specific commands, optional Python setup, and
+generated artifact details, see [docs/USAGE.md](docs/USAGE.md).
 
-```bash
-Rscript tests/validate_three_body.R
-```
+## Documentation
+
+- [Usage](docs/USAGE.md): setup, commands, examples, repository layout, and generated artifacts
+- [Theory](docs/THEORY.md): method descriptions and numerical context
+- [Results](docs/RESULTS.md): generated results, evaluation, and comparison dashboards
+- [R-universe setup](docs/R_UNIVERSE.md): package registry and install details
 
 ## Repository Highlights
 

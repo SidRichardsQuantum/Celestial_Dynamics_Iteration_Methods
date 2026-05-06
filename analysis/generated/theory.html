@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Theory</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f7f4;
+      --surface: #ffffff;
+      --surface-muted: #ededeb;
+      --text: #1d2328;
+      --muted: #5b6670;
+      --line: #d7d9d6;
+      --accent: #126c83;
+      --accent-strong: #0f5364;
+      --accent-soft: #dceff3;
+      --code-bg: #eef2f1;
+      --shadow: 0 18px 45px rgba(34, 41, 47, 0.08);
+      --shadow-soft: 0 10px 30px rgba(34, 41, 47, 0.06);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #101416;
+        --surface: #171d20;
+        --surface-muted: #20282b;
+        --text: #edf1f2;
+        --muted: #a9b4b8;
+        --line: #2e393d;
+        --accent: #66c5d7;
+        --accent-strong: #9eddea;
+        --accent-soft: #17333a;
+        --code-bg: #11191c;
+        --shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+        --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.18);
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+      text-rendering: optimizeLegibility;
+    }
+    a { color: inherit; text-decoration-color: color-mix(in srgb, var(--accent) 65%, transparent); text-underline-offset: 0.2em; }
+    a:hover { color: var(--accent-strong); }
+    a:focus-visible, button:focus-visible, input:focus-visible, main:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+    .skip-link {
+      position: fixed; top: 0.75rem; left: 0.75rem; z-index: 20;
+      transform: translateY(-150%); border: 1px solid var(--accent-strong);
+      border-radius: 8px; padding: 0.65rem 0.9rem; background: var(--surface);
+      color: var(--accent-strong); font-weight: 800; text-decoration: none;
+      box-shadow: var(--shadow); transition: transform 160ms ease;
+    }
+    .skip-link:focus-visible { transform: translateY(0); }
+    .site-header {
+      position: sticky; top: 0; z-index: 10; display: flex; align-items: center;
+      justify-content: space-between; gap: 1.5rem; padding: 1rem clamp(1rem, 4vw, 3rem);
+      border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 0.7rem; font-weight: 700; text-decoration: none; }
+    .brand-mark {
+      display: inline-grid; width: 2.2rem; height: 2.2rem; place-items: center;
+      border: 1px solid var(--line); border-radius: 8px; background: var(--surface);
+      color: var(--accent-strong); font-size: 0.82rem; letter-spacing: 0;
+    }
+    .nav-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem 1rem; color: var(--muted); font-size: 0.95rem; }
+    .nav-links a { border-radius: 6px; padding: 0.15rem 0; text-decoration: none; }
+    .eyebrow { margin: 0 0 0.75rem; color: var(--accent-strong); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .button, button, a.button {
+      display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center;
+      border: 1px solid var(--line); border-radius: 8px; padding: 0.72rem 1rem;
+      background: var(--surface); color: var(--text); font: inherit; font-weight: 700;
+      line-height: 1; text-decoration: none; cursor: pointer; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+      transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+    }
+    .button.primary, button.active { border-color: var(--accent-strong); background: var(--accent-strong); color: #ffffff; }
+    .button:hover, button:hover, a.button:hover { transform: translateY(-1px); border-color: var(--accent); color: var(--accent-strong); }
+    button.active:hover { color: #ffffff; }
+    button.secondary { color: var(--accent-strong); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+    .section { width: min(1120px, calc(100% - 2rem)); margin: 0 auto; padding: clamp(3rem, 8vw, 6rem) 0; scroll-margin-top: 6rem; }
+    .page-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 1.5rem; border-bottom: 1px solid var(--line); padding-bottom: 2rem; }
+    .page-hero h1 { margin: 0; font-size: clamp(2.6rem, 8vw, 5.8rem); line-height: 0.95; letter-spacing: 0; }
+    .page-hero p { max-width: 760px; margin: 1rem 0 0; color: var(--muted); font-size: clamp(1rem, 2vw, 1.2rem); }
+    .metric-strip { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: flex-end; }
+    .metric { min-width: 7rem; border: 1px solid var(--line); border-radius: 8px; padding: 0.8rem 0.9rem; background: var(--surface); box-shadow: var(--shadow-soft); }
+    .metric span { display: block; color: var(--muted); font-size: 0.76rem; font-weight: 700; }
+    .metric strong { display: block; margin-top: 0.1rem; font-size: 1.2rem; line-height: 1.1; }
+    .panel, .project-card { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: var(--shadow-soft); }
+    .panel { overflow: hidden; }
+    .panel:hover, .panel:focus-within, .project-card:hover, .project-card:focus-within { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow: var(--shadow); }
+    .panel-header, .toolbar { display: flex; justify-content: space-between; gap: 0.75rem; align-items: center; border-bottom: 1px solid var(--line); padding: 0.85rem 1rem; background: var(--surface-muted); }
+    .panel-header span, .result-count, .readout, figcaption, .path, p, li { color: var(--muted); }
+    .panel-body { padding: 1rem; }
+    .links, .toolbar, .button-group, .filters, .legend { display: flex; flex-wrap: wrap; gap: 0.65rem; align-items: center; }
+    .links { margin: 1.5rem 0; }
+    h2 { letter-spacing: 0; }
+    h3 { line-height: 1.25; }
+    code { display: inline-block; max-width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 0.1rem 0.35rem; background: var(--code-bg); color: var(--text); font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 0.9em; }
+    pre { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; padding: 1rem; background: var(--code-bg); }
+    pre code { border: 0; padding: 0; background: transparent; }
+    table { width: 100%; border-collapse: collapse; background: var(--surface); }
+    th, td { border-bottom: 1px solid var(--line); padding: 0.65rem 0.6rem; vertical-align: top; }
+    th { color: var(--muted); font-size: 0.82rem; text-align: left; background: var(--surface-muted); }
+    tbody tr:nth-child(even) { background: color-mix(in srgb, var(--surface-muted) 60%, transparent); }
+    tr:last-child td { border-bottom: 0; }
+    .table-wrap { overflow-x: auto; margin: 1rem 0 1.25rem; border: 1px solid var(--line); border-radius: 8px; }
+    .tag { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 0.22rem 0.55rem; background: var(--surface-muted); color: var(--muted); font-size: 0.78rem; font-weight: 700; }
+    input[type=search] { width: min(340px, 100%); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem 0.8rem; background: var(--surface); color: var(--text); font: inherit; }
+    input[type=range] { accent-color: var(--accent); }
+    canvas, img { max-width: 100%; border: 1px solid var(--line); border-radius: 8px; background: #ffffff; }
+    canvas { width: 100%; height: auto; display: block; }
+    figure { margin: 1.25rem 0 1.6rem; }
+    figcaption { margin-top: 0.45rem; font-size: 0.82rem; }
+    .swatch { width: 0.75rem; height: 0.75rem; border-radius: 2px; display: inline-block; box-shadow: inset 0 0 0 1px rgba(29, 35, 40, .14); }
+    tr.hidden { display: none; }
+    tr.dimmed { opacity: .48; }
+    @media (max-width: 880px) { .page-hero { grid-template-columns: 1fr; } .metric-strip { justify-content: flex-start; } }
+    @media (max-width: 620px) { .site-header { align-items: flex-start; flex-direction: column; gap: 0.75rem; } .nav-links { justify-content: flex-start; } .section { width: min(100% - 1rem, 1120px); padding: clamp(2.5rem, 12vw, 4rem) 0; } .button, button, a.button { width: 100%; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; } .button:hover, button:hover, a.button:hover { transform: none; } }
+    .results-content { max-width: 900px; padding-top: 2rem; }
+    .results-content h2 { margin-top: 2.2rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.1; }
+    .results-content h2:first-child { margin-top: 0; }
+    .results-content h3 { margin-top: 1.7rem; font-size: 1.12rem; }
+    .results-content ul { padding-left: 1.2rem; }
+    .results-content li { margin: 0.2rem 0; }
+    .results-content .table-wrap { max-width: min(100%, calc(100vw - 2rem)); }
+    .results-content th, .results-content td { white-space: nowrap; text-align: left; }
+    .results-content img { display: block; width: 100%; height: auto; }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#top">Skip to main content</a>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Celestial Dynamics home"><span class="brand-mark">SR</span><span>Celestial Dynamics</span></a>
+    <nav class="nav-links" aria-label="Primary navigation">
+      <a href="index.html">Results</a>
+      <a href="method_comparison_dashboard.html">Dashboard</a>
+      <a href="artifact_index.html">Artifacts</a>
+      <a href="docs.html">Docs</a>
+      <a href="https://sidrichardsquantum.r-universe.dev/CelestialDynamicsIterationMethods">Package</a>
+      <a href="readme.html">README</a>
+    </nav>
+  </header>
+  <main id="top" tabindex="-1" class="section">
+    <section class="page-hero">
+      <div>
+        <p class="eyebrow">Numerical methods</p>
+        <h1>Theory</h1>
+        <p>Numerical method descriptions and the modelling assumptions used in the simulations.</p>
+      </div>
+      <div class="metric-strip">
+        <div class="metric"><span>Methods</span><strong>5</strong></div>
+        <div class="metric"><span>Systems</span><strong>4</strong></div>
+        <div class="metric"><span>Views</span><strong>3</strong></div>
+      </div>
+    </section>
+    <div class="links" aria-label="Generated result views">
+      <a class="button primary" href="method_comparison_dashboard.html">Method Dashboard</a>
+      <a class="button" href="artifact_index.html">Artifact Browser</a>
+      <a class="button" href="docs.html">Documentation</a>
+      <a class="button" href="https://sidrichardsquantum.r-universe.dev/CelestialDynamicsIterationMethods">R-universe Package</a>
+    </div>
+    <article class="results-content">
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#intro">Intro</a></li>
+<li><a href="#numerical-methods">Numerical Methods</a></li>
+<li><a href="#euler-method">Euler Method</a></li>
+<li><a href="#midpoint-method">Midpoint Method</a></li>
+<li><a href="#heuns-method">Heun's Method</a></li>
+<li><a href="#runge-kutta-rk4-method">Runge-Kutta (RK4) Method</a></li>
+<li><a href="#velocity-verlet-method">Velocity Verlet Method</a></li>
+<li><a href="#solutions-of-the-three-body-problem">Solutions of the Three-Body Problem</a></li>
+<li><a href="#general-n-body-engine">General N-Body Engine</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+<h2 id="intro">Intro</h2>
+<p>The acceleration of one body is $g = -G * m / r^2$, where $G = 6.6743 * 10^{-11} m^3Kg^{-1}s^{-2}$ is the gravitational constant, $m$ is the mass of the other body and $r$ is the distance between them.</p>
+<p>These iteration techniques approximate the successive positions and time-derivatives after each small time increment $dt$. Here, we use $dt = T / N$, where $T$ is the total time and $N$ is the number of steps. Each method below has a different way of approximating the parameters, and are listed below in order of increasing accuracy.</p>
+<h2 id="numerical-methods">Numerical Methods</h2>
+<p>Only the first approximated position and speed is written below, for the $x$-coordinate only. These equations have the same exact form in the $y$ or $z$-directions, and for all $N$ steps. Only the discrete positions $(x_i, y_i)$ for integer $i \in [0, N]$ are plotted. (The intermediate coordinates are not meant to be plotted.)</p>
+<p>For our projectile example, the gravitational acceleration is constant and only non-zero in the $y$-direction; such that $a_{xi} = 0$ and $a_{yi} = g = -G m / r^2$, where $r = R + y_0$ for radius of the celestial $R$. For our celestial system, the acceleration depends on the distance $r = (x^2 + y^2)^{0.5}$ between them, hence the acceleration is $a_{r1} = -G m / r_1^2$.</p>
+<h3 id="euler-method">Euler Method</h3>
+<p>Let $x_0$ be the initial $x$-coordinate, $v_{x0} = \frac{dx_0}{dt}$ be the $x$-component of the initial velocity, and $a_{x0} = \frac{dv_{x0}}{dt}$ be the $x$-component of the initial acceleration. Then the Euler method approximates these parameters at the next step:</p>
+<ul>
+<li>$x_1 = x_0 + v_{x0} dt$</li>
+<li>$v_{x1} = v_{x0} + a_{x0} dt$</li>
+<li>$a_{x1} = -G m / x_1^2$</li>
+</ul>
+<h3 id="midpoint-method">Midpoint Method</h3>
+<p>This method is a second-order Runge-Kutta (RK2) method, that provides significantly better accuracy than the Euler method, by evaluating the derivative at the midpoint of each time step.</p>
+<p>Calculate midpoint estimates:</p>
+<ul>
+<li>$x_{0.5} = x_0 + v_{x0} dt / 2$</li>
+<li>$v_{x0.5} = v_{x0} + a_{x0} dt / 2$</li>
+<li>$a_{x0.5} = -G m / x_{0.5}^2$</li>
+</ul>
+<p>These are then used to find the successive parameters:</p>
+<ul>
+<li>$x_1 = x_0 + v_{x0.5} dt$</li>
+<li>$v_{x1} = v_{x0} + a_{x0.5} dt$</li>
+<li>$a_{x1} = -G m / x_1^2$</li>
+</ul>
+<h3 id="heuns-method">Heun's Method</h3>
+<p>Heun’s method is another RK2 technique, which is more accurate than the Euler method because it averages the initial gradient with the gradient predicted by Euler's method.</p>
+<p>Euler's method predicts:</p>
+<ul>
+<li>$x_{pred} = x_0 + v_{x0} dt$</li>
+<li>$v_{xpred} = v_{x0} + a_{x0} dt$</li>
+<li>$a_{xpred} = -G m / x_{pred}^2$</li>
+</ul>
+<p>Average the above with the initial parameters to get:</p>
+<ul>
+<li>$x_1 = x_0 + (v_{xpred} + v_{x0}) dt / 2$</li>
+<li>$v_{x1} = v_{x0} + (a_{xpred} + a_{x0}) dt / 2$</li>
+<li>$a_{x1} = -G m / x_1^2$</li>
+</ul>
+<h3 id="runge-kutta-rk4-method">Runge-Kutta (RK4) Method</h3>
+<p>RK4 is a fourth-order method that evaluates acceleration and velocity at multiple intermediate points, improving both accuracy and energy conservation. Four intermediate estimates are calculated, and a weighted average is used to more-accurately determine the successive positions and velocities.</p>
+<p>Startpoint gradients:</p>
+<ul>
+<li>$k_{1x} = v_{x0} dt$</li>
+<li>$k_{1vx} = a_{x0} dt$</li>
+</ul>
+<p>Second intermediate gradients:</p>
+<ul>
+<li>$x_{1mid} = x_0 + k_{1x} / 2$</li>
+<li>$v_{1midx} = v_{x0} + k_{1vx} / 2$</li>
+<li>$a_{1midx} = -G m / x_{1mid}^2$</li>
+<li>$k_{2x} = v_{1midx} dt$</li>
+<li>$k_{2vx} = a_{1midx} dt$</li>
+</ul>
+<p>Third intermediate gradients:</p>
+<ul>
+<li>$x_{2mid} = x_0 + k_{2x} / 2$</li>
+<li>$v_{2midx} = v_{x0} + k_{2vx} / 2$</li>
+<li>$a_{2midx} = -G m / x_{2mid}^2$</li>
+<li>$k_{3x} = v_{2midx} dt$</li>
+<li>$k_{3vx} = a_{2midx} dt$</li>
+</ul>
+<p>Endpoint gradients:</p>
+<ul>
+<li>$x_{end} = x_0 + k_{3x}$</li>
+<li>$v_{endx} = v_{x0} + k_{3vx}$</li>
+<li>$a_{endx} = -G m / x_{end}^2$</li>
+<li>$k_{4x} = v_{endx} dt$</li>
+<li>$k_{4vx} = a_{endx} dt$</li>
+</ul>
+<p>Taking weighted averages of all the gradients:</p>
+<ul>
+<li>$x_1 = x_0 + (k_{1x} + 2k_{2x} + 2k_{3x} + k_{4x}) / 6$</li>
+<li>$v_{x1} = v_{x0} + (k_{1vx} + 2k_{2vx} + 2k_{3vx} + k_{4vx}) / 6$</li>
+<li>$a_{x1} = -G m / x_1^2$</li>
+</ul>
+<h3 id="velocity-verlet-method">Velocity Verlet Method</h3>
+<p>Velocity Verlet is a second-order symplectic method. It is especially useful for orbital dynamics because it updates positions and velocities in a way that tends to keep long-term energy error bounded rather than letting it drift monotonically.</p>
+<p>Using the current acceleration $a_{x0}$:</p>
+<ul>
+<li>$x_1 = x_0 + v_{x0} dt + \frac{1}{2} a_{x0} dt^2$</li>
+<li>$a_{x1} = -G m / x_1^2$</li>
+<li>$v_{x1} = v_{x0} + \frac{1}{2}(a_{x0} + a_{x1})dt$</li>
+</ul>
+<p>The method is lower order than RK4, but its symplectic structure makes it an important comparison method for long-running conservative systems.</p>
+<h2 id="solutions-of-the-three-body-problem">Solutions of the Three-Body Problem</h2>
+<p>This repository includes several special and illustrative three-body cases. Some are analytically structured initial conditions, then RK4 is used to test whether the numerical trajectory preserves that structure over one period. Others intentionally perturb a solution or use the restricted three-body approximation to show nearby behavior.</p>
+<p>The figure-8 solution is generated by minimising the action which describes three identical masses that follow each other $T/3$ apart, where $T$ is the orbital period. With correctly scaled initial positions, velocities, and period, RK4 can reproduce the figure-8 orbit over a full period.</p>
+<p>The Lagrange solution places the three bodies at the vertices of an equilateral triangle. The triangle rotates rigidly about its center of mass with angular speed $\omega = \sqrt{G(3m)/s^3}$, where $s$ is the side length. Each body therefore keeps the same pairwise separation throughout the orbit.</p>
+<p>The Euler collinear solution places three equal masses on a single rotating line. For positions $(-r, 0)$, $(0, 0)$, and $(r, 0)$, the outer bodies require $\omega = \sqrt{5Gm/(4r^3)}$ and the central body remains at the center of mass. The line rotates as a rigid central configuration.</p>
+<p>These solutions are special cases, not generic outcomes. Like other three-body trajectories, they remain sensitive to perturbations and numerical error over longer integrations.</p>
+<p>Perturbed figure-8 and perturbed Lagrange examples start from known periodic solutions and apply a small displacement or velocity change. These examples are not new exact solutions; they show sensitivity to initial conditions while conserving total energy numerically.</p>
+<p>The circular restricted three-body problem (CR3BP) assumes two massive primaries on circular orbits and a third body whose mass is negligible. In the rotating frame, the primaries are fixed and the third body obeys normalized equations with mass ratio $\mu = m_2/(m_1 + m_2)$. This form is useful for Lagrange points, Trojan motion near L4 or L5, and small Lyapunov-like loops near L1 or L2.</p>
+<p>The Sitnikov problem is a spatial restricted case. Two equal primaries orbit in the plane while the third body moves along the perpendicular axis through their center of mass. For circular primaries separated symmetrically by radius $a$, the restricted body's vertical acceleration is $z'' = -2Gmz/(a^2 + z^2)^{3/2}$.</p>
+<p>Hierarchical triples model a close binary plus a much more distant third body. This is not generally periodic, but it is a common astrophysical configuration and usually remains stable when the outer orbit is much wider than the binary separation.</p>
+<p>The Butterfly I choreography uses cataloged equal-mass periodic initial conditions with $x_1=-1$, $x_2=0$, $x_3=1$, $v_1=v_3=(p_1,p_2)$, and $v_2=-2v_1$ in dimensionless units. The helper scales those catalog values into SI units in the same way as the figure-8 helper.</p>
+<h2 id="general-n-body-engine">General N-Body Engine</h2>
+<p>The n-body engine stores positions and velocities in arrays with dimensions <code>step x body x coordinate</code>. For each body, acceleration is computed by summing the pairwise gravitational contribution from every other body. This makes the same solver usable for two, three, four, or more bodies without duplicating the force equations for each system size.</p>
+<p>The specialized two-body and three-body files are kept because they are easier to read as educational derivations. The n-body engine is a general-purpose parallel implementation for larger examples and parity checks.</p>
+<p>Two special four-body central configurations are included as n-body examples. In the equal-mass square, the four bodies sit at the corners of a square and rotate rigidly about the center. For half-side length $a$, the required angular speed is $\omega^2 = \frac{Gm}{a^3}\left(\frac{1}{4} + \frac{1}{8\sqrt{2}}\right)$.</p>
+<p>The triangular central configuration places one mass at the center and three equal outer masses at the vertices of an equilateral triangle. The central body remains fixed by symmetry while the outer triangle rotates rigidly around it.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://en.m.wikipedia.org/wiki/Euler_method">Euler Method</a></li>
+<li><a href="https://en.m.wikipedia.org/wiki/Midpoint_method">Midpoint Method</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Heun%27s_method">Heun's Method</a></li>
+<li><a href="https://en.m.wikipedia.org/wiki/Runge–Kutta_methods">Runge-Kutta Method</a></li>
+<li><a href="https://en.m.wikipedia.org/wiki/Three-body_problem">Three-Body Problem Solutions</a></li>
+<li><a href="https://three-body.ipb.ac.rs/initial-conditions.pdf">Periodic Three-Body Initial Conditions</a></li>
+</ul>
+<p>---</p>
+<p>📘 Author: Sid Richards (SidRichardsQuantum)</p>
+<p>&lt;img src=&quot;https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg&quot; width=&quot;20&quot; /&gt; LinkedIn: https://www.linkedin.com/in/sid-richards-21374b30b/</p>
+<p>This project is licensed under the MIT License - see the <a href="../../docs/LICENSE">LICENSE</a> file for details.</p>
+    </article>
+  </main>
+</body>
+</html>
