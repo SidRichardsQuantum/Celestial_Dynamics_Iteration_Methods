@@ -9,6 +9,9 @@ Description: Numerical simulation helpers, examples, and diagnostics for
     comparing time-stepping methods with projectile, two-body, three-body, and
     n-body gravitational systems.
 License: MIT + file LICENSE
+URL: https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods,
+    https://sidrichardsquantum.r-universe.dev/CelestialDynamicsIterationMethods
+BugReports: https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods/issues
 Encoding: UTF-8
 Depends:
     R (>= 4.1.0)

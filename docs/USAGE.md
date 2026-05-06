@@ -2,6 +2,28 @@
 
 ## Installation
 
+Install the development package directly from GitHub:
+
+```r
+install.packages("remotes")
+remotes::install_github("SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods")
+```
+
+After the R-universe registry has been created, install from R-universe:
+
+```r
+options(repos = c(
+  sidrichardsquantum = "https://sidrichardsquantum.r-universe.dev",
+  CRAN = "https://cloud.r-project.org"
+))
+install.packages("CelestialDynamicsIterationMethods")
+```
+
+R-universe setup notes and the required registry file are in
+[docs/R_UNIVERSE.md](R_UNIVERSE.md).
+
+For source checkouts:
+
 ```bash
 git clone https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods.git
 cd Celestial_Dynamics_Iteration_Methods

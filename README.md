@@ -2,6 +2,8 @@
 
 [![R validation](https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods/actions/workflows/r-validation.yml/badge.svg)](https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods/actions/workflows/r-validation.yml)
 [![Deploy GitHub Pages](https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods/actions/workflows/pages.yml/badge.svg)](https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods/actions/workflows/pages.yml)
+[![R-universe version](https://sidrichardsquantum.r-universe.dev/CelestialDynamicsIterationMethods/badges/version)](https://sidrichardsquantum.r-universe.dev/CelestialDynamicsIterationMethods)
+[![R-universe checks](https://sidrichardsquantum.r-universe.dev/CelestialDynamicsIterationMethods/badges/checks)](https://sidrichardsquantum.r-universe.dev/CelestialDynamicsIterationMethods)
 
 A numerical simulation suite for comparing time-stepping methods by tracing gravitational dynamics of projectiles, two-body systems, and three-body systems.
 The project is implemented primarily in R, with an optional Python helper for regenerating figure-8 initial conditions.
@@ -38,6 +40,26 @@ The simulations generate trajectories and energy-conservation diagnostics for:
 `R/constants.R` defines `G` as positive; attraction is handled by explicit signs in the force equations.
 
 ## Quick Start
+
+Install the development package directly from GitHub:
+
+```r
+install.packages("remotes")
+remotes::install_github("SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods")
+```
+
+After the R-universe registry has been created, install from R-universe:
+
+```r
+options(repos = c(
+  sidrichardsquantum = "https://sidrichardsquantum.r-universe.dev",
+  CRAN = "https://cloud.r-project.org"
+))
+install.packages("CelestialDynamicsIterationMethods")
+```
+
+R-universe setup notes and the required registry file are in
+[docs/R_UNIVERSE.md](docs/R_UNIVERSE.md).
 
 Run all validations:
 
