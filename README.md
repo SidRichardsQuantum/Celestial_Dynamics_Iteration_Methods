@@ -8,8 +8,11 @@
 A numerical simulation suite for comparing time-stepping methods by tracing gravitational dynamics of projectiles, two-body systems, and three-body systems.
 The project is implemented primarily in R, with an optional Python helper for regenerating figure-8 initial conditions.
 
-View the generated results site:
+**Website:**
 [https://sidrichardsquantum.github.io/Celestial_Dynamics_Iteration_Methods/](https://sidrichardsquantum.github.io/Celestial_Dynamics_Iteration_Methods/)
+
+**R-universe:**
+[https://sidrichardsquantum.r-universe.dev/CelestialDynamicsIterationMethods](https://sidrichardsquantum.r-universe.dev/CelestialDynamicsIterationMethods)
 
 For setup, commands, examples, and repository layout, see [docs/USAGE.md](docs/USAGE.md).
 For method descriptions, see [docs/THEORY.md](docs/THEORY.md).
