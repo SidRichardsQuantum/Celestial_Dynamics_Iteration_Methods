@@ -5,13 +5,13 @@ a separate GitHub repository under the same account.
 
 ## Registry Repository
 
-Create this public GitHub repository:
+The public R-universe registry repository is:
 
 ```text
 SidRichardsQuantum/sidrichardsquantum.r-universe.dev
 ```
 
-Add a root-level `packages.json` file with:
+Its root-level `packages.json` file should contain:
 
 ```json
 [
@@ -22,7 +22,7 @@ Add a root-level `packages.json` file with:
 ]
 ```
 
-Then install the R-universe GitHub app for the `SidRichardsQuantum` account:
+Install the R-universe GitHub app for the `SidRichardsQuantum` account:
 
 ```text
 https://github.com/apps/r-universe

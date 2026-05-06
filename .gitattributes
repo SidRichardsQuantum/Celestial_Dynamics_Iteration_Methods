@@ -1,0 +1,21 @@
+* text=auto eol=lf
+
+*.R text eol=lf
+*.Rmd text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+*.json text eol=lf
+*.csv text eol=lf
+*.html text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.tar.gz binary
+
+/analysis/generated/** linguist-generated=true
+/images/** linguist-generated=true

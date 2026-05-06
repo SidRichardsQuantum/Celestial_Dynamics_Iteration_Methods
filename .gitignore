@@ -1,26 +1,39 @@
-.codex/
-.codex
-
 # R session and project-local state
 .Rhistory
 .RData
 .Ruserdata
 Rplots.pdf
 .Rproj.user/
+.Rproj
 renv/library/
 renv/staging/
+renv/python/
+renv/sandbox/
 
-# Local scratch output
-tmp/
-scratch/
-_site/
-*.log
+# R package build/check output
 *.tar.gz
 *.Rcheck/
+*.Rcheck
+check/
+Meta/
+
+# Local generated site and scratch output
+_site/
+*.log
+tmp/
+scratch/
+
+# Codex/agent-local state
+.codex/
+.codex
+.agents/
+.agents
 
 # Python environments and caches
 __pycache__/
 *.py[cod]
+.pytest_cache/
+.mypy_cache/
 .venv/
 venv/
 env/
@@ -28,3 +41,5 @@ env/
 # Local OS/editor files
 .DS_Store
 Thumbs.db
+.idea/
+.vscode/

@@ -9,7 +9,7 @@ install.packages("remotes")
 remotes::install_github("SidRichardsQuantum/Celestial_Dynamics_Iteration_Methods")
 ```
 
-After the R-universe registry has been created, install from R-universe:
+After R-universe has built the package, install from R-universe:
 
 ```r
 options(repos = c(
@@ -19,7 +19,7 @@ options(repos = c(
 install.packages("CelestialDynamicsIterationMethods")
 ```
 
-R-universe setup notes and the required registry file are in
+R-universe setup notes and the registry details are in
 [docs/R_UNIVERSE.md](R_UNIVERSE.md).
 
 For source checkouts:
