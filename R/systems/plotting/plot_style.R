@@ -175,8 +175,7 @@ cd_record_animation_manifest = function(filepath, title, xlim, ylim, data_x,
     xlim = xlim,
     ylim = ylim,
     data_x = data_x,
-    data_y = data_y,
-    steps = frame_count
+    data_y = data_y
   )
 }
 

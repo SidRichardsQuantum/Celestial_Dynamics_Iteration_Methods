@@ -750,7 +750,8 @@ portfolio_css = function(extra = character()) {
     "    input[type=search] { width: min(340px, 100%); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem 0.8rem; background: var(--surface); color: var(--text); font: inherit; }",
     "    input[type=range] { accent-color: var(--accent); }",
     "    canvas, img { max-width: 100%; border: 1px solid var(--line); border-radius: 8px; background: #ffffff; }",
-    "    .badge-image { border: 0; border-radius: 0; background: transparent; vertical-align: middle; }",
+    "    .badge-image { width: auto; height: 20px; max-width: 100%; border: 0; border-radius: 0; background: transparent; vertical-align: middle; }",
+    "    .inline-icon { display: inline-block; width: 20px; height: 20px; border: 0; border-radius: 0; background: transparent; vertical-align: middle; }",
     "    canvas { width: 100%; height: auto; display: block; }",
     "    figure { margin: 1.25rem 0 1.6rem; }",
     "    figcaption { margin-top: 0.45rem; font-size: 0.82rem; }",
@@ -1026,11 +1027,13 @@ render_inline_text = function(text) {
   escaped = gsub("`([^`]+)`", "<code>\\1</code>", escaped, perl = TRUE)
   escaped = gsub("\\*\\*([^*]+)\\*\\*", "<strong>\\1</strong>", escaped,
                  perl = TRUE)
+  escaped = gsub("(https?://[^[:space:]<]+)",
+                 "<a href=\"\\1\">\\1</a>", escaped, perl = TRUE)
   escaped
 }
 
-render_markdown_links_and_images = function(text) {
-  pattern = "(!?)\\[([^]]*)\\]\\(([^)]+)\\)"
+render_inline_html_images = function(text) {
+  pattern = "<img[[:space:]]+[^>]*src=\"([^\"]+)\"[^>]*>"
   matches = gregexpr(pattern, text, perl = TRUE)[[1]]
   if (matches[1] == -1) {
     return(render_inline_text(text))
@@ -1047,6 +1050,44 @@ render_markdown_links_and_images = function(text) {
     finish = start + lengths[i] - 1
     if (start > cursor) {
       output = c(output, render_inline_text(substr(text, cursor, start - 1)))
+    }
+    src = regmatches(captures[i], regexec(pattern, captures[i],
+                                          perl = TRUE))[[1]][2]
+    alt_match = regmatches(captures[i], regexec("alt=\"([^\"]*)\"",
+                                                captures[i], perl = TRUE))[[1]]
+    alt = if (length(alt_match) >= 2) alt_match[2] else ""
+    output = c(output, paste0(
+      "<img class=\"inline-icon\" src=\"", html_escape(site_relative_path(src)),
+      "\" alt=\"", html_escape(alt), "\">"
+    ))
+    cursor = finish + 1
+  }
+
+  if (cursor <= nchar(text)) {
+    output = c(output, render_inline_text(substr(text, cursor, nchar(text))))
+  }
+
+  paste0(output, collapse = "")
+}
+
+render_markdown_links_and_images = function(text) {
+  pattern = "(!?)\\[([^]]*)\\]\\(([^)]+)\\)"
+  matches = gregexpr(pattern, text, perl = TRUE)[[1]]
+  if (matches[1] == -1) {
+    return(render_inline_html_images(text))
+  }
+
+  captures = regmatches(text, gregexpr(pattern, text, perl = TRUE))[[1]]
+  starts = as.integer(matches)
+  lengths = attr(matches, "match.length")
+  output = character(0)
+  cursor = 1
+
+  for (i in seq_along(captures)) {
+    start = starts[i]
+    finish = start + lengths[i] - 1
+    if (start > cursor) {
+      output = c(output, render_inline_html_images(substr(text, cursor, start - 1)))
     }
     parts = regexec(pattern, captures[i], perl = TRUE)
     values = regmatches(captures[i], parts)[[1]]
@@ -1067,7 +1108,7 @@ render_markdown_links_and_images = function(text) {
   }
 
   if (cursor <= nchar(text)) {
-    output = c(output, render_inline_text(substr(text, cursor, nchar(text))))
+    output = c(output, render_inline_html_images(substr(text, cursor, nchar(text))))
   }
 
   paste0(output, collapse = "")
@@ -1156,9 +1197,15 @@ render_markdown_page = function(input_path, output_path, title, eyebrow,
 
   close_paragraph = function() {
     if (length(paragraph) > 0) {
-      output <<- c(output, paste0("<p>", render_inline_markdown(
-        paste(paragraph, collapse = " ")
-      ), "</p>"))
+      rendered_paragraph = render_inline_markdown(paste(paragraph, collapse = " "))
+      paragraph_class = if (grepl("class=\"badge-image\"", rendered_paragraph,
+                                  fixed = TRUE)) {
+        " class=\"badge-row\""
+      } else {
+        ""
+      }
+      output <<- c(output, paste0("<p", paragraph_class, ">",
+                                  rendered_paragraph, "</p>"))
       paragraph <<- character(0)
     }
   }
@@ -1302,7 +1349,11 @@ render_markdown_page = function(input_path, output_path, title, eyebrow,
     "    .results-content li { margin: 0.2rem 0; }",
     "    .results-content .table-wrap { max-width: min(100%, calc(100vw - 2rem)); }",
     "    .results-content th, .results-content td { white-space: nowrap; text-align: left; }",
-    "    .results-content img { display: block; width: 100%; height: auto; }"
+    "    .results-content img { display: block; width: 100%; height: auto; }",
+    "    .results-content .badge-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.35rem 0.45rem; align-items: center; }",
+    "    .results-content .badge-row a { display: inline-flex; align-items: center; }",
+    "    .results-content img.badge-image { display: inline-block; width: auto; height: 20px; max-width: none; border: 0; border-radius: 0; background: transparent; }",
+    "    .results-content img.inline-icon { display: inline-block; width: 20px; height: 20px; max-width: none; border: 0; border-radius: 0; background: transparent; vertical-align: middle; }"
     )),
     "  </style>",
     mathjax_head(),
@@ -1505,41 +1556,250 @@ png_count = sum(plot_manifest$artifact_type == "png", na.rm = TRUE)
 html_count = sum(plot_manifest$artifact_type == "html", na.rm = TRUE)
 csv_count = length(list.files(generated_dir, pattern = "\\.csv$"))
 
-manifest_rows = if (nrow(plot_manifest) > 0) {
-  apply(plot_manifest, 1, function(row) {
+artifact_kind_for_path = function(path, manifest_type = "") {
+  ext = tolower(tools::file_ext(path))
+  if (nzchar(manifest_type) && manifest_type == "html" &&
+      startsWith(path, "images/")) {
+    return("animation")
+  }
+  if (ext %in% c("png", "jpg", "jpeg", "svg")) {
+    return("plot")
+  }
+  if (ext == "html") {
+    return("page")
+  }
+  if (ext == "csv") {
+    return("data")
+  }
+  "artifact"
+}
+
+artifact_type_for_path = function(path, kind) {
+  if (startsWith(path, "analysis/generated/")) {
+    if (kind == "data") {
+      return("generated_data")
+    }
+    if (kind == "page") {
+      return("generated_page")
+    }
+  }
+  if (kind == "plot") {
+    return("unmanifested_image")
+  }
+  kind
+}
+
+artifact_title_for_path = function(path) {
+  name = tools::file_path_sans_ext(basename(path))
+  name = gsub("[-_]+", " ", name)
+  name = tools::toTitleCase(name)
+  if (startsWith(path, "analysis/generated/")) {
+    paste("Generated", name)
+  } else {
+    name
+  }
+}
+
+artifact_href_target = function(path) {
+  if (startsWith(path, paste0(generated_dir, "/"))) {
+    return(sub(paste0("^", generated_dir, "/"), "", path))
+  }
+  paste0("../../", path)
+}
+
+artifact_blank = function(values) {
+  values = as.character(values)
+  is.na(values) | values == "NA" | !nzchar(values)
+}
+
+artifact_steps_from_title = function(title) {
+  parts = regmatches(title, regexec("N = ([0-9]+) steps", title))[[1]]
+  if (length(parts) >= 2) {
+    return(parts[2])
+  }
+  ""
+}
+
+artifact_has_multiple_methods = function(path, title, artifact_type) {
+  searchable = paste(path, title, artifact_type)
+  grepl("all_methods|method_comparison|convergence_rates|by Method|Comparison",
+        searchable, ignore.case = TRUE)
+}
+
+artifact_inferred_method = function(path, kind, artifact_type, title) {
+  if (artifact_has_multiple_methods(path, title, artifact_type)) {
+    return("")
+  }
+  if (grepl("^images/three_body/", path) &&
+      artifact_type %in% c("three_body_orbit", "restricted_three_body",
+                           "sitnikov", "trajectory_animation")) {
+    return("Runge-Kutta Method")
+  }
+  if (grepl("^images/n_body/", path) &&
+      artifact_type %in% c("n_body_orbit", "trajectory_animation")) {
+    return("Runge-Kutta")
+  }
+  ""
+}
+
+artifact_inferred_steps = function(path) {
+  if (path %in% c("images/analysis/sun_earth_energy_error.png",
+                  "images/analysis/sun_earth_angular_momentum_drift.png")) {
+    return("1000")
+  }
+  if (path %in% c("images/three_body/restricted/lyapunov_near_l1.png",
+                  "images/three_body/restricted/restricted_earth_moon_trojan.png")) {
+    return("20000")
+  }
+  ""
+}
+
+enhance_artifact_metadata = function(rows) {
+  if (nrow(rows) == 0) {
+    return(rows)
+  }
+
+  for (column in c("method", "steps", "energy_ratio", "title")) {
+    rows[[column]][artifact_blank(rows[[column]])] = ""
+  }
+
+  for (i in seq_len(nrow(rows))) {
+    title_steps = artifact_steps_from_title(rows$title[i])
+    if (nzchar(title_steps)) {
+      rows$steps[i] = title_steps
+    } else if (artifact_blank(rows$steps[i])) {
+      rows$steps[i] = artifact_inferred_steps(rows$filepath[i])
+    }
+
+    if (artifact_has_multiple_methods(rows$filepath[i], rows$title[i],
+                                      rows$artifact_type[i])) {
+      rows$method[i] = ""
+    } else if (artifact_blank(rows$method[i])) {
+      rows$method[i] = artifact_inferred_method(
+        rows$filepath[i], rows$kind[i], rows$artifact_type[i], rows$title[i]
+      )
+    }
+  }
+
+  for (i in which(rows$kind == "animation")) {
+    paired_png = sub("\\.html$", ".png", rows$filepath[i], ignore.case = TRUE)
+    match_index = match(paired_png, rows$filepath)
+    if (!is.na(match_index)) {
+      for (column in c("method", "steps", "energy_ratio")) {
+        if (!artifact_blank(rows[[column]][match_index])) {
+          rows[[column]][i] = rows[[column]][match_index]
+        }
+      }
+    }
+  }
+
+  for (i in seq_len(nrow(rows))) {
+    if (artifact_has_multiple_methods(rows$filepath[i], rows$title[i],
+                                      rows$artifact_type[i])) {
+      rows$method[i] = ""
+    }
+  }
+
+  rows
+}
+
+manifest_artifacts = if (nrow(plot_manifest) > 0) {
+  data.frame(
+    filepath = plot_manifest$filepath,
+    kind = mapply(artifact_kind_for_path, plot_manifest$filepath,
+                  plot_manifest$artifact_type, USE.NAMES = FALSE),
+    artifact_type = ifelse(
+      is.na(plot_manifest$plot_type) | plot_manifest$plot_type == "NA",
+      plot_manifest$artifact_type,
+      plot_manifest$plot_type
+    ),
+    method = ifelse(is.na(plot_manifest$method) |
+                      plot_manifest$method == "NA", "", plot_manifest$method),
+    steps = ifelse(is.na(plot_manifest$steps) |
+                     plot_manifest$steps == "NA", "", plot_manifest$steps),
+    energy_ratio = ifelse(is.na(plot_manifest$energy_ratio) |
+                            plot_manifest$energy_ratio == "NA", "",
+                          plot_manifest$energy_ratio),
+    title = ifelse(is.na(plot_manifest$title) | plot_manifest$title == "NA" |
+                     !nzchar(plot_manifest$title),
+                   basename(plot_manifest$filepath), plot_manifest$title),
+    stringsAsFactors = FALSE
+  )
+} else {
+  data.frame(
+    filepath = character(),
+    kind = character(),
+    artifact_type = character(),
+    method = character(),
+    steps = character(),
+    energy_ratio = character(),
+    title = character(),
+    stringsAsFactors = FALSE
+  )
+}
+
+generated_artifact_paths = file.path(
+  generated_dir,
+  list.files(generated_dir, pattern = "\\.(csv|html)$")
+)
+image_artifact_paths = list.files(
+  "images",
+  pattern = "\\.(png|html|svg)$",
+  recursive = TRUE,
+  full.names = TRUE
+)
+image_artifact_paths = gsub("^\\./", "", image_artifact_paths)
+all_artifact_paths = unique(c(generated_artifact_paths, image_artifact_paths))
+missing_artifact_paths = setdiff(all_artifact_paths, manifest_artifacts$filepath)
+
+extra_artifacts = if (length(missing_artifact_paths) > 0) {
+  kinds = vapply(missing_artifact_paths, artifact_kind_for_path, character(1))
+  data.frame(
+    filepath = missing_artifact_paths,
+    kind = kinds,
+    artifact_type = mapply(artifact_type_for_path, missing_artifact_paths,
+                           kinds, USE.NAMES = FALSE),
+    method = "",
+    steps = "",
+    energy_ratio = "",
+    title = vapply(missing_artifact_paths, artifact_title_for_path,
+                   character(1)),
+    stringsAsFactors = FALSE
+  )
+} else {
+  manifest_artifacts[FALSE, ]
+}
+
+artifact_rows_data = rbind(manifest_artifacts, extra_artifacts)
+artifact_rows_data = enhance_artifact_metadata(artifact_rows_data)
+artifact_rows_data = artifact_rows_data[order(
+  artifact_rows_data$kind,
+  artifact_rows_data$artifact_type,
+  artifact_rows_data$filepath
+), ]
+total_artifact_count = nrow(artifact_rows_data)
+
+manifest_rows = if (nrow(artifact_rows_data) > 0) {
+  apply(artifact_rows_data, 1, function(row) {
     href = row[["filepath"]]
-    title = manifest_cell(row, "title")
-    if (!nzchar(title)) {
-      title = html_escape(basename(href))
-    }
-    type = manifest_cell(row, "artifact_type")
-    kind = if (type == "html") {
-      "animation"
-    } else if (type == "png") {
-      "plot"
-    } else {
-      "artifact"
-    }
-    plot_type = manifest_cell(row, "plot_type")
-    method = manifest_cell(row, "method")
-    steps = manifest_cell(row, "steps")
-    energy_ratio = manifest_cell(row, "energy_ratio")
     href_display = html_escape(href)
-    href_target = html_escape(paste0("../../", href))
+    href_target = html_escape(artifact_href_target(href))
+    artifact_type = html_escape(row[["artifact_type"]])
     paste0(
-      "<tr data-kind=\"", kind, "\" data-type=\"", plot_type, "\">",
+      "<tr data-kind=\"", html_escape(row[["kind"]]), "\" data-type=\"",
+      artifact_type, "\">",
       "<td><a class=\"artifact-link\" href=\"", href_target, "\">",
       html_escape(basename(href)), "</a><span class=\"path\">", href_display,
       "</span></td>",
-      "<td><span class=\"tag\">", plot_type, "</span></td>",
-      "<td>", method, "</td>",
-      "<td>", steps, "</td>",
-      "<td>", energy_ratio, "</td>",
-      "<td>", title, "</td></tr>"
+      "<td><span class=\"tag\">", artifact_type, "</span></td>",
+      "<td>", html_escape(row[["method"]]), "</td>",
+      "<td>", html_escape(row[["steps"]]), "</td>",
+      "<td>", html_escape(row[["energy_ratio"]]), "</td>",
+      "<td>", html_escape(row[["title"]]), "</td></tr>"
     )
   })
 } else {
-  "<tr><td colspan=\"6\">No plot manifest rows found.</td></tr>"
+  "<tr><td colspan=\"6\">No artifacts found.</td></tr>"
 }
 
 artifact_index_path = file.path(generated_dir, "artifact_index.html")
@@ -1581,8 +1841,8 @@ index_html = c(
   "        <p>Generated plots, animations, diagnostics, and data exports for the repository examples.</p>",
   "      </div>",
   "      <div class=\"metric-strip\">",
+  paste0("        <div class=\"metric\"><span>Artifacts</span><strong>", total_artifact_count, "</strong></div>"),
   paste0("        <div class=\"metric\"><span>Plots</span><strong>", png_count, "</strong></div>"),
-  paste0("        <div class=\"metric\"><span>Animations</span><strong>", html_count, "</strong></div>"),
   paste0("        <div class=\"metric\"><span>Data files</span><strong>", csv_count, "</strong></div>"),
   "      </div>",
   "    </section>",
@@ -1595,12 +1855,14 @@ index_html = c(
   "      <a class=\"button\" href=\"runtime_benchmark.csv\">Runtime benchmark CSV</a>",
   "      <a class=\"button\" href=\"plot_manifest.csv\">Plot manifest CSV</a>",
   "    </div>",
-  "    <section class=\"panel\">",
+  "    <div class=\"panel\">",
   "      <div class=\"toolbar\">",
-  "        <div class=\"filters\" aria-label=\"Artifact filters\">",
+  "        <div class=\"filters\" role=\"group\" aria-label=\"Artifact filters\">",
   "          <button class=\"active\" data-filter=\"all\">All</button>",
   "          <button data-filter=\"plot\">Plots</button>",
   "          <button data-filter=\"animation\">Animations</button>",
+  "          <button data-filter=\"data\">Data</button>",
+  "          <button data-filter=\"page\">Pages</button>",
   "        </div>",
   "        <input id=\"search\" type=\"search\" placeholder=\"Search artifacts\" aria-label=\"Search artifacts\">",
   "        <span id=\"resultCount\" class=\"result-count\"></span>",
@@ -1613,7 +1875,7 @@ index_html = c(
   "        </tbody>",
   "      </table>",
   "      </div>",
-  "    </section>",
+  "    </div>",
   "  </main>",
   "  <script>",
   "    const rows = Array.from(document.querySelectorAll('tbody tr[data-kind]'));",
