@@ -114,6 +114,7 @@
     input[type=search] { width: min(340px, 100%); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem 0.8rem; background: var(--surface); color: var(--text); font: inherit; }
     input[type=range] { accent-color: var(--accent); }
     canvas, img { max-width: 100%; border: 1px solid var(--line); border-radius: 8px; background: #ffffff; }
+    .badge-image { border: 0; border-radius: 0; background: transparent; vertical-align: middle; }
     canvas { width: 100%; height: auto; display: block; }
     figure { margin: 1.25rem 0 1.6rem; }
     figcaption { margin-top: 0.45rem; font-size: 0.82rem; }
@@ -167,7 +168,7 @@
         <div class="metric"><span>Views</span><strong>3</strong></div>
       </div>
     </section>
-    <div class="links" aria-label="Generated result views">
+    <div class="links">
       <a class="button primary" href="method_comparison_dashboard.html">Method Dashboard</a>
       <a class="button" href="artifact_index.html">Artifact Browser</a>
       <a class="button" href="docs.html">Documentation</a>
@@ -266,32 +267,32 @@ Rscript experiments/find_three_body_solution.R
 <pre><code>
 source(&quot;examples/projectile/projectile_example.R&quot;)
 </code></pre>
-<figure><img src="../../docs/images/projectile/euler_trajectory.png" alt="Euler Method Trajectory"><figcaption>Euler Method Trajectory</figcaption></figure>
+<figure><img src="../../images/projectile/euler_trajectory.png" alt="Euler Method Trajectory"><figcaption>Euler Method Trajectory</figcaption></figure>
 <p>Sun-Earth all-method comparison:</p>
 <pre><code>
 source(&quot;examples/comparisons/sun_earth_all_methods.R&quot;)
 </code></pre>
-<figure><img src="../../docs/images/comparisons/sun_earth_all_methods.png" alt="Sun-Earth All Methods"><figcaption>Sun-Earth All Methods</figcaption></figure>
+<figure><img src="../../images/comparisons/sun_earth_all_methods.png" alt="Sun-Earth All Methods"><figcaption>Sun-Earth All Methods</figcaption></figure>
 <p>Earth-Moon system using Euler's method:</p>
 <pre><code>
 source(&quot;examples/two_body/earth_moon/earth_moon_euler.R&quot;)
 </code></pre>
-<figure><img src="../../docs/images/two_body/earth_moon/earth_moon_euler.png" alt="Earth and Moon"><figcaption>Earth and Moon</figcaption></figure>
+<figure><img src="../../images/two_body/earth_moon/earth_moon_euler.png" alt="Earth and Moon"><figcaption>Earth and Moon</figcaption></figure>
 <p>Equal-mass figure-8 three-body solution:</p>
 <pre><code>
 source(&quot;examples/three_body/special_solutions/three_earths.R&quot;)
 </code></pre>
-<figure><img src="../../docs/images/three_body/special_solutions/three_earths.png" alt="Three Earths"><figcaption>Three Earths</figcaption></figure>
+<figure><img src="../../images/three_body/special_solutions/three_earths.png" alt="Three Earths"><figcaption>Three Earths</figcaption></figure>
 <p>Four-body Sun-Earth-Mars-Jupiter example:</p>
 <pre><code>
 source(&quot;examples/n_body/sun_earth_mars_jupiter.R&quot;)
 </code></pre>
-<figure><img src="../../docs/images/n_body/sun_earth_mars_jupiter.png" alt="Sun-Earth-Mars-Jupiter"><figcaption>Sun-Earth-Mars-Jupiter</figcaption></figure>
+<figure><img src="../../images/n_body/sun_earth_mars_jupiter.png" alt="Sun-Earth-Mars-Jupiter"><figcaption>Sun-Earth-Mars-Jupiter</figcaption></figure>
 <p>Special four-body rotating square:</p>
 <pre><code>
 source(&quot;examples/n_body/special_solutions/rotating_square_four_body.R&quot;)
 </code></pre>
-<figure><img src="../../docs/images/n_body/special_solutions/rotating_square_four_body.png" alt="Rotating Square Four-Body"><figcaption>Rotating Square Four-Body</figcaption></figure>
+<figure><img src="../../images/n_body/special_solutions/rotating_square_four_body.png" alt="Rotating Square Four-Body"><figcaption>Rotating Square Four-Body</figcaption></figure>
 <h2 id="project-structure">Project Structure</h2>
 <pre><code>
 Celestial_Dynamics_Iteration_Methods/

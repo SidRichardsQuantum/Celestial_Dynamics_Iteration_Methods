@@ -750,6 +750,7 @@ portfolio_css = function(extra = character()) {
     "    input[type=search] { width: min(340px, 100%); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem 0.8rem; background: var(--surface); color: var(--text); font: inherit; }",
     "    input[type=range] { accent-color: var(--accent); }",
     "    canvas, img { max-width: 100%; border: 1px solid var(--line); border-radius: 8px; background: #ffffff; }",
+    "    .badge-image { border: 0; border-radius: 0; background: transparent; vertical-align: middle; }",
     "    canvas { width: 100%; height: auto; display: block; }",
     "    figure { margin: 1.25rem 0 1.6rem; }",
     "    figcaption { margin-top: 0.45rem; font-size: 0.82rem; }",
@@ -991,24 +992,23 @@ site_relative_path = function(path) {
   if (grepl("^(https?:|mailto:|#)", path)) {
     return(path)
   }
+
   normalized = path
-  while (startsWith(normalized, "../")) {
-    normalized = sub("^\\.\\./", "", normalized)
-  }
-  normalized = sub("^\\./", "", normalized)
-  if (!identical(current_markdown_dir, ".") &&
-      !startsWith(normalized, "/")) {
-    candidate = file.path(current_markdown_dir, normalized)
-    candidate = gsub("/\\./", "/", candidate)
-    while (grepl("(^|/)[^/]+/\\.\\./", candidate)) {
-      candidate = sub("(^|/)[^/]+/\\.\\./", "\\1", candidate)
+  if (!startsWith(normalized, "/")) {
+    if (!identical(current_markdown_dir, ".")) {
+      normalized = file.path(current_markdown_dir, normalized)
     }
-    candidate = sub("^\\./", "", candidate)
-    if (candidate %in% names(doc_link_map)) {
-      return(unname(doc_link_map[[candidate]]))
+    normalized = gsub("\\\\", "/", normalized)
+    normalized = gsub("/\\./", "/", normalized)
+    while (grepl("(^|/)[^/]+/\\.\\./", normalized)) {
+      normalized = sub("(^|/)[^/]+/\\.\\./", "\\1", normalized)
     }
-    normalized = candidate
+    normalized = sub("^\\./", "", normalized)
+    while (startsWith(normalized, "../")) {
+      normalized = sub("^\\.\\./", "", normalized)
+    }
   }
+
   if (normalized %in% names(doc_link_map)) {
     return(unname(doc_link_map[[normalized]]))
   }
@@ -1021,12 +1021,19 @@ site_relative_path = function(path) {
   paste0("../../", normalized)
 }
 
-render_inline_markdown = function(text) {
-  pattern = "\\[([^]]+)\\]\\(([^)]+)\\)"
+render_inline_text = function(text) {
+  escaped = html_escape(text)
+  escaped = gsub("`([^`]+)`", "<code>\\1</code>", escaped, perl = TRUE)
+  escaped = gsub("\\*\\*([^*]+)\\*\\*", "<strong>\\1</strong>", escaped,
+                 perl = TRUE)
+  escaped
+}
+
+render_markdown_links_and_images = function(text) {
+  pattern = "(!?)\\[([^]]*)\\]\\(([^)]+)\\)"
   matches = gregexpr(pattern, text, perl = TRUE)[[1]]
   if (matches[1] == -1) {
-    escaped = html_escape(text)
-    return(gsub("`([^`]+)`", "<code>\\1</code>", escaped, perl = TRUE))
+    return(render_inline_text(text))
   }
 
   captures = regmatches(text, gregexpr(pattern, text, perl = TRUE))[[1]]
@@ -1039,22 +1046,74 @@ render_inline_markdown = function(text) {
     start = starts[i]
     finish = start + lengths[i] - 1
     if (start > cursor) {
-      output = c(output, html_escape(substr(text, cursor, start - 1)))
+      output = c(output, render_inline_text(substr(text, cursor, start - 1)))
     }
     parts = regexec(pattern, captures[i], perl = TRUE)
     values = regmatches(captures[i], parts)[[1]]
-    label = html_escape(values[2])
-    href = html_escape(site_relative_path(values[3]))
-    output = c(output, paste0("<a href=\"", href, "\">", label, "</a>"))
+    is_image = identical(values[2], "!")
+    label = values[3]
+    target = html_escape(site_relative_path(values[4]))
+    if (is_image) {
+      output = c(output, paste0(
+        "<img class=\"badge-image\" src=\"", target, "\" alt=\"",
+        html_escape(label), "\">"
+      ))
+    } else {
+      output = c(output, paste0(
+        "<a href=\"", target, "\">", render_inline_text(label), "</a>"
+      ))
+    }
     cursor = finish + 1
   }
 
   if (cursor <= nchar(text)) {
-    output = c(output, html_escape(substr(text, cursor, nchar(text))))
+    output = c(output, render_inline_text(substr(text, cursor, nchar(text))))
   }
 
-  gsub("`([^`]+)`", "<code>\\1</code>", paste0(output, collapse = ""),
-       perl = TRUE)
+  paste0(output, collapse = "")
+}
+
+render_inline_markdown = function(text) {
+  linked_image_pattern = "\\[!\\[([^]]*)\\]\\(([^)]+)\\)\\]\\(([^)]+)\\)"
+  matches = gregexpr(linked_image_pattern, text, perl = TRUE)[[1]]
+  if (matches[1] == -1) {
+    return(render_markdown_links_and_images(text))
+  }
+
+  captures = regmatches(text, gregexpr(linked_image_pattern, text,
+                                      perl = TRUE))[[1]]
+  starts = as.integer(matches)
+  lengths = attr(matches, "match.length")
+  output = character(0)
+  cursor = 1
+
+  for (i in seq_along(captures)) {
+    start = starts[i]
+    finish = start + lengths[i] - 1
+    if (start > cursor) {
+      output = c(output, render_markdown_links_and_images(
+        substr(text, cursor, start - 1)
+      ))
+    }
+    parts = regexec(linked_image_pattern, captures[i], perl = TRUE)
+    values = regmatches(captures[i], parts)[[1]]
+    alt = html_escape(values[2])
+    src = html_escape(site_relative_path(values[3]))
+    href = html_escape(site_relative_path(values[4]))
+    output = c(output, paste0(
+      "<a href=\"", href, "\"><img class=\"badge-image\" src=\"", src,
+      "\" alt=\"", alt, "\"></a>"
+    ))
+    cursor = finish + 1
+  }
+
+  if (cursor <= nchar(text)) {
+    output = c(output, render_markdown_links_and_images(
+      substr(text, cursor, nchar(text))
+    ))
+  }
+
+  paste0(output, collapse = "")
 }
 
 mathjax_head = function() {
@@ -1274,7 +1333,7 @@ render_markdown_page = function(input_path, output_path, title, eyebrow,
     "        <div class=\"metric\"><span>Views</span><strong>3</strong></div>",
     "      </div>",
     "    </section>",
-    "    <div class=\"links\" aria-label=\"Generated result views\">",
+    "    <div class=\"links\">",
     "      <a class=\"button primary\" href=\"method_comparison_dashboard.html\">Method Dashboard</a>",
     "      <a class=\"button\" href=\"artifact_index.html\">Artifact Browser</a>",
     "      <a class=\"button\" href=\"docs.html\">Documentation</a>",

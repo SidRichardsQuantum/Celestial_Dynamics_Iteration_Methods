@@ -114,6 +114,7 @@
     input[type=search] { width: min(340px, 100%); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem 0.8rem; background: var(--surface); color: var(--text); font: inherit; }
     input[type=range] { accent-color: var(--accent); }
     canvas, img { max-width: 100%; border: 1px solid var(--line); border-radius: 8px; background: #ffffff; }
+    .badge-image { border: 0; border-radius: 0; background: transparent; vertical-align: middle; }
     canvas { width: 100%; height: auto; display: block; }
     figure { margin: 1.25rem 0 1.6rem; }
     figcaption { margin-top: 0.45rem; font-size: 0.82rem; }
@@ -167,7 +168,7 @@
         <div class="metric"><span>Views</span><strong>3</strong></div>
       </div>
     </section>
-    <div class="links" aria-label="Generated result views">
+    <div class="links">
       <a class="button primary" href="method_comparison_dashboard.html">Method Dashboard</a>
       <a class="button" href="artifact_index.html">Artifact Browser</a>
       <a class="button" href="docs.html">Documentation</a>
@@ -297,26 +298,26 @@
 <tr><th>method</th><th>years</th><th>steps</th><th>dt_days</th><th>runtime_seconds</th><th>final_position_error_au</th><th>error_per_second</th></tr>
 </thead>
 <tbody>
-<tr><td>Euler</td><td>1</td><td>250</td><td>1.46100e+00</td><td>2.0e-03</td><td>1.20694e+00</td><td>6.03469e+02</td></tr>
-<tr><td>Euler</td><td>1</td><td>500</td><td>7.30500e-01</td><td>4.0e-03</td><td>6.76416e-01</td><td>1.69104e+02</td></tr>
-<tr><td>Euler</td><td>1</td><td>1000</td><td>3.65250e-01</td><td>1.5e-02</td><td>3.58832e-01</td><td>2.39222e+01</td></tr>
-<tr><td>Euler</td><td>1</td><td>2000</td><td>1.82625e-01</td><td>4.4e-02</td><td>1.84827e-01</td><td>4.20061e+00</td></tr>
-<tr><td>Midpoint</td><td>1</td><td>250</td><td>1.46100e+00</td><td>4.0e-03</td><td>2.37405e-03</td><td>5.93511e-01</td></tr>
-<tr><td>Midpoint</td><td>1</td><td>500</td><td>7.30500e-01</td><td>6.0e-03</td><td>5.87089e-04</td><td>9.78482e-02</td></tr>
-<tr><td>Midpoint</td><td>1</td><td>1000</td><td>3.65250e-01</td><td>1.6e-02</td><td>1.45910e-04</td><td>9.11937e-03</td></tr>
-<tr><td>Midpoint</td><td>1</td><td>2000</td><td>1.82625e-01</td><td>4.9e-02</td><td>3.63660e-05</td><td>7.42164e-04</td></tr>
-<tr><td>Heun</td><td>1</td><td>250</td><td>1.46100e+00</td><td>4.0e-03</td><td>5.51744e-03</td><td>1.37936e+00</td></tr>
-<tr><td>Heun</td><td>1</td><td>500</td><td>7.30500e-01</td><td>6.0e-03</td><td>1.35203e-03</td><td>2.25338e-01</td></tr>
-<tr><td>Heun</td><td>1</td><td>1000</td><td>3.65250e-01</td><td>1.6e-02</td><td>3.34451e-04</td><td>2.09032e-02</td></tr>
-<tr><td>Heun</td><td>1</td><td>2000</td><td>1.82625e-01</td><td>4.8e-02</td><td>8.31604e-05</td><td>1.73251e-03</td></tr>
-<tr><td>RK4</td><td>1</td><td>250</td><td>1.46100e+00</td><td>6.0e-03</td><td>6.58641e-08</td><td>1.09773e-05</td></tr>
-<tr><td>RK4</td><td>1</td><td>500</td><td>7.30500e-01</td><td>1.0e-02</td><td>3.85816e-09</td><td>3.85816e-07</td></tr>
+<tr><td>Euler</td><td>1</td><td>250</td><td>1.46100e+00</td><td>4.0e-03</td><td>1.20694e+00</td><td>3.01735e+02</td></tr>
+<tr><td>Euler</td><td>1</td><td>500</td><td>7.30500e-01</td><td>8.0e-03</td><td>6.76416e-01</td><td>8.45519e+01</td></tr>
+<tr><td>Euler</td><td>1</td><td>1000</td><td>3.65250e-01</td><td>1.3e-02</td><td>3.58832e-01</td><td>2.76025e+01</td></tr>
+<tr><td>Euler</td><td>1</td><td>2000</td><td>1.82625e-01</td><td>4.2e-02</td><td>1.84827e-01</td><td>4.40064e+00</td></tr>
+<tr><td>Midpoint</td><td>1</td><td>250</td><td>1.46100e+00</td><td>5.0e-03</td><td>2.37405e-03</td><td>4.74809e-01</td></tr>
+<tr><td>Midpoint</td><td>1</td><td>500</td><td>7.30500e-01</td><td>8.0e-03</td><td>5.87089e-04</td><td>7.33861e-02</td></tr>
+<tr><td>Midpoint</td><td>1</td><td>1000</td><td>3.65250e-01</td><td>2.7e-02</td><td>1.45910e-04</td><td>5.40407e-03</td></tr>
+<tr><td>Midpoint</td><td>1</td><td>2000</td><td>1.82625e-01</td><td>5.8e-02</td><td>3.63660e-05</td><td>6.27001e-04</td></tr>
+<tr><td>Heun</td><td>1</td><td>250</td><td>1.46100e+00</td><td>3.0e-03</td><td>5.51744e-03</td><td>1.83915e+00</td></tr>
+<tr><td>Heun</td><td>1</td><td>500</td><td>7.30500e-01</td><td>1.1e-02</td><td>1.35203e-03</td><td>1.22912e-01</td></tr>
+<tr><td>Heun</td><td>1</td><td>1000</td><td>3.65250e-01</td><td>1.8e-02</td><td>3.34451e-04</td><td>1.85806e-02</td></tr>
+<tr><td>Heun</td><td>1</td><td>2000</td><td>1.82625e-01</td><td>6.5e-02</td><td>8.31604e-05</td><td>1.27939e-03</td></tr>
+<tr><td>RK4</td><td>1</td><td>250</td><td>1.46100e+00</td><td>1.0e-02</td><td>6.58641e-08</td><td>6.58641e-06</td></tr>
+<tr><td>RK4</td><td>1</td><td>500</td><td>7.30500e-01</td><td>1.5e-02</td><td>3.85816e-09</td><td>2.57211e-07</td></tr>
 <tr><td>RK4</td><td>1</td><td>1000</td><td>3.65250e-01</td><td>2.8e-02</td><td>2.33057e-10</td><td>8.32345e-09</td></tr>
 <tr><td>RK4</td><td>1</td><td>2000</td><td>1.82625e-01</td><td>7.8e-02</td><td>1.43231e-11</td><td>1.83630e-10</td></tr>
-<tr><td>Verlet</td><td>1</td><td>250</td><td>1.46100e+00</td><td>3.0e-03</td><td>1.32238e-03</td><td>4.40794e-01</td></tr>
-<tr><td>Verlet</td><td>1</td><td>500</td><td>7.30500e-01</td><td>9.0e-03</td><td>3.30656e-04</td><td>3.67395e-02</td></tr>
-<tr><td>Verlet</td><td>1</td><td>1000</td><td>3.65250e-01</td><td>1.7e-02</td><td>8.26677e-05</td><td>4.86280e-03</td></tr>
-<tr><td>Verlet</td><td>1</td><td>2000</td><td>1.82625e-01</td><td>4.8e-02</td><td>2.06671e-05</td><td>4.30566e-04</td></tr>
+<tr><td>Verlet</td><td>1</td><td>250</td><td>1.46100e+00</td><td>4.0e-03</td><td>1.32238e-03</td><td>3.30596e-01</td></tr>
+<tr><td>Verlet</td><td>1</td><td>500</td><td>7.30500e-01</td><td>8.0e-03</td><td>3.30656e-04</td><td>4.13320e-02</td></tr>
+<tr><td>Verlet</td><td>1</td><td>1000</td><td>3.65250e-01</td><td>2.2e-02</td><td>8.26677e-05</td><td>3.75762e-03</td></tr>
+<tr><td>Verlet</td><td>1</td><td>2000</td><td>1.82625e-01</td><td>5.7e-02</td><td>2.06671e-05</td><td>3.62582e-04</td></tr>
 </tbody>
 </table></div>
 <h3 id="interpretation-notes">Interpretation Notes</h3>
@@ -344,14 +345,14 @@
 <li><code>images/three_body/special_solutions/three_earths.html</code></li>
 <li><code>images/n_body/sun_earth_mars_jupiter.html</code></li>
 </ul>
-<figure><img src="../../docs/images/analysis/sun_earth_energy_error.png" alt="Sun-Earth energy error"><figcaption>Sun-Earth energy error</figcaption></figure>
-<figure><img src="../../docs/images/analysis/sun_earth_angular_momentum_drift.png" alt="Sun-Earth angular momentum drift"><figcaption>Sun-Earth angular momentum drift</figcaption></figure>
-<figure><img src="../../docs/images/analysis/convergence_rates.png" alt="Convergence rates"><figcaption>Convergence rates</figcaption></figure>
+<figure><img src="../../images/analysis/sun_earth_energy_error.png" alt="Sun-Earth energy error"><figcaption>Sun-Earth energy error</figcaption></figure>
+<figure><img src="../../images/analysis/sun_earth_angular_momentum_drift.png" alt="Sun-Earth angular momentum drift"><figcaption>Sun-Earth angular momentum drift</figcaption></figure>
+<figure><img src="../../images/analysis/convergence_rates.png" alt="Convergence rates"><figcaption>Convergence rates</figcaption></figure>
 <h2 id="comparison-examples">Comparison Examples</h2>
 <p>The comparison examples run every implemented two-body method against the same simple setup. The Sun-Earth comparison uses one year and <code>N = 250</code> steps so the Euler method visibly drifts while Midpoint, Heun, RK4, and Velocity Verlet stay near the expected orbit. The method list, colors, and Sun-Earth setup are shared through <code>R/systems/two_body/two_body_method_registry.R</code>.</p>
-<figure><img src="../../docs/images/comparisons/sun_earth_all_methods.png" alt="Sun-Earth all methods"><figcaption>Sun-Earth all methods</figcaption></figure>
+<figure><img src="../../images/comparisons/sun_earth_all_methods.png" alt="Sun-Earth all methods"><figcaption>Sun-Earth all methods</figcaption></figure>
 <p>The energy-error comparison uses an absolute relative error scale so the higher-accuracy methods remain visible next to Euler.</p>
-<figure><img src="../../docs/images/comparisons/sun_earth_energy_error_all_methods.png" alt="Sun-Earth all-method energy error"><figcaption>Sun-Earth all-method energy error</figcaption></figure>
+<figure><img src="../../images/comparisons/sun_earth_energy_error_all_methods.png" alt="Sun-Earth all-method energy error"><figcaption>Sun-Earth all-method energy error</figcaption></figure>
 <h2 id="two-body-sun-earth-system">Two-Body Sun-Earth System</h2>
 <p>Our Sun and Earth files in the directory <code>examples/two_body/sun_earth/</code>, each plot the orbit of the Earth (blue line) around the Sun (red) over $25$ years, using a different iteration method. The simulation initializes Earth $1 AU$ along the x-axis from the Sun at the origin. We use a high number of steps, $N=1000$, to maximize integration accuracy. $25$ years is chosen because it spans multiple orbital periods and exposes long-term integration errors.</p>
 <h3 id="euler-method">Euler Method</h3>
@@ -368,7 +369,7 @@ Initial separation: 1.000 AU
 Final separation: 10.296 AU
 Energy conservation ratio: 0.145946
 </code></pre>
-<figure><img src="../../docs/images/two_body/sun_earth/sun_earth_euler.png" alt="Euler Method, Sun and Earth system"><figcaption>Euler Method, Sun and Earth system</figcaption></figure>
+<figure><img src="../../images/two_body/sun_earth/sun_earth_euler.png" alt="Euler Method, Sun and Earth system"><figcaption>Euler Method, Sun and Earth system</figcaption></figure>
 <h3 id="midpoint-method">Midpoint Method</h3>
 <p>Output:</p>
 <pre><code>
@@ -382,7 +383,7 @@ Initial separation: 1.000 AU
 Final separation: 1.055 AU
 Energy conservation ratio: 0.942958
 </code></pre>
-<figure><img src="../../docs/images/two_body/sun_earth/sun_earth_midpoint.png" alt="Midpoint Method, Sun and Earth system"><figcaption>Midpoint Method, Sun and Earth system</figcaption></figure>
+<figure><img src="../../images/two_body/sun_earth/sun_earth_midpoint.png" alt="Midpoint Method, Sun and Earth system"><figcaption>Midpoint Method, Sun and Earth system</figcaption></figure>
 <h3 id="heuns-method">Heun's Method</h3>
 <p>Heun’s method shows slightly less accuracy than the midpoint method in terms of final orbital radius and energy conservation. $\approx 15%$ of total energy is lost after $25$ years, compared to $\approx 6%$ for the midpoint method.</p>
 <p>Output:</p>
@@ -397,7 +398,7 @@ Initial separation: 1.000 AU
 Final separation: 1.219 AU
 Energy conservation ratio: 0.849014
 </code></pre>
-<figure><img src="../../docs/images/two_body/sun_earth/sun_earth_heuns.png" alt="Heun's Method, Sun and Earth system"><figcaption>Heun's Method, Sun and Earth system</figcaption></figure>
+<figure><img src="../../images/two_body/sun_earth/sun_earth_heuns.png" alt="Heun's Method, Sun and Earth system"><figcaption>Heun's Method, Sun and Earth system</figcaption></figure>
 <h3 id="runge-kutta-method">Runge-Kutta Method</h3>
 <p>The most accurate technique by far, as the orbit shows no noticeable perturbations or shifts.</p>
 <p>Output:</p>
@@ -412,56 +413,56 @@ Initial separation: 1.000 AU
 Final separation: 1.000 AU
 Energy conservation ratio: 1.000422
 </code></pre>
-<figure><img src="../../docs/images/two_body/sun_earth/sun_earth_runge_kutta.png" alt="Runge-Kutta Method, Sun and Earth system"><figcaption>Runge-Kutta Method, Sun and Earth system</figcaption></figure>
+<figure><img src="../../images/two_body/sun_earth/sun_earth_runge_kutta.png" alt="Runge-Kutta Method, Sun and Earth system"><figcaption>Runge-Kutta Method, Sun and Earth system</figcaption></figure>
 <h3 id="velocity-verlet-method">Velocity Verlet Method</h3>
 <p>Velocity Verlet is a second-order symplectic method. For the Sun-Earth example it keeps the orbit close to circular and preserves energy well over the same 25-year horizon. Its main value is long-term qualitative stability: even when RK4 has a smaller local error, Verlet is often a better baseline for conservative orbital systems.</p>
-<figure><img src="../../docs/images/two_body/sun_earth/sun_earth_velocity_verlet.png" alt="Velocity Verlet Method, Sun and Earth system"><figcaption>Velocity Verlet Method, Sun and Earth system</figcaption></figure>
+<figure><img src="../../images/two_body/sun_earth/sun_earth_velocity_verlet.png" alt="Velocity Verlet Method, Sun and Earth system"><figcaption>Velocity Verlet Method, Sun and Earth system</figcaption></figure>
 <h2 id="three-body-systems">Three-Body Systems</h2>
 <p>We used the RK4 method for the three-body systems for accuracy. The example scripts are grouped under <code>examples/three_body/</code> by model type: <code>general/</code>, <code>special_solutions/</code>, <code>perturbations/</code>, and <code>restricted/</code>.</p>
 <h3 id="sun-earth-and-mars">Sun, Earth and Mars</h3>
 <p>Below illustrates the orbits of both the Earth and Mars around the Sun over a year. As the planets are far away enough, and as the sun is a lot more massive, the orbits appear to be stable until errors in the Runge-Kutta method cause the system to spiral.</p>
-<figure><img src="../../docs/images/three_body/general/earth_mars_sun.png" alt="Sun, Earth and Mars"><figcaption>Sun, Earth and Mars</figcaption></figure>
+<figure><img src="../../images/three_body/general/earth_mars_sun.png" alt="Sun, Earth and Mars"><figcaption>Sun, Earth and Mars</figcaption></figure>
 <h3 id="earth-moon-and-spacecraft">Earth, Moon and Spacecraft</h3>
 <p>Another example illustrates an orbiting spacecraft between the Earth and moon. The spacecraft appears to have an unstable orbit because it is so much lighter than the celestials. Making small changes in the spacecraft's initial position and velocity drastically changes its orbit. For longer periods of time, the spacecraft escapes the Earth–Moon system due to unstable gravitational perturbations.</p>
-<figure><img src="../../docs/images/three_body/general/earth_moon_spacecraft.png" alt="Earth, Moon and Spacecraft"><figcaption>Earth, Moon and Spacecraft</figcaption></figure>
+<figure><img src="../../images/three_body/general/earth_moon_spacecraft.png" alt="Earth, Moon and Spacecraft"><figcaption>Earth, Moon and Spacecraft</figcaption></figure>
 <h3 id="binary-with-a-distant-third-body">Binary with a Distant Third Body</h3>
 <p>The hierarchical triple example places two solar-mass stars in a close binary and a Jupiter-mass body on a much wider outer orbit. Over five years, the binary separation remains close to $0.2 AU$ while the third body traces a wider path around the pair.</p>
-<figure><img src="../../docs/images/three_body/general/binary_distant_third.png" alt="Binary with Distant Third Body"><figcaption>Binary with Distant Third Body</figcaption></figure>
+<figure><img src="../../images/three_body/general/binary_distant_third.png" alt="Binary with Distant Third Body"><figcaption>Binary with Distant Third Body</figcaption></figure>
 <h3 id="figure-8-solution">Figure-8 Solution</h3>
 <p>A stable solution to the three-body problem exists where three identical massive bodies follow each other in a figure-8 pattern. Each body trails the previous by one-third of the orbital period, forming a periodic figure-8 path &quot;choreography&quot;.</p>
 <p>The simulation uses standard dimensionless initial conditions for the equal-mass figure-8 orbit and scales them into SI units for three Earth-mass bodies. For an initial outer-body separation of $1 AU$, one full figure-8 period is about $205.4$ years.</p>
 <p>With the corrected scaling, RK4 returns the bodies to their starting separations after one period. The energy output is ``<code>Energy conservation ratio: 1.000000</code>``, so this example validates the periodic figure-8 setup rather than demonstrating immediate destabilization.</p>
-<figure><img src="../../docs/images/three_body/special_solutions/three_earths.png" alt="Three Earths"><figcaption>Three Earths</figcaption></figure>
+<figure><img src="../../images/three_body/special_solutions/three_earths.png" alt="Three Earths"><figcaption>Three Earths</figcaption></figure>
 <h3 id="lagrange-equilateral-solution">Lagrange Equilateral Solution</h3>
 <p>The Lagrange solution places three equal masses at the vertices of an equilateral triangle. The whole triangle rotates around its center of mass while preserving all three pairwise separations.</p>
 <p>For a side length of $1 AU$ between three Earth-mass bodies, one full period is about $333.2$ years. RK4 returns each pairwise separation to $1 AU$ after one period, with output ``<code>Energy conservation ratio: 1.000000</code>``.</p>
-<figure><img src="../../docs/images/three_body/special_solutions/lagrange_three_earths.png" alt="Lagrange Three Earths"><figcaption>Lagrange Three Earths</figcaption></figure>
+<figure><img src="../../images/three_body/special_solutions/lagrange_three_earths.png" alt="Lagrange Three Earths"><figcaption>Lagrange Three Earths</figcaption></figure>
 <h3 id="euler-collinear-solution">Euler Collinear Solution</h3>
 <p>The Euler collinear solution places three equal masses along one rotating line, with one body at the center of mass and two bodies on opposite sides. This configuration is more delicate than the Lagrange triangle because the bodies remain aligned throughout the orbit.</p>
 <p>For an outer-body separation of $1 AU$, one full period is about $182.5$ years. RK4 returns the adjacent separations to $0.5 AU$ and the outer separation to $1 AU$ after one period, with output ``<code>Energy conservation ratio: 1.000000</code>``.</p>
-<figure><img src="../../docs/images/three_body/special_solutions/euler_collinear_three_earths.png" alt="Euler Collinear Three Earths"><figcaption>Euler Collinear Three Earths</figcaption></figure>
+<figure><img src="../../images/three_body/special_solutions/euler_collinear_three_earths.png" alt="Euler Collinear Three Earths"><figcaption>Euler Collinear Three Earths</figcaption></figure>
 <h3 id="butterfly-i-choreography">Butterfly I Choreography</h3>
 <p>The Butterfly I choreography uses published dimensionless equal-mass initial conditions and scales them to three Earth-mass bodies with an outer separation of $1 AU$. It needs a finer step count than the figure-8 example; with $N=100000$, RK4 returns the starting separations after one period with output ``<code>Energy conservation ratio: 1.000026</code>``.</p>
-<figure><img src="../../docs/images/three_body/special_solutions/butterfly_choreography.png" alt="Butterfly I Choreography"><figcaption>Butterfly I Choreography</figcaption></figure>
+<figure><img src="../../images/three_body/special_solutions/butterfly_choreography.png" alt="Butterfly I Choreography"><figcaption>Butterfly I Choreography</figcaption></figure>
 <h3 id="perturbed-special-solutions">Perturbed Special Solutions</h3>
 <p>Small perturbations were added to the figure-8 and Lagrange solutions. The figure-8 perturbation changes one initial velocity component by $2%$ and is run over three nominal periods. The Lagrange perturbation shifts one body by $0.002 AU$ and produces much larger shape changes over two periods.</p>
-<figure><img src="../../docs/images/three_body/perturbations/perturbed_figure_8.png" alt="Perturbed Figure-8"><figcaption>Perturbed Figure-8</figcaption></figure>
-<figure><img src="../../docs/images/three_body/perturbations/perturbed_lagrange_three_earths.png" alt="Perturbed Lagrange Three Earths"><figcaption>Perturbed Lagrange Three Earths</figcaption></figure>
+<figure><img src="../../images/three_body/perturbations/perturbed_figure_8.png" alt="Perturbed Figure-8"><figcaption>Perturbed Figure-8</figcaption></figure>
+<figure><img src="../../images/three_body/perturbations/perturbed_lagrange_three_earths.png" alt="Perturbed Lagrange Three Earths"><figcaption>Perturbed Lagrange Three Earths</figcaption></figure>
 <h3 id="restricted-earth-moon-trojan">Restricted Earth-Moon Trojan</h3>
 <p>The restricted Earth-Moon example uses normalized CR3BP coordinates. The third body starts near L4, producing a Trojan-style tadpole trajectory in the rotating frame.</p>
-<figure><img src="../../docs/images/three_body/restricted/restricted_earth_moon_trojan.png" alt="Restricted Earth-Moon Trojan"><figcaption>Restricted Earth-Moon Trojan</figcaption></figure>
+<figure><img src="../../images/three_body/restricted/restricted_earth_moon_trojan.png" alt="Restricted Earth-Moon Trojan"><figcaption>Restricted Earth-Moon Trojan</figcaption></figure>
 <h3 id="planar-lyapunov-like-l1-orbit">Planar Lyapunov-Like L1 Orbit</h3>
 <p>The L1 example uses the CR3BP helper and starts near the Earth-Moon L1 point. It is an illustrative planar Lyapunov-like trajectory in the rotating frame, not a corrected mission-grade halo orbit.</p>
-<figure><img src="../../docs/images/three_body/restricted/lyapunov_near_l1.png" alt="Lyapunov-Like Orbit Near L1"><figcaption>Lyapunov-Like Orbit Near L1</figcaption></figure>
+<figure><img src="../../images/three_body/restricted/lyapunov_near_l1.png" alt="Lyapunov-Like Orbit Near L1"><figcaption>Lyapunov-Like Orbit Near L1</figcaption></figure>
 <h3 id="sitnikov-problem">Sitnikov Problem</h3>
 <p>The Sitnikov example uses two equal primaries in circular motion and a restricted third body moving perpendicular to their orbital plane. The plot shows the vertical oscillation of the third body over time.</p>
-<figure><img src="../../docs/images/three_body/restricted/sitnikov_three_body.png" alt="Sitnikov Three-Body Problem"><figcaption>Sitnikov Three-Body Problem</figcaption></figure>
+<figure><img src="../../images/three_body/restricted/sitnikov_three_body.png" alt="Sitnikov Three-Body Problem"><figcaption>Sitnikov Three-Body Problem</figcaption></figure>
 <h2 id="n-body-systems">N-Body Systems</h2>
 <p>The general n-body engine supports any number of 2D massive bodies using shared array-based position and velocity storage. The first example uses RK4 for a Sun-Earth-Mars-Jupiter system over 12 years. It is intended as a compact demonstration that the repo can now run beyond hard-coded two-body and three-body systems.</p>
-<figure><img src="../../docs/images/n_body/sun_earth_mars_jupiter.png" alt="Sun-Earth-Mars-Jupiter"><figcaption>Sun-Earth-Mars-Jupiter</figcaption></figure>
+<figure><img src="../../images/n_body/sun_earth_mars_jupiter.png" alt="Sun-Earth-Mars-Jupiter"><figcaption>Sun-Earth-Mars-Jupiter</figcaption></figure>
 <p>The n-body examples also include special four-body central configurations. In these cases the shape is preserved while the bodies rotate rigidly.</p>
-<figure><img src="../../docs/images/n_body/special_solutions/rotating_square_four_body.png" alt="Rotating square four-body solution"><figcaption>Rotating square four-body solution</figcaption></figure>
-<figure><img src="../../docs/images/n_body/special_solutions/triangular_central_four_body.png" alt="Triangular central four-body solution"><figcaption>Triangular central four-body solution</figcaption></figure>
+<figure><img src="../../images/n_body/special_solutions/rotating_square_four_body.png" alt="Rotating square four-body solution"><figcaption>Rotating square four-body solution</figcaption></figure>
+<figure><img src="../../images/n_body/special_solutions/triangular_central_four_body.png" alt="Triangular central four-body solution"><figcaption>Triangular central four-body solution</figcaption></figure>
 <h2 id="conclusions">Conclusions:</h2>
 <ul>
 <li>The Euler method lost $\approx 85%$ for our Sun-Earth simulation - making it the least accurate.</li>
@@ -484,7 +485,7 @@ Energy conservation ratio: 1.000422
 <p>---</p>
 <p>📘 Author: Sid Richards (SidRichardsQuantum)</p>
 <p>&lt;img src=&quot;https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg&quot; width=&quot;20&quot; /&gt; LinkedIn: https://www.linkedin.com/in/sid-richards-21374b30b/</p>
-<p>This project is licensed under the MIT License - see the <a href="../../docs/LICENSE">LICENSE</a> file for details.</p>
+<p>This project is licensed under the MIT License - see the <a href="../../LICENSE">LICENSE</a> file for details.</p>
     </article>
   </main>
 </body>
