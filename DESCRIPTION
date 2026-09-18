@@ -15,3 +15,7 @@ BugReports: https://github.com/SidRichardsQuantum/Celestial_Dynamics_Iteration_M
 Encoding: UTF-8
 Depends:
     R (>= 4.1.0)
+Suggests:
+    shiny,
+    jsonlite,
+    callr

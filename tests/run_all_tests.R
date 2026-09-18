@@ -8,6 +8,12 @@ tests = c(
   "tests/validate_convergence.R",
   "tests/validate_invalid_inputs.R",
   "tests/validate_structure.R",
+  "tests/validate_studio.R",
+  "tests/validate_studio_visuals.R",
+  "tests/validate_studio_app.R",
+  "tests/validate_studio_experiments.R",
+  "tests/validate_studio_background.R",
+  "tests/validate_studio_gallery.R",
   "tests/validate_plot_generation.R"
 )
 

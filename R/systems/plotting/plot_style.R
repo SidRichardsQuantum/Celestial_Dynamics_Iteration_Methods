@@ -342,18 +342,36 @@ cd_add_external_diagnostics = function(lines, title = "Diagnostics") {
 }
 
 cd_json_string = function(value) {
-  escaped = gsub("\\\\", "\\\\\\\\", value)
-  escaped = gsub("\"", "\\\\\"", escaped)
-  paste0("\"", escaped, "\"")
+  # Escape script delimiters as well as JSON controls; labels are user-editable.
+  characters = vapply(utf8ToInt(enc2utf8(value)), function(code) {
+    if (code == 34L) return('\\"')
+    if (code == 92L) return("\\\\")
+    if (code < 32L || code %in% c(38L, 60L, 62L, 8232L, 8233L)) {
+      return(sprintf("\\u%04x", code))
+    }
+    intToUtf8(code)
+  }, character(1))
+  paste0('"', paste(characters, collapse = ""), '"')
 }
 
 cd_json_number_array = function(values, digits = 7) {
-  values = round(values, digits)
-  paste(format(values, scientific = FALSE, trim = TRUE), collapse = ",")
+  if (!is.null(digits)) values = round(values, digits)
+  paste(format(values, scientific = TRUE, trim = TRUE, digits = 17,
+               decimal.mark = "."), collapse = ",")
+}
+
+cd_animation_bounds = function(x, y) {
+  xr = range(x)
+  yr = range(y)
+  span = max(diff(xr), diff(yr), max(abs(c(xr, yr))) * 1e-12, 1e-12)
+  list(x = xr + c(-1, 1) * 0.08 * span,
+       y = yr + c(-1, 1) * 0.08 * span)
 }
 
 cd_write_trajectory_animation = function(filepath, title, series,
-                                          units = "AU", frame_count = 900) {
+                                          units = "AU", frame_count = 900,
+                                          record_manifest = TRUE, compact = FALSE,
+                                          times = NULL, time_units = "") {
   if (length(series) == 0) {
     stop("series must contain at least one trajectory.")
   }
@@ -369,14 +387,20 @@ cd_write_trajectory_animation = function(filepath, title, series,
       color = item$color,
       cex = if (is.null(item$cex)) 1.3 else item$cex,
       x = item$x[indices],
-      y = item$y[indices]
+      y = item$y[indices],
+      bounds = c(range(item$x), range(item$y))
     )
   })
 
-  all_x = unlist(lapply(animated, function(item) item$x))
-  all_y = unlist(lapply(animated, function(item) item$y))
-  xlim = cd_expand_range(all_x, 0.1, 0.02)
-  ylim = cd_expand_range(all_y, 0.1, 0.02)
+  all_x = unlist(lapply(series, function(item) item$x))
+  all_y = unlist(lapply(series, function(item) item$y))
+  bounds = cd_animation_bounds(all_x, all_y)
+  xlim = bounds$x
+  ylim = bounds$y
+  if (!is.null(times) && (length(times) != min_length || any(!is.finite(times)))) {
+    stop("times must contain one finite value per trajectory sample.")
+  }
+  animation_times = if (is.null(times)) indices - 1 else times[indices]
 
   json_series = vapply(animated, function(item) {
     paste0(
@@ -384,8 +408,9 @@ cd_write_trajectory_animation = function(filepath, title, series,
       "\"label\":", cd_json_string(item$label), ",",
       "\"color\":", cd_json_string(item$color), ",",
       "\"cex\":", format(item$cex, trim = TRUE), ",",
-      "\"x\":[", cd_json_number_array(item$x), "],",
-      "\"y\":[", cd_json_number_array(item$y), "]",
+      "\"x\":[", cd_json_number_array(item$x, digits = NULL), "],",
+      "\"y\":[", cd_json_number_array(item$y, digits = NULL), "],",
+      "\"bounds\":[", cd_json_number_array(item$bounds, digits = NULL), "]",
       "}"
     )
   }, character(1))
@@ -450,6 +475,8 @@ cd_write_trajectory_animation = function(filepath, title, series,
     "    .legend label:has(input:not(:checked)) { opacity: .48; }",
     "    .swatch { width: 0.75rem; height: 0.75rem; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(29, 35, 40, .14); }",
     "    @media (max-width: 760px) { .site-header { align-items: flex-start; flex-direction: column; gap: 0.75rem; } .nav-links { justify-content: flex-start; } main { width: min(100% - 1rem, 1180px); } header.page-hero { align-items: start; grid-template-columns: 1fr; } .toolbar { align-items: stretch; } .button-group { width: 100%; } button { flex: 1 1 auto; } }",
+    if (compact) "    .site-header, .page-hero .eyebrow { display: none; } main { width: 100%; padding: 0; } header.page-hero { margin: 0; padding: .5rem; border: 0; } h1 { font-size: 1rem; } .toolbar { padding: .4rem; } button { min-height: 2rem; padding: .4rem; } canvas { aspect-ratio: 1100 / 720; }",
+    "    .camera { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; padding: .4rem 1rem; } .camera input[type=range] { width: 140px; } select { max-width: 230px; }",
     "  </style>",
   "</head>",
   "<body>",
@@ -474,12 +501,13 @@ cd_write_trajectory_animation = function(filepath, title, series,
     "      <div class=\"toolbar\">",
     "        <div class=\"button-group\">",
     "          <button id=\"play\" class=\"active\">Pause</button>",
-    "          <button data-speed=\"1\">1x</button>",
-    "          <button data-speed=\"3\" class=\"active\">3x</button>",
+    "          <button data-speed=\"1\" class=\"active\">1x</button>",
+    "          <button data-speed=\"3\">3x</button>",
     "          <button data-speed=\"8\">8x</button>",
     "        </div>",
     "        <button id=\"exportFrame\" class=\"secondary\">Export frame</button>",
     "      </div>",
+    "      <div class=\"camera\"><label>Fit <select id=\"focus\"><option value=\"all\">All visible bodies</option></select></label><button id=\"fit\">Reset fit</button><label>Zoom <input id=\"zoom\" type=\"range\" min=\"0\" max=\"3\" step=\"0.01\" value=\"0\"></label><span id=\"zoomLabel\">1x</span><label><input type=\"checkbox\" id=\"follow\">Follow selected body</label></div>",
     "      <canvas id=\"scene\" width=\"1100\" height=\"720\"></canvas>",
     "      <div class=\"scrub-row\">",
     "        <input id=\"scrubber\" type=\"range\" min=\"0\" value=\"0\" aria-label=\"Animation frame\">",
@@ -493,10 +521,10 @@ cd_write_trajectory_animation = function(filepath, title, series,
     "  </main>",
     "  <script>",
     paste0("    const units = ", cd_json_string(units), ";"),
-    paste0("    const xlim = [", paste(format(xlim, scientific = FALSE, trim = TRUE),
-                                      collapse = ","), "];"),
-    paste0("    const ylim = [", paste(format(ylim, scientific = FALSE, trim = TRUE),
-                                      collapse = ","), "];"),
+    paste0("    let xlim = [", cd_json_number_array(xlim, digits = NULL), "];"),
+    paste0("    let ylim = [", cd_json_number_array(ylim, digits = NULL), "];"),
+    paste0("    const times = [", cd_json_number_array(animation_times, digits = NULL), "];") ,
+    paste0("    const timeUnits = ", cd_json_string(time_units), ";"),
     "    const bodies = [",
     paste0("      ", paste(json_series, collapse = ",\n      ")),
     "    ];",
@@ -508,17 +536,47 @@ cd_write_trajectory_animation = function(filepath, title, series,
     "    const exportFrame = document.getElementById('exportFrame');",
     "    const boundsLabel = document.getElementById('boundsLabel');",
     "    const visibleLabel = document.getElementById('visibleLabel');",
-    "    let frame = 0, speed = 3, running = true;",
-    "    const visible = Object.fromEntries(bodies.map(body => [body.label, true]));",
+    "    let frame = 0, speed = 1, running = true, progress = 0, lastTick = null;",
+    "    const visible = bodies.map(() => true);",
+    "    const focus = document.getElementById('focus');",
+    "    const zoom = document.getElementById('zoom');",
+    "    const follow = document.getElementById('follow');",
+    "    let baseBounds = [xlim.slice(), ylim.slice()];",
     "    scrubber.max = bodies[0].x.length - 1;",
-    "    boundsLabel.textContent = `Window: x ${xlim[0].toFixed(4)} to ${xlim[1].toFixed(4)} ${units}, y ${ylim[0].toFixed(4)} to ${ylim[1].toFixed(4)} ${units}`;",
-    "    document.getElementById('legend').innerHTML = bodies.map(body => `<label><input type=\"checkbox\" data-body=\"${body.label}\" checked><i class=\"swatch\" style=\"background:${body.color}\"></i>${body.label}</label>`).join('');",
-    "    document.querySelectorAll('#legend input[data-body]').forEach(input => {",
-    "      input.addEventListener('change', () => {",
-    "        visible[input.dataset.body] = input.checked;",
-    "        draw();",
-    "      });",
+    "    bodies.forEach((body, index) => {",
+    "      const option = document.createElement('option');",
+    "      option.value = String(index); option.textContent = body.label; focus.append(option);",
+    "      const label = document.createElement('label');",
+    "      const input = document.createElement('input'); input.type = 'checkbox'; input.checked = true;",
+    "      const swatch = document.createElement('i'); swatch.className = 'swatch'; swatch.style.background = body.color;",
+    "      label.append(input, swatch, document.createTextNode(body.label));",
+    "      document.getElementById('legend').append(label);",
+    "      input.addEventListener('change', () => { visible[index] = input.checked; fitView(); draw(); });",
     "    });",
+    "    function fitView() {",
+    "      let chosen = focus.value === 'all' ? bodies.filter((b, i) => visible[i]) : [bodies[Number(focus.value)]];",
+    "      if (!chosen.length) chosen = bodies;",
+    "      let xmin = Infinity, xmax = -Infinity, ymin = Infinity, ymax = -Infinity;",
+    "      chosen.forEach(b => { xmin = Math.min(xmin, b.bounds[0]); xmax = Math.max(xmax, b.bounds[1]); ymin = Math.min(ymin, b.bounds[2]); ymax = Math.max(ymax, b.bounds[3]); });",
+    "      let span = Math.max(xmax - xmin, ymax - ymin);",
+    "      if (span === 0) span = Math.max(...bodies.map(b => Math.max(b.bounds[1] - b.bounds[0], b.bounds[3] - b.bounds[2]))) * 0.1;",
+    "      span = Math.max(span, Math.max(Math.abs(xmin), Math.abs(xmax), Math.abs(ymin), Math.abs(ymax)) * 1e-12, 1e-12);",
+    "      baseBounds = [[xmin - .08 * span, xmax + .08 * span], [ymin - .08 * span, ymax + .08 * span]];",
+    "      zoom.value = 0; updateCamera();",
+    "    }",
+    "    function updateCamera() {",
+    "      const factor = Math.pow(10, Number(zoom.value));",
+    "      let cx = (baseBounds[0][0] + baseBounds[0][1]) / 2, cy = (baseBounds[1][0] + baseBounds[1][1]) / 2;",
+    "      if (follow.checked && focus.value !== 'all') { const b = bodies[Number(focus.value)]; cx = b.x[frame]; cy = b.y[frame]; }",
+    "      const hx = (baseBounds[0][1] - baseBounds[0][0]) / (2 * factor), hy = (baseBounds[1][1] - baseBounds[1][0]) / (2 * factor);",
+    "      xlim = [cx - hx, cx + hx]; ylim = [cy - hy, cy + hy];",
+    "      document.getElementById('zoomLabel').textContent = factor.toPrecision(3) + 'x';",
+    "      boundsLabel.textContent = `Window: x ${xlim[0].toPrecision(6)} to ${xlim[1].toPrecision(6)}, y ${ylim[0].toPrecision(6)} to ${ylim[1].toPrecision(6)} ${units}`;",
+    "    }",
+    "    focus.addEventListener('change', () => { fitView(); draw(); });",
+    "    document.getElementById('fit').addEventListener('click', () => { fitView(); draw(); });",
+    "    zoom.addEventListener('input', () => { updateCamera(); draw(); });",
+    "    follow.addEventListener('change', () => { updateCamera(); draw(); });",
     "    document.querySelectorAll('[data-speed]').forEach(button => {",
     "      button.addEventListener('click', () => {",
     "        speed = Number(button.dataset.speed);",
@@ -531,7 +589,7 @@ cd_write_trajectory_animation = function(filepath, title, series,
     "      play.textContent = running ? 'Pause' : 'Play';",
     "      play.classList.toggle('active', running);",
     "    });",
-    "    scrubber.addEventListener('input', () => { frame = Number(scrubber.value); running = false; play.textContent = 'Play'; play.classList.remove('active'); draw(); });",
+    "    scrubber.addEventListener('input', () => { frame = Number(scrubber.value); progress = frame; running = false; play.textContent = 'Play'; play.classList.remove('active'); draw(); });",
     "    exportFrame.addEventListener('click', () => {",
     "      const link = document.createElement('a');",
     "      link.download = 'trajectory-frame-' + String(frame).padStart(4, '0') + '.png';",
@@ -562,9 +620,9 @@ cd_write_trajectory_animation = function(filepath, title, series,
     "    function draw() {",
     "      ctx.clearRect(0, 0, canvas.width, canvas.height);",
     "      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height);",
-    "      drawAxes();",
-    "      bodies.forEach(body => {",
-    "        if (!visible[body.label]) return;",
+    "      updateCamera(); drawAxes();",
+    "      bodies.forEach((body, index) => {",
+    "        if (!visible[index]) return;",
     "        ctx.strokeStyle = body.color; ctx.globalAlpha = 0.16; ctx.lineWidth = 1.8;",
     "        ctx.beginPath();",
     "        for (let i = 0; i < body.x.length; i++) {",
@@ -587,22 +645,30 @@ cd_write_trajectory_animation = function(filepath, title, series,
     "        ctx.beginPath(); ctx.arc(px, py, 5 + body.cex * 2, 0, Math.PI * 2); ctx.fill();",
     "      });",
     "      scrubber.value = frame;",
-    "      const visibleCount = bodies.filter(body => visible[body.label]).length;",
-    "      frameLabel.textContent = `Frame ${frame + 1} of ${bodies[0].x.length}`;",
-    "      visibleLabel.textContent = `${visibleCount} of ${bodies.length} paths visible`;",
+    "      const visibleCount = visible.filter(Boolean).length;",
+    "      frameLabel.textContent = `t = ${times[frame].toPrecision(6)} ${timeUnits} | ${frame + 1}/${bodies[0].x.length}`;",
+    "      visibleLabel.textContent = `${visibleCount} of ${bodies.length} paths enabled; focused/zoomed views may place bodies off-screen. Markers are not physical radii.`;",
     "    }",
-    "    function tick() {",
-    "      if (running) frame = (frame + speed) % bodies[0].x.length;",
+    "    function tick(timestamp) {",
+    "      if (lastTick !== null && running) {",
+    "        progress += Math.min(timestamp - lastTick, 100) / 1000 * speed * (bodies[0].x.length - 1) / 20;",
+    "        if (progress > bodies[0].x.length - 1) { progress = bodies[0].x.length - 1; running = false; play.textContent = 'Replay'; play.classList.remove('active'); }",
+    "        frame = Math.floor(progress);",
+    "      }",
+    "      lastTick = timestamp;",
     "      draw(); requestAnimationFrame(tick);",
     "    }",
-    "    tick();",
+    "    play.addEventListener('click', () => { if (progress >= bodies[0].x.length - 1 && running) { progress = 0; frame = 0; } });",
+    "    fitView(); requestAnimationFrame(tick);",
     "  </script>",
     "</body>",
     "</html>"
   )
   writeLines(html, filepath)
-  cd_record_animation_manifest(filepath, title, xlim, ylim, all_x, all_y,
-                               length(indices))
+  if (record_manifest) {
+    cd_record_animation_manifest(filepath, title, xlim, ylim, all_x, all_y,
+                                 length(indices))
+  }
 }
 
 cd_plot_projectile = function(filepath, title, method_label,

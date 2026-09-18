@@ -88,3 +88,11 @@ cd_load_n_body = function() {
 cd_load_plotting = function() {
   cd_source("R/systems/plotting/plot_style.R")
 }
+
+cd_load_studio = function() {
+  cd_load_two_body()
+  cd_load_three_body()
+  cd_load_n_body()
+  cd_source_many(paste0("R/studio/", c("models", "catalog", "runner", "diagnostics",
+                                     "presets", "history", "plots", "experiments", "jobs", "gallery"), ".R"))
+}

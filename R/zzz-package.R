@@ -25,7 +25,17 @@ cd_package_files = c(
   "R/systems/n_body/n_body_runge_kutta.R",
   "R/systems/n_body/n_body_velocity_verlet.R",
   "R/systems/n_body/four_body_initial_conditions.R",
-  "R/systems/n_body/plot_n_body.R"
+  "R/systems/n_body/plot_n_body.R",
+  "R/studio/models.R",
+  "R/studio/catalog.R",
+  "R/studio/runner.R",
+  "R/studio/diagnostics.R",
+  "R/studio/presets.R",
+  "R/studio/history.R",
+  "R/studio/plots.R",
+  "R/studio/experiments.R",
+  "R/studio/jobs.R",
+  "R/studio/gallery.R"
 )
 
 for (cd_package_file in cd_package_files) {
