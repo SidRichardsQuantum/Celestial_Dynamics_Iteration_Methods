@@ -61,9 +61,10 @@ R-universe setup notes and the registry details are in
 
 ## Common Commands
 
-Run the validation suite:
+Install the optional Studio dependencies to run the full validation suite:
 
 ```bash
+Rscript -e 'install.packages(c("shiny", "jsonlite", "callr"), repos="https://cloud.r-project.org")'
 Rscript tests/run_all_tests.R
 ```
 
