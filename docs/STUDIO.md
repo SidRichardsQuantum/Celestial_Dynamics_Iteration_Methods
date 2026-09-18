@@ -78,7 +78,26 @@ body-by-2 position/velocity matrices. CR3BP uses `mu` and a six-component `state
 (two display labels, defaulting to Primary 1 and Primary 2). Labels do not affect
 the solver and are stored in the request for reproducible display.
 Sitnikov uses `primary_mass`, `primary_radius`, `z0`, `vz0`, with defaults in the
-catalog. Arrays entered in the UI are JSON; input is never evaluated as R code.
+catalog. Massive systems have an editable table with one row per body and columns
+for mass (kg), x/y (m) and vx/vy (m/s). N-body systems allow adding and removing
+rows within the 2–256 body limit; new rows require explicit values. Two- and
+three-body systems keep their fixed row counts. Advanced JSON controls remain
+available and synchronize with the table, preserving numerical precision.
+Other array parameters use JSON; input is never evaluated as R code.
+
+The composer validates drafts before submission, displays duration/timestep as
+the step count per integrator, and places errors beside their fields. Checks
+include finite values, positive masses, array shapes, distinct initial positions,
+integer step counts and the existing resource limits. Run is disabled while the
+draft is invalid or the session has a batch running. Submission uses the same
+validated requests as the live feedback and still enforces server-side checks.
+
+Composer server regression checks are included in `tests/validate_studio_app.R`.
+Optional browser checks live in `tests/validate_studio_composer.cjs` and require
+Playwright with Chromium installed. Start the Studio with an isolated
+`CELESTIAL_STUDIO_HISTORY` directory, then run `node tests/validate_studio_composer.cjs`
+with Playwright on Node's module path. Set `STUDIO_URL` if the app is not at
+`http://127.0.0.1:8766`. These checks create a short run in that history directory.
 
 The result contains `request`, `time`, `positions` and `velocities` (time × body ×
 coordinate), `masses` (NULL for restricted models), `body_names`, `units`, the
@@ -175,8 +194,8 @@ step refinement remains necessary, especially for close encounters and chaos.
 
 1. **Catalogue:** browse the nineteen existing presets grouped by catalogue system,
    or search descriptions. Use preset loads its physical inputs into the composer.
-2. **Composer:** choose compatible methods, edit explicit JSON arrays and scalar
-   parameters, then run. Selecting several integrators runs the same problem with
+2. **Composer:** choose compatible methods, edit the body table (or advanced JSON)
+   and scalar parameters, resolve inline errors, then run. Selecting several integrators runs the same problem with
    each method sequentially in one background worker. Units and method order come
    from the package catalogue. Run submits immediately; keep browsing while it runs.
    Cancel unfinished runs stops this session's batch. Completed runs are preserved.

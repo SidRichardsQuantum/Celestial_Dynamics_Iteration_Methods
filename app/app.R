@@ -34,7 +34,7 @@ scientific_table = function(table) {
 }
 
 ui = fluidPage(
-  tags$head(tags$script(HTML("$(document).on('shiny:connected', function() {
+  tags$head(tags$script(src = "composer.js"), tags$script(HTML("$(document).on('shiny:connected', function() {
     Shiny.addCustomMessageHandler('studioBusy', function(busy) {
       document.getElementById('run').disabled = busy;
     });
@@ -63,6 +63,16 @@ ui = fluidPage(
     #status { padding: 12px; margin-bottom: 12px; background: #19222e; border-left: 3px solid #85cbd9; }
     .modal-content { background: #19222e; } .table { font-variant-numeric: tabular-nums; }
     :focus-visible { outline: 2px solid #85cbd9; outline-offset: 3px; }
+    .field-error { color: #ffb6ae; margin: 5px 0 12px; }
+    .body-editor { margin-bottom: 12px; }
+    .body-table { overflow-x: auto; margin-bottom: 12px; }
+    .body-editor table { width: 100%; }
+    .body-editor th, .body-editor td { padding: 4px; }
+    .body-editor input { width: 200px; font: 13px monospace; }
+    .body-editor th { white-space: nowrap; }
+    .body-editor tbody th { position: sticky; left: 0; background: #19222e; }
+    [aria-invalid='true'] { border-color: #ffb6ae !important; }
+    .body-editor summary { cursor: pointer; margin: 12px 0; }
   "))),
   titlePanel("Celestial Dynamics Studio"),
   p("Explore numerical gravity with reproducible initial conditions and the repository's existing solvers."),
@@ -74,7 +84,8 @@ ui = fluidPage(
       uiOutput("preset_control"),
       uiOutput("preset_description"),
       uiOutput("settings"),
-      actionButton("run", "Run simulation / comparison", class = "btn-primary"),
+      uiOutput("configuration_feedback"),
+      actionButton("run", "Run simulation / comparison", class = "btn-primary", disabled = "disabled"),
       uiOutput("job_controls"),
       hr(), h4("Run history"),
       selectInput("history", "Previous run", choices = character()),
@@ -228,17 +239,32 @@ server = function(input, output, session) {
     controls = lapply(names(spec$parameters), function(name) {
       field = spec$parameters[[name]]
       value = config$parameters[[name]]
-      if (field$type == "number") {
+      control = if (field$type == "number") {
         preciseNumericInput(paste0("parameter_", name), field$label, value = value)
       } else {
         textAreaInput(paste0("parameter_", name), paste0(field$label, " (JSON)"),
           value = as.character(jsonlite::toJSON(value, digits = I(17), matrix = "rowmajor")),
           rows = if (field$type == "matrix") 3 else 2, width = "100%")
       }
+      tagList(control, uiOutput(paste0("error_", name)))
     })
+    if (all(c("masses", "positions", "velocities") %in% names(spec$parameters))) {
+      # JSON controls remain the canonical Shiny inputs. The table edits the
+      # same values, so reuse, presets and the API retain their full precision.
+      controls = tags$div(class = "body-editor", `data-system` = config$system,
+        tags$div(class = "body-table", tabindex = "0", role = "region",
+          `aria-label` = "Body initial conditions; scroll horizontally for all coordinates"),
+        if (config$system == "n_body") tags$button(type = "button",
+          class = "btn btn-default add-body", "Add body"),
+        helpText("One row per body. Scroll horizontally to edit all coordinates. Mass must be positive; bodies must start at different positions."),
+        uiOutput("error_masses"), uiOutput("error_positions"), uiOutput("error_velocities"),
+        tags$details(tags$summary("Advanced: edit initial conditions as JSON"),
+          lapply(seq_along(spec$parameters), function(i) controls[[i]][[1]])))
+    }
     tagList(p(spec$description), helpText(spec$units),
       selectInput("integrators", "Integrator(s); select several to compare",
                   choices = spec$integrators, selected = config$integrator, multiple = TRUE),
+      uiOutput("error_integrators"),
       helpText(paste(vapply(studio_integrators()[spec$integrators], function(m) {
         paste0(m$name, ": order ", m$order, ", ",
           if (m$adaptive) "adaptive" else "fixed step", ", ",
@@ -246,8 +272,109 @@ server = function(input, output, session) {
       }, character(1)), collapse = "; ")),
       controls,
       preciseNumericInput("duration", "Duration (system time units)", config$duration),
+      uiOutput("error_duration"),
       preciseNumericInput("timestep", "Timestep (duration must be an integer multiple)", config$timestep),
+      uiOutput("error_timestep"),
       helpText("Up to 100,000 steps, 256 massive bodies, 2 million position values and 10 million pair-steps per run. Close encounters may require a much smaller timestep."))
+  })
+  configuration_validation = reactive({
+    base = configuration()
+    spec = catalog[[base$system]]
+    errors = list()
+    parameters = list()
+    for (name in names(spec$parameters)) {
+      field = spec$parameters[[name]]
+      value = input[[paste0("parameter_", name)]]
+      parameters[name] = list(tryCatch({
+        if (field$type != "number") value = tryCatch(
+          jsonlite::parse_json(value, simplifyVector = TRUE),
+          error = function(e) stop("Enter valid JSON."))
+        if (field$type == "labels") {
+          if (!is.character(value) || !is.null(dim(value)) || anyNA(value) ||
+              length(value) != field$length || any(!nzchar(trimws(value))) ||
+              any(nchar(value) > 64) || anyDuplicated(value))
+            stop("Enter distinct, nonempty labels of at most 64 characters.")
+        } else {
+          if (!is.numeric(value) || !length(value) || any(!is.finite(value)))
+            stop("Enter finite numbers in every field.")
+          if (field$type == "number" && length(value) != 1L) stop("Enter one number.")
+          if (field$type == "vector" && !is.null(dim(value))) stop("Enter a vector of numbers.")
+          if (field$type == "matrix" && !is.matrix(value)) stop("Enter one [x,y] row per body.")
+          if (!is.null(field$length) && length(value) != field$length)
+            stop("Expected ", field$length, " values.")
+          if (field$positive && any(value <= 0)) stop("Values must be greater than zero.")
+        }
+        value
+      }, error = function(e) {
+        errors[[name]] <<- paste(field$label, conditionMessage(e))
+        NULL
+      }))
+    }
+    if (!is.null(parameters$masses)) {
+      bodies = length(parameters$masses)
+      required = switch(base$system, two_body = 2L, three_body = 3L, NULL)
+      if (bodies < 2 || bodies > 256 || (!is.null(required) && bodies != required))
+        errors$masses = if (is.null(required)) "Enter between 2 and 256 bodies." else
+          paste("This system requires exactly", required, "bodies.")
+      for (name in c("positions", "velocities")) {
+        value = parameters[[name]]
+        if (!is.null(value) && (!is.matrix(value) || !identical(dim(value), c(as.integer(bodies), 2L))))
+          errors[[name]] = paste(name, "must have one [x,y] row per body.")
+      }
+    }
+    for (name in c("duration", "timestep")) {
+      tryCatch(studio_positive_scalar(input[[name]], name), error = function(e) {
+        errors[[name]] <<- conditionMessage(e)
+      })
+    }
+    steps = NULL
+    if (!any(c("duration", "timestep") %in% names(errors))) {
+      steps = input$duration / input$timestep
+      if (!is.finite(steps) || round(steps) < 1 || round(steps) > 100000 ||
+          abs(steps - round(steps)) > 1e-9 * max(1, steps)) {
+        errors$timestep = "Duration / timestep must be an integer from 1 to 100,000. Adjust duration or timestep."
+      }
+    }
+    if (!length(input$integrators)) errors$integrators = "Select at least one integrator."
+    requests = NULL
+    if (!length(errors)) {
+      requests = tryCatch(lapply(input$integrators, function(method) {
+        simulation_request(base$system, method, parameters, input$duration, input$timestep)
+      }), error = function(e) {
+        message = conditionMessage(e)
+        field = if (grepl("overlapping positions", message, fixed = TRUE)) "positions" else
+          if (grepl("overlaps a primary", message, fixed = TRUE)) "state0" else
+          if (grepl("mu must", message, fixed = TRUE)) "mu" else
+          if (grepl("limit", message, fixed = TRUE)) "timestep" else "configuration"
+        errors[[field]] <<- message
+        NULL
+      })
+    }
+    list(errors = errors, steps = steps, requests = requests,
+         valid = !length(errors) && length(requests) > 0)
+  })
+  for (name in unique(c("duration", "timestep", "integrators", unlist(lapply(catalog, function(s) names(s$parameters)))))) {
+    local({
+      field_name = name
+      output[[paste0("error_", field_name)]] = renderUI({
+        message = configuration_validation()$errors[[field_name]]
+        if (!is.null(message)) tags$p(class = "field-error", message)
+      })
+    })
+  }
+  output$configuration_feedback = renderUI({
+    validation = configuration_validation()
+    tagList(
+      if (!is.null(validation$steps) && is.finite(validation$steps))
+        p(paste("Steps per integrator:", format(validation$steps, digits = 10, big.mark = ","))),
+      tags$div(role = "status", `aria-live` = "polite",
+        if (validation$valid) p("Configuration ready to run.") else
+          tags$p(class = "field-error", paste(c("Fix the highlighted inputs before running.",
+            validation$errors$integrators, validation$errors$configuration), collapse = " "))))
+  })
+  observe({
+    session$sendCustomMessage("studioBusy", !configuration_validation()$valid || !is.null(active_job()))
+    session$sendCustomMessage("studioValidation", list(fields = names(configuration_validation()$errors)))
   })
   reuse = function(path) {
     record = history_records()[[path]]
@@ -274,7 +401,6 @@ server = function(input, output, session) {
       status(paste("Background batch:", paste(stages, collapse = " | ")))
     } else {
       active_job(NULL)
-      session$sendCustomMessage("studioBusy", FALSE)
       status(paste("Completed batch:", sum(states == "completed"), "completed,",
         sum(states == "failed"), "failed,", sum(states == "cancelled"), "cancelled. View results in the gallery."))
     }
@@ -312,28 +438,11 @@ server = function(input, output, session) {
     }
     tryCatch({
       status("Validating configuration")
-      base = configuration()
-      spec = catalog[[base$system]]
-      if (!length(input$integrators)) stop("Select at least one integrator.")
-      parameters = lapply(names(spec$parameters), function(name) {
-        field = spec$parameters[[name]]
-        value = input[[paste0("parameter_", name)]]
-        if (field$type != "number") {
-          value = jsonlite::fromJSON(value, simplifyVector = TRUE)
-        }
-        value
-      }) |> setNames(names(spec$parameters))
-      request = simulation_request(base$system, input$integrators[1], parameters,
-                                   input$duration, input$timestep)
-      # Validate every comparison before spending time on the first one.
-      requests = lapply(input$integrators, function(method) {
-        args = unclass(request)
-        args$integrator = method
-        do.call(simulation_request, args)
-      })
+      validation = configuration_validation()
+      if (!validation$valid) stop(paste(unlist(validation$errors), collapse = " "))
+      requests = validation$requests
       job = studio_start_job(requests, history_directory, root = cd_project_root())
       active_job(job)
-      session$sendCustomMessage("studioBusy", TRUE)
       refresh_history()
       gallery_page_number(1L)
       updateTabsetPanel(session, "workspace", selected = "Gallery")

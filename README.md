@@ -142,6 +142,10 @@ its default is checked for conservation and timestep convergence. Select multipl
 the same initial conditions, trajectories, applicable conservation errors, and
 elapsed runtimes. These timings are illustrative, not rigorous benchmarks.
 All methods use fixed timesteps; duration must be an integer multiple of timestep.
+The composer provides a body table for masses, positions and velocities, with
+explicit units and add/remove controls for N-body systems. Advanced JSON editing
+remains available and stays synchronized with the table. Live validation shows
+the step count and inline input errors; Run is enabled only for valid configurations.
 Runs with relative energy/Jacobi drift above 0.1% display a conservation warning.
 
 Restricted-system animations include the named primaries and default to an inertial

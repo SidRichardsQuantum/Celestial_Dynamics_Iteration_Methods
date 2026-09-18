@@ -30,6 +30,7 @@ if (requireNamespace("shiny", quietly = TRUE) && requireNamespace("jsonlite", qu
         parameter_velocities = as.character(jsonlite::toJSON(initial$parameters$velocities, digits = NA)),
         duration = initial$timestep * 10, timestep = initial$timestep, run = 1
       )
+      stopifnot(configuration_validation()$valid, configuration_validation()$steps == 10)
       stopifnot(!is.null(active_job()))
       finish_batch()
       stopifnot(length(history_records()) == 2,
@@ -51,6 +52,34 @@ if (requireNamespace("shiny", quietly = TRUE) && requireNamespace("jsonlite", qu
         isTRUE(all.equal(selected(), studio_load_result(saved[1]), tolerance = 0)))
       session$setInputs(gallery_action = list(action = "reuse", path = saved[1]))
       stopifnot(isTRUE(all.equal(configuration(), studio_load_history(saved[1])$request, tolerance = 0)))
+      # Live validation must reject invalid drafts without launching a worker.
+      before = length(history_records())
+      session$setInputs(duration = -1)
+      stopifnot(!configuration_validation()$valid,
+        !is.null(configuration_validation()$errors$duration), is.null(active_job()))
+      session$setInputs(duration = initial$timestep * 10.5)
+      stopifnot(!is.null(configuration_validation()$errors$timestep))
+      session$setInputs(duration = initial$timestep * 100001)
+      stopifnot(!is.null(configuration_validation()$errors$timestep))
+      session$setInputs(duration = initial$timestep * 10, parameter_masses = "[null,1]")
+      stopifnot(!is.null(configuration_validation()$errors$masses))
+      session$setInputs(parameter_masses = "bad JSON")
+      stopifnot(grepl("valid JSON", configuration_validation()$errors$masses))
+      session$setInputs(parameter_masses = "[1,1]", parameter_positions = "[[0,0],[0,0]]")
+      stopifnot(!is.null(configuration_validation()$errors$positions))
+      session$setInputs(parameter_positions = "[[0,0]]")
+      stopifnot(!is.null(configuration_validation()$errors$positions))
+      session$setInputs(parameter_masses = as.character(jsonlite::toJSON(initial$parameters$masses, digits = NA)),
+        parameter_positions = as.character(jsonlite::toJSON(initial$parameters$positions, digits = NA)))
+      stopifnot(configuration_validation()$valid, length(history_records()) == before)
+      session$setInputs(system = "n_body", parameter_masses = "[1,1,1]",
+        parameter_positions = "[[0,0],[1,0],[0,1]]",
+        parameter_velocities = "[[0,0],[0,0],[0,0]]", integrators = "RK4", duration = 10, timestep = 1)
+      stopifnot(configuration_validation()$valid,
+        length(configuration_validation()$requests[[1]]$parameters$masses) == 3)
+      session$setInputs(parameter_masses = "[1,1]", parameter_positions = "[[0,0],[1,0]]",
+        parameter_velocities = "[[0,0],[0,0]]")
+      stopifnot(configuration_validation()$valid)
       session$setInputs(system = "sitnikov")
       stopifnot(configuration()$system == "sitnikov")
       session$setInputs(history = names(history_records())[1], reload = 1)
