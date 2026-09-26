@@ -10,8 +10,9 @@ studio_request_json = function(request) {
                    matrix = "rowmajor", digits = I(17), pretty = TRUE)
 }
 
-studio_request_from_list = function(value) {
+studio_request_from_list = function(value, execution = TRUE) {
   if (!is.list(value)) stop("Invalid request object.")
+  if (!is.character(value$system) || length(value$system) != 1L || is.na(value$system)) stop("Invalid request system.")
   # Restore JSON row arrays to R matrices, without evaluating input as R code.
   spec = studio_catalog()[[value$system]]
   if (is.null(spec)) stop("Unknown simulation system.")
@@ -27,7 +28,7 @@ studio_request_from_list = function(value) {
     }
     value$parameters[[name]] = item
   }
-  do.call(simulation_request, value)
+  do.call(studio_request, c(value, list(execution = execution)))
 }
 
 studio_request_from_json = function(text) {
@@ -46,36 +47,43 @@ studio_write_record = function(record, path) {
   path
 }
 
-studio_save_history = function(result, directory = ".studio/history", preset = NULL) {
+studio_save_history = function(result, directory = ".studio/history", preset = NULL,
+                               tags = character(), favorite = FALSE) {
   studio_require_json()
-  if (!inherits(result, "simulation_result")) stop("Expected a simulation_result.")
+  result = studio_validate_result(result)
+  studio_validate_tags(tags)
+  if (!is.logical(favorite) || length(favorite) != 1L || is.na(favorite)) stop("favorite must be TRUE or FALSE.")
   dir.create(directory, recursive = TRUE, showWarnings = FALSE)
   id = basename(tempfile("run-", tmpdir = directory))
-  studio_publish_result(result, file.path(directory, paste0(id, ".json")), preset)
+  studio_publish_result(result, file.path(directory, paste0(id, ".json")), preset, tags, favorite)
 }
 
 # The worker publishes to its existing queued record, preserving the run ID.
-studio_publish_result = function(result, path, preset = NULL) {
+studio_publish_result = function(result, path, preset = NULL, tags = character(), favorite = FALSE) {
+  result = studio_validate_result(result)
   directory = dirname(path)
   id = tools::file_path_sans_ext(basename(path))
   previous = if (file.exists(path)) studio_load_history(path) else NULL
   artifacts = file.path(directory, id)
-  dir.create(artifacts)
+  # Never clean up an artifact directory that this publication did not create.
+  if (dir.exists(artifacts) || !dir.create(artifacts)) stop("Artifact directory already exists or cannot be created.")
   published = FALSE
   on.exit(if (!published) unlink(artifacts, recursive = TRUE), add = TRUE)
   # Typed JSON preserves array dimensions and NA values without executable R data.
   connection = gzfile(file.path(artifacts, "result.json.gz"), "wt")
-  tryCatch(writeLines(jsonlite::serializeJSON(result, digits = 17), connection),
+  tryCatch(writeLines(studio_result_json(result), connection),
            finally = close(connection))
   grDevices::png(file.path(artifacts, "preview.png"), width = 640, height = 420)
   tryCatch(studio_plot_trajectories(result,
     axes = if (result$request$system == "sitnikov") c(1L, 3L) else c(1L, 2L)),
     finally = grDevices::dev.off())
-  record = list(schema_version = if (is.null(previous)) 2L else 3L,
+  record = list(schema_version = 4L, result_schema_version = result$schema_version,
                 id = id, status = "completed", stage = "completed",
-                favorite = if (is.null(previous)) FALSE else previous$favorite,
+                run_id = result$id, parent_run_id = result$lineage$parent_run_id,
+                favorite = if (is.null(previous)) favorite else previous$favorite,
+                tags = if (is.null(previous)) tags else previous$tags,
                 preset = preset, timestamp = result$timestamp,
-                request = unclass(studio_validate_request(result$request)),
+                request = unclass(result$request),
                 provenance = result$provenance, runtime_seconds = result$runtime_seconds,
                 diagnostic_summary = result$diagnostic_summary,
                 warnings = studio_accuracy_warnings(result),
@@ -114,6 +122,22 @@ studio_set_favorite = function(path, favorite) {
   studio_write_record(record, path)
 }
 
+studio_validate_tags = function(tags) {
+  if (!is.character(tags) || !is.null(dim(tags)) || anyNA(tags) ||
+      any(!nzchar(trimws(tags))) || any(nchar(tags) > 64) || anyDuplicated(tags)) {
+    stop("tags must be distinct nonempty strings of at most 64 characters.")
+  }
+  invisible(tags)
+}
+
+studio_set_tags = function(path, tags) {
+  studio_load_history(path)
+  studio_validate_tags(tags)
+  record = jsonlite::read_json(path, simplifyVector = FALSE)
+  record$tags = tags
+  studio_write_record(record, path)
+}
+
 studio_artifact_path = function(path, kind) {
   record = studio_load_history(path)
   relative = record$artifacts[[kind]]
@@ -132,19 +156,38 @@ studio_load_result = function(path) {
   connection = gzfile(artifact, "rt")
   on.exit(close(connection))
   text = paste(readLines(connection, warn = FALSE), collapse = "\n")
+  result = studio_decode_result(text, legacy_id = record$run_id)
+  if (!isTRUE(all.equal(result$request, record$request, tolerance = 0)) ||
+      (record$schema_version == 4L &&
+       (!identical(result$id, record$run_id) || result$schema_version != record$result_schema_version))) {
+    stop("Scientific artifact does not match its history request or run identity.")
+  }
+  result
+}
+
+studio_result_json = function(result) {
+  studio_require_json()
+  result = studio_validate_result(result)
+  jsonlite::serializeJSON(result, digits = 17)
+}
+
+studio_result_from_json = function(text) studio_decode_result(text)
+
+studio_decode_result = function(text, legacy_id = NULL) {
+  studio_require_json()
   # Restrict typed JSON to passive scientific data before unpacking. jsonlite's
   # general decoder also supports namespaces, S4 objects and function types.
-  validate_node = function(node) {
-    if (!is.list(node) || !is.character(node$type) || length(node$type) != 1L ||
+  validate_node = function(node, depth = 0L) {
+    if (depth > 64L || !is.list(node) || !is.character(node$type) || length(node$type) != 1L || is.na(node$type) ||
         !node$type %in% c("NULL", "list", "double", "numeric", "integer", "logical", "character")) {
       stop("Unsupported scientific artifact type.")
     }
-    if (node$type == "list") lapply(node$value, validate_node)
+    if (node$type == "list") lapply(node$value, validate_node, depth = depth + 1L)
     if (length(node$attributes)) {
       if (!all(names(node$attributes) %in% c("names", "dim", "dimnames", "class", "row.names"))) {
         stop("Unsupported scientific artifact attributes.")
       }
-      lapply(node$attributes, validate_node)
+      lapply(node$attributes, validate_node, depth = depth + 1L)
       classes = node$attributes$class$value
       if (length(classes) && !all(unlist(classes) %in%
           c("simulation_result", "simulation_request", "data.frame", "matrix", "array"))) {
@@ -155,11 +198,7 @@ studio_load_result = function(path) {
   }
   validate_node(jsonlite::fromJSON(text, simplifyVector = FALSE))
   result = jsonlite::unserializeJSON(text)
-  if (!inherits(result, "simulation_result") ||
-      !isTRUE(all.equal(result$request, record$request, tolerance = 0))) {
-    stop("Scientific artifact does not match its history request.")
-  }
-  result
+  studio_validate_result(studio_upgrade_result(result, legacy_id))
 }
 
 studio_history_timestamp = function(timestamp) {
@@ -178,12 +217,27 @@ studio_history_timestamp = function(timestamp) {
 studio_load_history = function(path) {
   studio_require_json()
   record = jsonlite::read_json(path, simplifyVector = FALSE)
-  if (!record$schema_version %in% c(1L, 2L, 3L)) stop("Unsupported history schema version.")
+  if (!is.numeric(record$schema_version) || length(record$schema_version) != 1L ||
+      is.na(record$schema_version) || !record$schema_version %in% c(1L, 2L, 3L, 4L)) stop("Unsupported history schema version.")
   studio_history_timestamp(record$timestamp)
-  record$request = studio_request_from_list(record$request)
+  record$request = studio_request_from_list(record$request, execution = FALSE)
   if (is.null(record$id)) record$id = tools::file_path_sans_ext(basename(path))
   if (is.null(record$status)) record$status = "completed"
-  if (!record$status %in% c("queued", "running", "completed", "failed", "cancelled")) stop("Invalid history status.")
+  if (!is.character(record$status) || length(record$status) != 1L || is.na(record$status) ||
+      !record$status %in% c("queued", "running", "completed", "failed", "cancelled")) stop("Invalid history status.")
+  if (record$schema_version == 4L) {
+    if (!studio_valid_id(record$run_id)) stop("Invalid history run ID.")
+    if (!is.logical(record$favorite) || length(record$favorite) != 1L || is.na(record$favorite)) stop("Invalid history favorite flag.")
+    if (record$status == "completed" &&
+        (!is.numeric(record$result_schema_version) || length(record$result_schema_version) != 1L ||
+         is.na(record$result_schema_version) || record$result_schema_version != 2L)) {
+      stop("Unsupported history result schema version.")
+    }
+  }
+  if (is.null(record$run_id)) record$run_id = record$id
+  if (is.null(record$tags) || identical(record$tags, list())) record$tags = character()
+  if (is.list(record$tags)) record$tags = unlist(record$tags, use.names = FALSE)
+  studio_validate_tags(record$tags)
   record$favorite = isTRUE(record$favorite)
   record
 }
@@ -205,6 +259,7 @@ studio_history = function(directory = ".studio/history") {
 }
 
 studio_export_trajectory = function(result, path) {
+  result = studio_validate_result(result)
   coordinates = c("x", "y", "z")[seq_len(dim(result$positions)[3])]
   rows = lapply(seq_len(dim(result$positions)[2]), function(body) {
     data = data.frame(time = result$time, body = result$body_names[body])

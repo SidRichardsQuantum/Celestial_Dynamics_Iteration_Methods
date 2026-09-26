@@ -28,6 +28,7 @@ cd_package_files = c(
   "R/systems/n_body/plot_n_body.R",
   "R/studio/models.R",
   "R/studio/catalog.R",
+  "R/studio/runs.R",
   "R/studio/runner.R",
   "R/studio/diagnostics.R",
   "R/studio/presets.R",
@@ -43,3 +44,5 @@ for (cd_package_file in cd_package_files) {
 }
 
 rm(cd_package_file)
+
+cd_engine_fingerprint = studio_source_fingerprint(".")

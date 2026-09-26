@@ -77,6 +77,8 @@ run_simulation = function(request, progress = function(stage) invisible(NULL)) {
   progress("validating")
   request = studio_validate_request(request)
   spec = studio_catalog()[[request$system]]
+  id = studio_run_id()
+  started_at = studio_run_timestamp()
   progress("integrating")
   start = proc.time()[["elapsed"]]
   invisible(capture.output(trajectory <- spec$adapter(request)))
@@ -87,13 +89,18 @@ run_simulation = function(request, progress = function(stage) invisible(NULL)) {
   result = structure(c(list(request = request,
     time = seq(0, request$duration, length.out = dim(trajectory$positions)[1]),
     units = spec$units, runtime_seconds = elapsed,
-    timestamp = format(Sys.time(), "%Y-%m-%dT%H:%M:%OS6Z", tz = "UTC"),
-    provenance = list(studio_schema = 1L, R = R.version.string, G = G,
-                      engine = "CelestialDynamicsIterationMethods 0.1.0")), trajectory),
+    provenance = studio_run_provenance()), trajectory),
     class = "simulation_result")
   progress("computing diagnostics")
   result$diagnostics = studio_diagnostics(result)
   result$diagnostic_summary = studio_diagnostic_summary(result$diagnostics)
+  result$schema_version = 2L
+  result$id = id
+  result$model = studio_run_model(request, result$provenance$G)
+  result$timestamp = studio_run_timestamp()
+  result$timestamps = list(started_at = started_at, completed_at = result$timestamp)
+  result$lineage = list(parent_run_id = NULL)
+  studio_validate_result(result)
   result
 }
 

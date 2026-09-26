@@ -33,6 +33,7 @@ RK4 routine; choose N-body with three masses if you want to compare RK4 and Verl
 
 - `R/studio/catalog.R`: S3 simulation/integrator specifications and parameter schemas.
 - `models.R`: S3 request constructor; shared input, compatibility, shape and resource validation.
+- `runs.R`: scientific result validation, model context, provenance, identity, summaries and reruns.
 - `runner.R`: adapters, normalized result arrays and same-setup comparisons.
 - `diagnostics.R`: invariant series, drift, orbital elements and summaries.
 - `presets.R`: explicit SI or normalized initial conditions and provenance descriptions.
@@ -118,6 +119,85 @@ validation allocates pairwise distances. Existing solver APIs are unaffected.
 All initial conditions and fixed-step solver settings are explicit. No random
 sampling is used. Timestamps and runtimes vary; floating-point trajectories are
 reproducible within numerical tolerance on equivalent R/platform versions.
+
+## Scientific run contract
+
+`run_simulation()` is the constructor for a completed scientific run. It still
+returns `simulation_result`; no second experiment wrapper or copy of the request
+is needed. Its schema is now version 2:
+
+```text
+simulation_result
+  id, schema_version
+  request: system, integrator, parameters, duration, timestep
+  model: version, force, formulation, frame, units, constants, body_roles
+  time, positions, velocities, masses, body_names, units, raw
+  diagnostics, diagnostic_summary
+  runtime_seconds, timestamp
+  timestamps: started_at, completed_at
+  provenance: package, package_version, engine, R, platform, G,
+              source_fingerprint, studio_schema
+  lineage: parent_run_id
+```
+
+The request owns all initial conditions, model parameters and integrator
+settings; the current fixed-step methods need only its existing `timestep`.
+`time` is the actual saved sample grid. Model context records the implemented
+force law, physical units, reference frame and each body's role. CR3BP has one
+integrated test particle and normalized equations with no physical G parameter;
+Sitnikov includes two prescribed primaries in its geometry. No new adjustable
+force law or integrator setting is implied by these descriptors.
+
+`studio_validate_result()` checks finite trajectory arrays, raw-state agreement, initial conditions,
+time-grid consistency, diagnostic alignment and summaries, metadata and passive
+data types. It returns the validated object invisibly. `print(run)` gives a short
+description; `summary(run)` and `studio_run_summary(run)` return a one-row table.
+Validation is structural and does not establish trajectory accuracy.
+
+```r
+request <- studio_preset("circular_two_body")
+request$duration <- 5 * request$timestep
+run <- run_simulation(request)
+run <- studio_validate_result(run)
+path <- studio_save_history(run, tags = c("baseline", "convergence"), favorite = TRUE)
+saved <- studio_load_result(path)
+stopifnot(identical(saved, run))
+restored <- studio_result_from_json(studio_result_json(saved))
+repeated <- studio_rerun(restored)
+stopifnot(repeated$id != run$id, repeated$lineage$parent_run_id == run$id)
+studio_set_tags(path, "reviewed")
+```
+
+Full-result JSON uses the existing typed scientific encoding at 17-digit
+precision. It is distinct from request JSON and preserves dimensions, names,
+NA/NaN/Inf and classes. Only passive supported data types are decoded; functions,
+environments, Shiny reactive objects and worker handles cannot be persisted.
+Favorites, tags and preset labels stay in authoritative history metadata and do
+not alter scientific artifacts. Repeated saves produce separate archive record
+IDs while retaining the same scientific `run_id`.
+
+History schemas 1–3 load without being rewritten. Old full results gain schema-2
+metadata in memory and use the historical record ID as their stable run ID.
+Their trajectories, diagnostics and original provenance are retained. Unknown
+start times/source identity remain unknown. A standalone legacy result has no
+historical identity, so validation/import assigns an ID: retain the returned
+object to keep it stable. Metadata-only histories still cannot provide an old
+trajectory. Future unknown schemas are rejected explicitly.
+
+Historical decoding skips current execution budgets; execution revalidates
+them. The currently supported catalogue schemas are still required. Rerunning
+checks package version and source checksums captured at checkout load or package
+build. A missing/different identity requires `allow_engine_change = TRUE` and
+emits a warning. A changed physical G is rejected because the existing engines
+cannot execute an arbitrary historical constant. New runs always retain their
+actual engine provenance and get a fresh ID with parent lineage. Source checksums
+detect changes, but do not restore an old environment or certify unmodified
+in-memory functions; cross-platform/R-version bitwise reproducibility is not
+promised. Runtime continues to measure the solver call, not the complete workflow.
+
+This release supplies the single-run foundation. Sweep definitions, experiment
+groups, adaptive integration and additional analysis algorithms remain future
+features; existing comparison and gallery workflows continue to consume results.
 
 ## Scientific interpretation
 
@@ -233,11 +313,15 @@ The existing `.studio/history/` directory remains the only persistence store.
 `CELESTIAL_STUDIO_HISTORY` overrides it. Schema 2 introduced `id`, `status`, `favorite`,
 `preset`, warning messages and relative artifact references to the existing
 request, timestamp, provenance, runtime and diagnostic summary fields.
-Background runs use schema 3: the same stable run ID transitions through queued,
+Schema 3 introduced background runs: the same stable run ID transitions through queued,
 running, completed, failed or cancelled, with an actual `stage` and timestamped
 `lifecycle` entries. Requests are saved before the worker starts. Completed records
-also retain `submitted_at`; their main timestamp records integration completion.
-Schema 1 and 2 remain supported; synchronous API saves still use schema 2.
+also retain `submitted_at`; their main timestamp records run completion.
+New synchronous and background records use schema 4, adding `run_id`, tags and,
+for completed runs, `result_schema_version` and parent-run lineage. Schemas 1–3
+remain supported. Each synchronous save still creates a separate archive record;
+its `run_id` identifies the unchanged scientific run. Background record and run
+IDs are the same from queueing through completion.
 
 ```text
 .studio/history/

@@ -25,6 +25,7 @@ studio_job_worker = function(paths) {
         stage <<- value
         studio_job_update(path, "running", value)
       })
+      result$id = record$run_id
       stage = "saving artifacts"
       studio_job_update(path, "running", stage)
       studio_publish_result(result, path, record$preset)
@@ -54,11 +55,11 @@ studio_start_job = function(requests, directory = ".studio/history", root = NULL
   }, add = TRUE)
   presets = studio_presets()
   for (request in requests) {
-    id = basename(tempfile("run-", tmpdir = directory))
+    id = studio_run_id()
     path = file.path(directory, paste0(id, ".json"))
     event = studio_stage_event("queued")
-    studio_write_record(list(schema_version = 3L, id = id, status = "queued", stage = "queued",
-      favorite = FALSE, preset = studio_preset_identity(request, presets), timestamp = event$timestamp,
+    studio_write_record(list(schema_version = 4L, id = id, run_id = id, status = "queued", stage = "queued",
+      favorite = FALSE, tags = character(), preset = studio_preset_identity(request, presets), timestamp = event$timestamp,
       request = unclass(request), lifecycle = list(event)), path)
     paths = c(paths, path)
   }

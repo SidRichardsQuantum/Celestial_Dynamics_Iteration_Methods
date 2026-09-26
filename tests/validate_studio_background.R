@@ -16,6 +16,9 @@ if (requireNamespace("callr", quietly = TRUE) && requireNamespace("jsonlite", qu
   snapshot = studio_poll_job(job)
   stopifnot(!snapshot$alive, snapshot$records[[1]]$status == "completed")
   result = studio_load_result(job$paths[1])
+  stopifnot(result$id == snapshot$records[[1]]$run_id,
+    result$id == snapshot$records[[1]]$id,
+    snapshot$records[[1]]$schema_version == 4L)
   baseline = run_simulation(short)
   stopifnot(identical(result$positions, baseline$positions),
     identical(result$diagnostics, baseline$diagnostics),

@@ -42,7 +42,8 @@ studio_presets()
 studio_preset(name)
 studio_request_json(request)
 studio_request_from_json(text)
-studio_save_history(result, directory = ".studio/history", preset = NULL)
+studio_save_history(result, directory = ".studio/history", preset = NULL,
+                    tags = character(), favorite = FALSE)
 studio_load_result(path)
 studio_set_favorite(path, favorite)
 studio_comparison(results)
@@ -70,6 +71,7 @@ and 10 million pair-steps (steps times the number of distinct body pairs).}
 \item{progress}{Callback receiving actual coarse execution stages.}
 \item{preset}{Optional preset identifier for presentation metadata.}
 \item{favorite}{Logical flag stored in the history record.}
+\item{tags}{Distinct nonempty presentation tags, each at most 64 characters.}
 \item{record}{A loaded history record.}
 \item{presets}{Preset catalogue used for metadata labels.}
 \item{request}{A validated simulation_request object.}
@@ -92,7 +94,9 @@ Display context includes prescribed CR3BP primaries without altering solver stat
 S3 list. A simulation result contains the resolved request, time, position and velocity arrays
 (time by body by coordinate), original solver output, units, diagnostics, summaries and provenance.
 Comparison returns a named list of results. History loading returns metadata and a validated request;
-history saving returns its file path. Plot functions draw on the current device. Export and animation
+history saving returns its file path. New records use history schema 4 and retain
+the scientific run ID separately from the archive-record ID. See \code{\link{studio_validate_result}}
+for run validation, schema migration and reproduction. Plot functions draw on the current device. Export and animation
 functions write files and invisibly return their path.}
 \details{Massive models use SI units and planar Newtonian gravity. CR3BP uses normalized rotating
 coordinates and the Jacobi constant. Circular Sitnikov uses particle specific energy.

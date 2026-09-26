@@ -9,6 +9,7 @@ tests = c(
   "tests/validate_invalid_inputs.R",
   "tests/validate_structure.R",
   "tests/validate_studio.R",
+  "tests/validate_studio_runs.R",
   "tests/validate_studio_visuals.R",
   "tests/validate_studio_app.R",
   "tests/validate_studio_experiments.R",

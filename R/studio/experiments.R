@@ -15,7 +15,8 @@ studio_gallery_metadata = function(record, presets = studio_presets()) {
   metric = intersect(c("energy_relative_drift", "jacobi_relative_drift",
                        "specific_energy_relative_drift"), names(record$diagnostic_summary))
   value = if (length(metric)) record$diagnostic_summary[[metric[1]]]$max_absolute_change else NULL
-  data.frame(id = record$id, title = label, preset = preset, system = request$system,
+  data.frame(id = record$id, run_id = if (is.null(record$run_id)) record$id else record$run_id,
+    title = label, preset = preset, system = request$system,
     integrator = request$integrator, duration = request$duration, timestep = request$timestep,
     bodies = if (!is.null(request$parameters$masses)) length(request$parameters$masses) else
       if (request$system == "sitnikov") 3L else 1L,
@@ -44,12 +45,13 @@ studio_comparison = function(results) {
   if (!all(compatible)) {
     stop("Incompatible runs: system, physical initial conditions, constants, units and duration must match. Integrator and timestep may differ.")
   }
+  results = lapply(results, studio_validate_result)
   labels = names(results)
   if (is.null(labels)) labels = paste("Run", seq_along(results))
   metrics = Reduce(intersect, lapply(results, function(r) names(r$diagnostic_summary)))
   rows = lapply(seq_along(results), function(i) {
     r = results[[i]]
-    row = data.frame(run = labels[i], integrator = r$request$integrator,
+    row = data.frame(run = labels[i], run_id = r$id, integrator = r$request$integrator,
       timestep = r$request$timestep, steps = length(r$time) - 1L,
       runtime_seconds = r$runtime_seconds)
     for (metric in metrics) {

@@ -5,6 +5,13 @@ studio_positive_scalar = function(value, name) {
 }
 
 simulation_request = function(system, integrator, parameters, duration, timestep) {
+  studio_request(system, integrator, parameters, duration, timestep)
+}
+
+# Historical decoding checks scientific structure without imposing today's
+# execution budgets. Submission and rerunning always apply the budgets.
+studio_request = function(system, integrator, parameters, duration, timestep,
+                          execution = TRUE) {
   if (!is.character(system) || length(system) != 1L || is.na(system) ||
       !system %in% names(studio_catalog())) stop("Unknown simulation system.")
   spec = studio_catalog()[[system]]
@@ -13,7 +20,7 @@ simulation_request = function(system, integrator, parameters, duration, timestep
   studio_positive_scalar(duration, "duration")
   studio_positive_scalar(timestep, "timestep")
   steps = duration / timestep
-  if (!is.finite(steps) || round(steps) < 1 || round(steps) > 100000 ||
+  if (!is.finite(steps) || round(steps) < 1 || (execution && round(steps) > 100000) ||
       abs(steps - round(steps)) > 1e-9 * max(1, steps)) {
     stop("duration / timestep must be an integer from 1 to 100000; timestep is never silently changed.")
   }
@@ -51,13 +58,13 @@ simulation_request = function(system, integrator, parameters, duration, timestep
   # Bound allocation and quadratic work before physics validation constructs
   # the pairwise distance matrix. These limits apply only to Studio requests.
   bodies = if (is.null(parameters$masses)) 3 else length(parameters$masses)
-  if (!is.null(parameters$masses) && bodies > 256) {
+  if (execution && !is.null(parameters$masses) && bodies > 256) {
     stop("Request exceeds the Studio's 256-body limit.")
   }
-  if ((round(steps) + 1) * bodies * spec$dimensions > 2000000) {
+  if (execution && (round(steps) + 1) * bodies * spec$dimensions > 2000000) {
     stop("Request exceeds the Studio's 2 million position-value limit.")
   }
-  if (!is.null(parameters$masses) && round(steps) * bodies * (bodies - 1) / 2 > 10000000) {
+  if (execution && !is.null(parameters$masses) && round(steps) * bodies * (bodies - 1) / 2 > 10000000) {
     stop("Request exceeds the Studio's 10 million pair-step limit; reduce bodies or steps.")
   }
   spec$validate(parameters)
@@ -65,7 +72,7 @@ simulation_request = function(system, integrator, parameters, duration, timestep
                  duration = duration, timestep = timestep), class = "simulation_request")
 }
 
-studio_validate_request = function(request) {
+studio_validate_request = function(request, execution = TRUE) {
   if (!inherits(request, "simulation_request")) stop("Expected a simulation_request.")
-  do.call(simulation_request, unclass(request))
+  do.call(studio_request, c(unclass(request), list(execution = execution)))
 }

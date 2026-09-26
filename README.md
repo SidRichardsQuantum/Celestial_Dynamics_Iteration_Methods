@@ -162,6 +162,23 @@ comparison <- compare_integrators(request, c("RK4", "Verlet"))
 studio_plot_diagnostic(comparison, "energy_relative_drift")
 ```
 
+Runs are versioned scientific objects using the existing `simulation_result`
+class. They retain a stable ID, resolved request, trajectory, diagnostics, model
+context, package/source provenance and timestamps. Favorites and tags belong to
+history metadata, separate from the scientific data:
+
+```r
+summary(result)
+path <- studio_save_history(result, tags = c("baseline", "two-body"))
+saved <- studio_load_result(path)
+repeated <- studio_rerun(saved) # new ID; parent ID identifies the original run
+json <- studio_result_json(saved) # full scientific object, not just the request
+restored <- studio_result_from_json(json)
+```
+
+See [the scientific run contract](docs/STUDIO.md#scientific-run-contract) for
+schema compatibility, validation and reproduction limits.
+
 The studio now follows **catalogue → composer → run → gallery → viewer → reuse → compare**.
 Browse presets by system, inspect scientific trajectory cards, search by preset or
 integrator, and keep favorites across sessions. The gallery shows 12 runs per page
@@ -182,8 +199,9 @@ Run submits a batch to a separate R process so the studio stays responsive. The
 newest cards show queued/running stages; **Cancel unfinished runs** stops that
 session's worker and retains cancelled requests for reuse. Already completed runs
 remain completed. Closing or reloading the browser session cancels its unfinished
-batch. Background records use schema 3 with timestamped lifecycle events; schema
-1 and 2 records remain readable. See the gallery for results when a batch finishes.
+batch. New history records use schema 4 with a stable scientific run ID; background
+records retain timestamped lifecycle events. Schemas 1–3 remain readable.
+See the gallery for results when a batch finishes.
 Set `CELESTIAL_STUDIO_HISTORY` to change the local history directory.
 See [Studio workflow and persistence](docs/STUDIO.md) for details.
 
