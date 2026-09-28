@@ -84,6 +84,11 @@ local({
     !any(selected$metrics$is_reference), selected$estimates$final_position_error$points == 4,
     identical(studio_load_convergence_study(selected$path)$metrics, selected$metrics))
   last = selected$errors[[1]]
+  stopifnot(identical(summary(selected), selected$metrics),
+    identical(selected$reference$integrator, selected_result$request$integrator),
+    identical(selected$reference$timestep, selected_result$request$timestep),
+    any(grepl("Numerical reference", capture.output(print(selected)), fixed = TRUE)),
+    is.null(rk$reference$integrator), is.null(rk$reference$timestep))
   stopifnot(identical(last$time, selected$comparison$results[[1]]$time),
     nrow(last) == 21, tail(last$position_error, 1) == selected$metrics$final_position_error[1])
   no_fit = studio_convergence_study(paths, reference = "finest", estimate_order = FALSE)

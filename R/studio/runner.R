@@ -1,4 +1,22 @@
 # Thin adapters: original solver functions and return values remain unchanged.
+simulation_dynamics = function(request, gravitational_constant = G) {
+  request = studio_validate_request(request)
+  p = request$parameters
+  if (request$system %in% c("two_body", "three_body", "n_body")) {
+    model = dynamical_model("newtonian_gravity", list(masses = p$masses, G = gravitational_constant))
+    state = list(positions = p$positions, velocities = p$velocities)
+  } else if (request$system == "restricted_three_body") {
+    model = dynamical_model("cr3bp_rotating", list(mu = p$mu))
+    state = list(positions = matrix(p$state0[1:3], 1, 3), velocities = matrix(p$state0[4:6], 1, 3))
+  } else if (request$system == "sitnikov") {
+    model = dynamical_model("sitnikov_circular", list(primary_mass = p$primary_mass,
+      primary_radius = p$primary_radius, G = gravitational_constant))
+    state = list(positions = matrix(p$z0, 1, 1), velocities = matrix(p$vz0, 1, 1))
+  } else stop("No dynamical model adapter for this system.")
+  list(model = model, state = state, integrator = request$integrator,
+    duration = request$duration, timestep = request$timestep)
+}
+
 studio_legacy_arguments = function(request) {
   p = request$parameters
   args = list(T = request$duration, N = round(request$duration / request$timestep))

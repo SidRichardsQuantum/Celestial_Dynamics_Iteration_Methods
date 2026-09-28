@@ -102,7 +102,7 @@ simulation_diagnostics = function(result, collision_distance = 0,
     massive = massive && physics_ok && checks$masses_valid && !is.null(result$masses) &&
       bodies >= 2L && dimensions == 2L
     restricted = restricted && physics_ok && bodies == 1L && dimensions == 3L &&
-      is.numeric(p$mu) && length(p$mu) == 1L && is.finite(p$mu) && p$mu > 0 && p$mu < 0.5
+      is.numeric(p$mu) && length(p$mu) == 1L && is.finite(p$mu) && p$mu > 0 && p$mu <= 0.5
     sitnikov = sitnikov && physics_ok && bodies == 3L && dimensions == 3L &&
       threshold_ok(p$primary_mass) && p$primary_mass > 0 &&
       threshold_ok(p$primary_radius) && p$primary_radius > 0
@@ -191,10 +191,7 @@ simulation_diagnostics = function(result, collision_distance = 0,
     } else if (restricted) {
       r = matrix(result$positions, n, 3)
       v = matrix(result$velocities, n, 3)
-      r1 = sqrt((r[, 1] + p$mu)^2 + r[, 2]^2 + r[, 3]^2)
-      r2 = sqrt((r[, 1] - 1 + p$mu)^2 + r[, 2]^2 + r[, 3]^2)
-      r1[r1 == 0] = r2[r2 == 0] = NA_real_
-      potential_term = r[, 1]^2 + r[, 2]^2 + 2 * ((1 - p$mu) / r1 + p$mu / r2)
+      potential_term = 2 * cd_cr3bp_potential(r, p$mu)
       speed2 = rowSums(v^2)
       invariant("jacobi", potential_term - speed2, "normalized", "x^2+y^2+2*((1-mu)/r1+mu/r2)-v^2 in the rotating frame",
         max(abs(potential_term[1]), speed2[1]))

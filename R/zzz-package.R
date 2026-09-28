@@ -1,4 +1,8 @@
 cd_package_files = c(
+  "R/dynamics/cr3bp.R",
+  "R/dynamics/models.R",
+  "R/dynamics/integrate.R",
+  "R/dynamics/lyapunov.R",
   "R/methods/euler_method.R",
   "R/methods/heuns_method.R",
   "R/methods/midpoint_method.R",
@@ -38,6 +42,9 @@ cd_package_files = c(
   "R/studio/jobs.R",
   "R/studio/comparisons.R",
   "R/studio/convergence.R",
+  "R/studio/sensitivity.R",
+  "R/studio/sweeps.R",
+  "R/studio/sweep_plots.R",
   "R/studio/gallery.R"
 )
 

@@ -26,7 +26,7 @@ preciseNumericInput = function(inputId, label, value) {
 
 scientific_table = function(table) {
   for (name in names(table)) {
-    if (is.numeric(table[[name]]) && !name %in% c("steps", "step_count", "force_evaluation_count")) {
+    if (is.numeric(table[[name]]) && !name %in% c("point", "steps", "step_count", "force_evaluation_count")) {
       table[[name]] = format(table[[name]], digits = 6, scientific = TRUE, trim = TRUE)
     }
   }
@@ -166,7 +166,44 @@ ui = fluidPage(
         tags$div(style = "overflow-x:auto", tableOutput("convergence_table")),
         tableOutput("convergence_order_table"),
         plotOutput("convergence_linear", height = "330px"),
-        plotOutput("convergence_log", height = "380px"))
+        plotOutput("convergence_log", height = "380px")),
+      tabPanel("Sensitivity", value = "Sensitivity",
+        helpText("Uses the composer experiment and its first selected integrator. The companion trajectory is periodically reset to measure finite-time divergence."),
+        uiOutput("sensitivity_settings"),
+        numericInput("sensitivity_epsilon", "Epsilon (scaled phase-space distance)", 1e-7),
+        actionButton("run_sensitivity", "Run sensitivity analysis", class = "btn-primary"),
+        actionButton("cancel_sensitivity", "Cancel analysis"),
+        textOutput("sensitivity_status"),
+        helpText("This finite-time directional estimate targets the maximum Lyapunov exponent. It is not an asymptotic exponent or an orbit classification. Check several directions, epsilon values, timesteps and reset intervals. Nearby curves may overlap at this scale."),
+        uiOutput("sensitivity_details"),
+        downloadButton("sensitivity_download", "Analysis RDS"),
+        downloadButton("sensitivity_csv", "Separation CSV"),
+        plotOutput("sensitivity_separation", height = "330px"),
+        plotOutput("sensitivity_log", height = "330px"),
+        plotOutput("sensitivity_trajectories", height = "420px"),
+        h4("Renormalisation history (last 12 intervals)"),
+        tableOutput("sensitivity_history")),
+      tabPanel("Sweeps", value = "Sweeps",
+        helpText("Run a Cartesian family from the composer using its first selected integrator. Each point starts from the same base experiment. Offsets are relative to that base; other inputs stay fixed."),
+        selectInput("sweep_dimensions", "Sweep dimensions", c("One parameter" = "1", "Two parameters" = "2")),
+        uiOutput("sweep_parameters"),
+        uiOutput("sweep_range_a"),
+        conditionalPanel("input.sweep_dimensions === '2'", uiOutput("sweep_range_b")),
+        uiOutput("sweep_metric_choices"), uiOutput("sweep_metric_settings"),
+        checkboxInput("sweep_store", "Store member runs in history", TRUE),
+        uiOutput("sweep_preview"),
+        actionButton("run_sweep", "Run parameter sweep", class = "btn-primary"),
+        actionButton("cancel_sweep", "Cancel unfinished points"), textOutput("sweep_status"),
+        helpText("One sequential background worker. Limits: 256 points, 500,000 total integration steps, 4 million position values and 20 million pair-steps. Lyapunov calculations count as two additional integrations. Failed/unavailable metrics remain blank."),
+        uiOutput("sweep_metric_control"),
+        plotOutput("sweep_plot", height = "450px", click = "sweep_click"),
+        selectInput("sweep_point", "Inspect point (or click the plot)", choices = character()),
+        actionButton("sweep_inspect", "Open run in Viewer"),
+        tableOutput("sweep_point_details"),
+        tableOutput("sweep_point_failures"),
+        tags$div(style = "overflow-x:auto", tableOutput("sweep_table")),
+        downloadButton("sweep_csv", "Grid and metrics CSV"),
+        downloadButton("sweep_download", "Sweep RDS"))
       )
     )
   )
@@ -183,6 +220,12 @@ server = function(input, output, session) {
   comparison_report = reactiveVal(NULL)
   comparison_records = reactiveVal(list())
   convergence_report = reactiveVal(NULL)
+  sensitivity_report = reactiveVal(NULL)
+  sensitivity_process = reactiveVal(NULL)
+  sensitivity_status = reactiveVal("Ready. Results belong to the inputs used when analysis started.")
+  sweep_report = reactiveVal(NULL)
+  sweep_job = reactiveVal(NULL)
+  sweep_status = reactiveVal("Choose parameters and values to preview the sweep.")
   active_job = reactiveVal(NULL)
   gallery_page_number = reactiveVal(1L)
   preview_cache = studio_preview_cache()
@@ -497,6 +540,8 @@ server = function(input, output, session) {
     poll_background()
   }
   session$onSessionEnded(function() {
+    isolate({ if (!is.null(sweep_job())) studio_poll_sweep(sweep_job(), cancel = TRUE) })
+    isolate({ if (!is.null(sensitivity_process())) sensitivity_process()$kill() })
     isolate(tryCatch(cancel_background("Cancelled because the browser session ended."),
                      error = function(e) warning(conditionMessage(e))))
   })
@@ -747,6 +792,254 @@ server = function(input, output, session) {
       textInput("convergence_timesteps", "Timesteps (comma-separated; each must divide duration)",
         paste(sprintf("%.17g", config$timestep / c(1, 2, 4, 8)), collapse = ", ")))
   })
+  output$sweep_parameters = renderUI({
+    registry = sweep_parameters(configuration())
+    choices = setNames(registry$parameter, registry$label)
+    tagList(selectInput("sweep_parameter_a", "Parameter A", choices,
+      selected = if (configuration()$system == "restricted_three_body") "initial_x" else "timestep"),
+      conditionalPanel("input.sweep_dimensions === '2'",
+        selectInput("sweep_parameter_b", "Parameter B", choices,
+          selected = if (configuration()$system == "restricted_three_body") "initial_y" else
+            if ("mass_ratio" %in% registry$parameter) "mass_ratio" else "primary_radius")))
+  })
+  for (axis_name in c("a", "b")) local({
+    axis = axis_name
+    output[[paste0("sweep_range_", axis)]] = renderUI({
+      registry = sweep_parameters(configuration())
+      parameter = input[[paste0("sweep_parameter_", axis)]]
+      req(parameter %in% registry$parameter)
+      value = registry$value[match(parameter, registry$parameter)]
+      span = 0.01 * max(1, abs(value))
+      values = if (parameter == "timestep") value / c(1, 2, 4) else c(value - span, value, value + span)
+      prefix = paste0("sweep_", axis, "_")
+      tagList(h4(paste("Values for", parameter)),
+        selectInput(paste0(prefix, "mode"), "Input", c("Explicit values" = "values", "Linear range" = "linear", "Logarithmic range" = "log")),
+        conditionalPanel(paste0("input.", prefix, "mode === 'values'"),
+          textInput(paste0(prefix, "values"), "Comma-separated values (native model units)", paste(sprintf("%.17g", values), collapse = ", "))),
+        conditionalPanel(paste0("input.", prefix, "mode !== 'values'"),
+          preciseNumericInput(paste0(prefix, "from"), "From", values[1]),
+          preciseNumericInput(paste0(prefix, "to"), "To", tail(values, 1)),
+          numericInput(paste0(prefix, "count"), "Number of points", 3, min = 1, max = 256, step = 1)))
+    })
+  })
+  output$sweep_metric_choices = renderUI({
+    registry = sweep_metrics(configuration())
+    selectInput("sweep_metrics", "Metrics to calculate", setNames(registry$metric,
+      paste0(registry$label, " [", registry$units, "]")), selected = "minimum_separation", multiple = TRUE)
+  })
+  output$sweep_metric_settings = renderUI({
+    metrics = input$sweep_metrics
+    defaults = studio_lyapunov_defaults(configuration())
+    tagList(
+      if ("escape_time" %in% metrics) tagList(
+        preciseNumericInput("sweep_escape_radius", "Radius threshold from the native coordinate origin", defaults$position_scale * 2),
+        numericInput("sweep_escape_body", "Integrated body index for radius crossing (Sitnikov: 1)", 1, min = 1, step = 1),
+        helpText("Escape time here means the first stored sample reaching this radius, not proof of physical unbinding. No crossing within the run is reported as unavailable (not_reached).")),
+      if (any(c("final_position_error", "final_velocity_error") %in% metrics))
+        helpText("Studio uses an analytic circular two-body reference for final-state errors. Points that are not circular two-body initial conditions retain their runs and report metric failure. The R API also accepts a compatible numerical reference run."),
+      if ("finite_time_lyapunov" %in% metrics) tagList(
+        numericInput("sweep_lyapunov_epsilon", "Lyapunov epsilon (scaled)", 1e-7),
+        selectInput("sweep_lyapunov_component", "Lyapunov perturbation component", defaults$components),
+        preciseNumericInput("sweep_lyapunov_interval", "Lyapunov reset interval", defaults$renormalisation_interval),
+        preciseNumericInput("sweep_lyapunov_position_scale", "Lyapunov position scale", defaults$position_scale),
+        preciseNumericInput("sweep_lyapunov_velocity_scale", "Lyapunov velocity scale", defaults$velocity_scale),
+        helpText("Scales and reset interval stay fixed across the grid. This is a finite-time directional estimate, not an asymptotic exponent or chaos classification.")))
+  })
+  sweep_plan = reactive({
+    tryCatch({
+      validation = configuration_validation()
+      if (!validation$valid) stop("Complete a valid composer experiment first.")
+      axis_values = function(axis) {
+        prefix = paste0("sweep_", axis, "_")
+        studio_sweep_values(input[[paste0(prefix, "mode")]], input[[paste0(prefix, "values")]],
+          input[[paste0(prefix, "from")]], input[[paste0(prefix, "to")]], input[[paste0(prefix, "count")]])
+      }
+      axes = if (identical(input$sweep_dimensions, "2")) c("a", "b") else "a"
+      names = vapply(axes, function(axis) input[[paste0("sweep_parameter_", axis)]], character(1))
+      parameters = setNames(lapply(axes, axis_values), names)
+      options = list()
+      metrics = input$sweep_metrics
+      if ("escape_time" %in% metrics) options = list(escape_radius = input$sweep_escape_radius, escape_body = input$sweep_escape_body)
+      if (any(c("final_position_error", "final_velocity_error") %in% metrics)) options$reference = "analytic_circular"
+      if ("finite_time_lyapunov" %in% metrics) options$lyapunov = list(epsilon = input$sweep_lyapunov_epsilon,
+        component = input$sweep_lyapunov_component, renormalisation_interval = input$sweep_lyapunov_interval,
+        position_scale = input$sweep_lyapunov_position_scale, velocity_scale = input$sweep_lyapunov_velocity_scale)
+      list(plan = prepare_parameter_sweep(validation$requests[[1]], parameters, metrics, options), error = NULL)
+    }, error = function(e) list(plan = NULL, error = conditionMessage(e)))
+  })
+  output$sweep_preview = renderUI({
+    preview = sweep_plan()
+    if (is.null(preview$plan)) return(p(class = "field-error", preview$error))
+    budget = preview$plan$budget
+    p(sprintf("Ready: %d points; %s integration steps; %s position values; %s pair-steps.",
+      budget["runs"], format(budget["integration_steps"], big.mark = ","),
+      format(budget["position_values"], big.mark = ","), format(budget["pair_steps"], big.mark = ",")))
+  })
+  observeEvent(input$run_sweep, {
+    if (!is.null(sweep_job())) return()
+    tryCatch({
+      preview = sweep_plan()
+      if (is.null(preview$plan)) stop(preview$error)
+      job = studio_start_sweep(preview$plan, isTRUE(input$sweep_store), history_directory, cd_project_root())
+      sweep_report(readRDS(job$checkpoint)); sweep_job(job)
+      sweep_status("Running parameter sweep sequentially in a background process.")
+      refresh_history()
+    }, error = function(e) sweep_status(paste("Sweep rejected:", conditionMessage(e))))
+  })
+  poll_sweep = function(cancel = FALSE) {
+    job = sweep_job()
+    if (is.null(job)) return(invisible(NULL))
+    snapshot = studio_poll_sweep(job, cancel)
+    sweep_report(snapshot$report)
+    states = snapshot$report$runs$status
+    sweep_status(paste(if (snapshot$alive) "Running:" else "Finished:", sum(states == "completed"), "completed,",
+      sum(states == "failed"), "failed,", sum(states == "cancelled"), "cancelled.",
+      "Metric failures are listed separately below."))
+    if (!snapshot$alive) { sweep_job(NULL); refresh_history() }
+    invisible(snapshot)
+  }
+  observe({
+    req(sweep_job()); invalidateLater(400, session)
+    isolate(tryCatch(poll_sweep(), error = function(e) sweep_status(paste("Sweep status error:", conditionMessage(e)))))
+  })
+  observeEvent(input$cancel_sweep, poll_sweep(cancel = TRUE))
+  output$sweep_status = renderText(sweep_status())
+  output$sweep_metric_control = renderUI({
+    report = sweep_report(); req(report)
+    registry = report$metric_registry
+    choice = isolate(input$sweep_output_metric)
+    if (is.null(choice) || !choice %in% report$metrics) choice = report$metrics[1]
+    selectInput("sweep_output_metric", "Metric to plot", setNames(registry$metric, registry$label), selected = choice)
+  })
+  output$sweep_plot = renderPlot({
+    report = sweep_report(); req(report)
+    metric = input$sweep_output_metric
+    if (is.null(metric) || !metric %in% report$metrics) metric = report$metrics[1]
+    studio_plot_sweep(report, metric)
+  })
+  observeEvent(sweep_report(), {
+    report = sweep_report(); req(report)
+    labels = vapply(seq_len(nrow(report$grid)), function(i) paste(i,
+      paste(paste(names(report$grid), format(as.numeric(unlist(report$grid[i, ], use.names = FALSE)), digits = 5), sep = "="), collapse = ", "),
+      report$runs$status[i]), character(1))
+    selected_point = if (!is.null(input$sweep_point) && input$sweep_point %in% seq_len(nrow(report$grid))) input$sweep_point else "1"
+    updateSelectInput(session, "sweep_point", choices = setNames(seq_len(nrow(report$grid)), labels), selected = selected_point)
+  })
+  observeEvent(input$sweep_click, {
+    req(sweep_report())
+    point = studio_sweep_point(sweep_report(), input$sweep_click$x, input$sweep_click$y)
+    updateSelectInput(session, "sweep_point", selected = as.character(point))
+  })
+  output$sweep_point_details = renderTable({
+    report = sweep_report(); req(report, input$sweep_point)
+    point = as.integer(input$sweep_point)
+    report$metric_status[report$metric_status$point == point, , drop = FALSE]
+  })
+  output$sweep_table = renderTable({
+    report = sweep_report(); req(report)
+    scientific_table(cbind(report$runs[c("point", "status", "metric_status")], report$grid,
+      report$scalar_metrics[report$metrics]))
+  })
+  output$sweep_point_failures = renderTable({
+    report = sweep_report(); req(report, input$sweep_point)
+    report$failures[report$failures$point == as.integer(input$sweep_point), c("stage", "metric", "message"), drop = FALSE]
+  })
+  observeEvent(input$sweep_inspect, {
+    req(sweep_report(), input$sweep_point)
+    tryCatch({
+      report = sweep_report(); point = as.integer(input$sweep_point)
+      result = sweep_run(report, point); path = report$runs$path[point]
+      viewed_path(if (is.na(path)) NULL else path)
+      run_paths(setNames(list(if (is.na(path)) NULL else path), result$id))
+      runs(setNames(list(result), result$id))
+      updateSelectInput(session, "selected_run", selected = result$id)
+      updateTabsetPanel(session, "workspace", selected = "Viewer")
+    }, error = function(e) showNotification(conditionMessage(e), type = "error"))
+  })
+  output$sweep_csv = downloadHandler("sweep.csv", function(file) {
+    report = sweep_report(); req(report)
+    utils::write.csv(cbind(report$runs, report$grid, report$scalar_metrics[report$metrics]), file, row.names = FALSE)
+  })
+  output$sweep_download = downloadHandler("sweep.rds", function(file) {
+    req(sweep_report()); saveRDS(sweep_report(), file)
+  })
+  output$sensitivity_settings = renderUI({
+    config = configuration()
+    defaults = studio_lyapunov_defaults(config)
+    tagList(
+      selectInput("sensitivity_component", "Perturbed component [body, coordinate] (Sitnikov coordinate 1 is z)", defaults$components),
+      preciseNumericInput("sensitivity_time", "Total integration time (model units)", defaults$total_time),
+      preciseNumericInput("sensitivity_interval", "Renormalisation interval (multiple of timestep)", defaults$renormalisation_interval),
+      preciseNumericInput("sensitivity_position_scale", "Position scale (model length units)", defaults$position_scale),
+      preciseNumericInput("sensitivity_velocity_scale", "Velocity scale (model velocity units)", defaults$velocity_scale),
+      helpText("Distance is the Euclidean norm of position differences / position scale and velocity differences / velocity scale. Initial scale suggestions use the largest absolute initial values, with a floor of 1."))
+  })
+  observeEvent(input$run_sensitivity, {
+    if (!is.null(sensitivity_process())) return()
+    tryCatch({
+      validation = configuration_validation()
+      if (!validation$valid) stop(paste(unlist(validation$errors), collapse = " "))
+      arguments = list(experiment = validation$requests[[1]], epsilon = input$sensitivity_epsilon,
+        component = input$sensitivity_component, total_time = input$sensitivity_time,
+        renormalisation_interval = input$sensitivity_interval,
+        position_scale = input$sensitivity_position_scale, velocity_scale = input$sensitivity_velocity_scale)
+      sensitivity_report(NULL)
+      sensitivity_process(studio_start_lyapunov(arguments))
+      sensitivity_status("Running sensitivity analysis in a background process.")
+    }, error = function(e) sensitivity_status(paste("Analysis failed:", conditionMessage(e))))
+  })
+  poll_sensitivity = function() {
+    process = sensitivity_process()
+    if (is.null(process) || process$is_alive()) return(invisible(NULL))
+    sensitivity_process(NULL)
+    tryCatch({
+      sensitivity_report(process$get_result())
+      sensitivity_status("Completed. Download the analysis to retain inputs, trajectories, metadata and reset history.")
+    }, error = function(e) sensitivity_status(paste("Analysis failed:", conditionMessage(e))))
+    invisible(NULL)
+  }
+  observe({
+    req(sensitivity_process())
+    invalidateLater(250, session)
+    poll_sensitivity()
+  })
+  observeEvent(input$cancel_sensitivity, {
+    process = sensitivity_process()
+    if (!is.null(process)) {
+      process$kill(); sensitivity_process(NULL)
+      sensitivity_status("Analysis cancelled.")
+    }
+  })
+  output$sensitivity_status = renderText(sensitivity_status())
+  output$sensitivity_details = renderUI({
+    result = sensitivity_report(); req(result)
+    m = result$metadata
+    tagList(h4(sprintf("Finite-time Lyapunov estimate: %.6g per model time unit", result$finite_time_exponent)),
+      p(sprintf("%s; duration %.6g; timestep %.6g; reset interval %.6g; epsilon %.6g; actual initial separation %.6g.",
+        m$integrator, m$total_time, m$timestep, m$renormalisation_interval, result$epsilon, result$initial_separation)),
+      p(sprintf("Position scale %.6g; velocity scale %.6g; %s units; %s frame. Perturbed component: %s.",
+        m$position_scale, m$velocity_scale, m$units, m$frame,
+        paste(names(result$direction)[result$direction != 0], collapse = ", "))))
+  })
+  output$sensitivity_separation = renderPlot({
+    req(sensitivity_report()); studio_plot_lyapunov(sensitivity_report(), "separation")
+  })
+  output$sensitivity_log = renderPlot({
+    req(sensitivity_report()); studio_plot_lyapunov(sensitivity_report(), "log")
+  })
+  output$sensitivity_trajectories = renderPlot({
+    req(sensitivity_report()); studio_plot_lyapunov(sensitivity_report(), "trajectories")
+  })
+  output$sensitivity_history = renderTable({
+    req(sensitivity_report())
+    scientific_table(tail(sensitivity_report()$renormalisation_history, 12))
+  })
+  output$sensitivity_download = downloadHandler("sensitivity.rds", function(file) {
+    req(sensitivity_report()); saveRDS(sensitivity_report(), file)
+  })
+  output$sensitivity_csv = downloadHandler("sensitivity.csv", function(file) {
+    req(sensitivity_report()); utils::write.csv(sensitivity_report()$series, file, row.names = FALSE)
+  })
   observeEvent(input$run_convergence, {
     if (!is.null(active_job())) {
       showNotification("Wait for the current batch or cancel it before starting a study.")
@@ -783,6 +1076,8 @@ server = function(input, output, session) {
     tagList(p(paste("Integrator:", study$integrator, "| Theoretical method order:", study$theoretical_order,
       "| Reference:", study$reference$type, "| Reference status:", study$reference$status)),
       p(study$reference$description),
+      if (!is.null(study$reference$integrator)) p(paste("Reference integrator:",
+        study$reference$integrator, "| Reference timestep:", format(study$reference$timestep, digits = 8))),
       helpText("Errors use each candidate's stored times. Empirical order is fitted from positive finite errors of valid completed runs; numerical reference self-errors are excluded. Conservation slopes may differ from the method's theoretical state order. Roundoff and coarse timesteps can distort estimates."),
       lapply(seq_len(nrow(study$comparison$members)), function(i) {
         m = study$comparison$members[i, ]

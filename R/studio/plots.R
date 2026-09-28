@@ -40,7 +40,9 @@ studio_plot_trajectories = function(results, axes = c(1L, 2L), frame = "native",
         all(is.finite(v)) && v[1] < v[2], logical(1)))) stop("Plot limits need finite increasing x and y bounds.")
   cd_plot_empty(limits$x, limits$y,
     paste0(c("x", "y", "z")[axes[1]], " (", unit, ")"),
-    paste0(c("x", "y", "z")[axes[2]], " (", unit, ")"), "Trajectories", asp = 1)
+    paste0(c("x", "y", "z")[axes[2]], " (", unit, ")"),
+    if (results[[1]]$request$system == "restricted_three_body")
+      paste("CR3BP:", if (frame == "native") "rotating frame" else "inertial frame") else "Trajectories", asp = 1)
   colors = cd_palette(dim(displays[[1]]$positions)[2])
   labels = character()
   for (j in seq_along(results)) {
@@ -56,7 +58,7 @@ studio_plot_trajectories = function(results, axes = c(1L, 2L), frame = "native",
     }
   }
   graphics::legend("topright", legend = labels, col = rep(colors, length(results)),
-                   lty = rep(seq_along(results), each = length(colors)), cex = 0.75, bty = "n")
+                   lty = rep(seq_along(results), each = length(colors)), pch = 19, cex = 0.75, bty = "n")
 }
 
 studio_plot_diagnostic = function(results, diagnostic) {

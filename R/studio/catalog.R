@@ -61,14 +61,14 @@ studio_catalog = function() {
     n_body = spec("n_body", "Planar Newtonian N-body gravity, including Solar System and binary configurations.",
       2L, massive_parameters, conserved, massive_validator(), studio_solve_n_body),
     restricted_three_body = spec("restricted_three_body",
-      "Massless particle in the rotating frame of two circular primaries (CR3BP).",
-      3L, list(mu = studio_parameter("Secondary / total primary mass (0 < mu < 0.5)", positive = TRUE),
+      "Idealized circular restricted three-body problem (CR3BP), in a nondimensional rotating frame; not an ephemeris.",
+      3L, list(mu = studio_parameter("Secondary / total primary mass (0 < mu <= 0.5)", positive = TRUE),
                state0 = studio_parameter("Initial [x,y,z,vx,vy,vz] in rotating frame", "vector", length = 6L),
                primary_names = studio_parameter("Primary names (larger, smaller)", "labels",
                  default = c("Primary 1", "Primary 2"), length = 2L)),
-      c("jacobi", "jacobi_relative_drift"),
+      c("jacobi", "jacobi_drift", "jacobi_relative_drift"),
       function(p) {
-        if (p$mu >= 0.5) stop("mu must be in (0, 0.5).")
+        cr3bp_validate_mu(p$mu)
         s = p$state0
         if (sum((s[1:3] - c(-p$mu, 0, 0))^2) == 0 ||
             sum((s[1:3] - c(1 - p$mu, 0, 0))^2) == 0) {

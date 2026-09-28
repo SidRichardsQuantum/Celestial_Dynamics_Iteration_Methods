@@ -1,5 +1,6 @@
 if (!exists("cd_source", mode = "function")) source("R/load.R")
 cd_source("R/constants.R")
+cd_source("R/dynamics/integrate.R")
 
 n_body_validate_inputs = function(T, N, masses, positions, velocities) {
   if (!is.finite(T) || T <= 0) {
@@ -51,24 +52,7 @@ n_body_pairwise_distances = function(positions) {
 }
 
 n_body_accelerations = function(positions, masses) {
-  body_count = length(masses)
-  accelerations = matrix(0, nrow = body_count, ncol = ncol(positions))
-
-  for (i in 1:(body_count - 1)) {
-    for (j in (i + 1):body_count) {
-      displacement = positions[j, ] - positions[i, ]
-      distance = sqrt(sum(displacement^2))
-      if (!is.finite(distance) || distance <= 0) {
-        stop("Body collision or overlapping positions.")
-      }
-
-      factor = G * displacement / distance^3
-      accelerations[i, ] = accelerations[i, ] + masses[j] * factor
-      accelerations[j, ] = accelerations[j, ] - masses[i] * factor
-    }
-  }
-
-  accelerations
+  cd_gravity_acceleration(0, positions, NULL, list(masses = masses, G = G))
 }
 
 n_body_total_energy = function(positions, velocities, masses) {

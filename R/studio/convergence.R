@@ -197,6 +197,8 @@ studio_convergence_study = function(paths, reference, reference_run = NULL, esti
   structure(list(schema_version = 1L, id = comparison$id, timestamp = comparison$timestamp,
     integrator = methods[1], theoretical_order = studio_integrators()[[methods[1]]]$order,
     reference = list(type = reference, exact = reference == "analytic", run_id = reference_id,
+      integrator = if (reference == "analytic") NULL else comparison$members$integrator[match(reference_path, comparison$members$path)],
+      timestep = if (reference == "analytic") NULL else comparison$members$timestep[match(reference_path, comparison$members$path)],
       status = if (reference == "analytic") "available" else comparison$reference_status,
       description = if (reference == "analytic") "Closed-form circular two-body orbit, evaluated in floating point." else
         "Numerical reference; differences are not errors against an exact solution."),
@@ -209,6 +211,19 @@ studio_convergence_study = function(paths, reference, reference_run = NULL, esti
       limitations = "Sampled trajectory maxima can miss between-sample peaks. Numerical reference error, interpolation, roundoff and non-asymptotic timesteps can distort order estimates. Theory is metadata, not a fit constraint.")),
     class = "convergence_study")
 }
+
+print.convergence_study = function(x, ...) {
+  cat("Convergence study ", x$id, "\n", x$integrator,
+    "; theoretical method order: ", x$theoretical_order, "\n",
+    nrow(x$metrics), " resolutions; ", sum(x$metrics$status == "completed"),
+    " completed\nReference: ", x$reference$type, " (", x$reference$status, ")\n",
+    x$reference$description, "\n", sep = "")
+  if (!is.null(x$reference$integrator)) cat("Reference integrator: ", x$reference$integrator,
+    "; timestep: ", format(x$reference$timestep), "\n", sep = "")
+  invisible(x)
+}
+
+summary.convergence_study = function(object, ...) object$metrics
 
 run_convergence_study = function(request, integrator, timesteps, reference,
     reference_run = NULL, estimate_order = TRUE, directory = ".studio/history") {

@@ -1,75 +1,29 @@
 if (!exists("cd_source", mode = "function")) source("R/load.R")
 cd_source("R/systems/plotting/plot_style.R")
 
-cr3bp_lagrange_points = function(mu) {
-  if (!is.finite(mu) || mu <= 0 || mu >= 0.5) {
-    stop("mu must be finite and in the interval (0, 0.5).")
-  }
+cd_source("R/dynamics/integrate.R")
 
-  collinear_equation = function(x) {
-    r1 = abs(x + mu)
-    r2 = abs(x - 1 + mu)
-    x - (1 - mu) * (x + mu) / r1^3 - mu * (x - 1 + mu) / r2^3
-  }
-
-  list(
-    L1 = c(uniroot(collinear_equation, c(0.01, 1 - mu - 0.01))$root, 0),
-    L2 = c(uniroot(collinear_equation, c(1 - mu + 0.01, 2))$root, 0),
-    L3 = c(uniroot(collinear_equation, c(-2, -mu - 0.01))$root, 0),
-    L4 = c(0.5 - mu, sqrt(3) / 2),
-    L5 = c(0.5 - mu, -sqrt(3) / 2)
-  )
-}
-
+# Compatibility adapters retain the six-vector and legacy trajectory layout.
 cr3bp_derivative = function(state, mu) {
-  x = state[1]
-  y = state[2]
-  z = state[3]
-  vx = state[4]
-  vy = state[5]
-  vz = state[6]
-
-  r1 = sqrt((x + mu)^2 + y^2 + z^2)
-  r2 = sqrt((x - 1 + mu)^2 + y^2 + z^2)
-
-  c(
-    vx,
-    vy,
-    vz,
-    2 * vy + x - (1 - mu) * (x + mu) / r1^3 -
-      mu * (x - 1 + mu) / r2^3,
-    -2 * vx + y - (1 - mu) * y / r1^3 - mu * y / r2^3,
-    -(1 - mu) * z / r1^3 - mu * z / r2^3
-  )
+  values = cd_cr3bp_rows(state, 6L)
+  if (nrow(values) != 1L) stop("Supply one six-component state.")
+  derivative = dynamics_derivative(dynamical_model("cr3bp_rotating", list(mu = mu)), 0,
+    list(positions = values[, 1:3, drop = FALSE], velocities = values[, 4:6, drop = FALSE]))
+  c(as.numeric(derivative$positions), as.numeric(derivative$velocities))
 }
 
 cr3bp_runge_kutta = function(T, N, mu, state0) {
-  if (!is.finite(T) || T <= 0) {
-    stop("T must be a positive finite value.")
-  }
-  if (!is.finite(N) || N <= 0 || N != as.integer(N)) {
-    stop("N must be a positive integer.")
-  }
-  if (length(state0) != 6 || any(!is.finite(state0))) {
-    stop("state0 must contain six finite values: x, y, z, vx, vy, vz.")
-  }
-
-  dt = T / N
-  state = state0
-  states = matrix(0, nrow = N + 1, ncol = 6)
-  states[1, ] = state
-
-  for (i in 1:N) {
-    k1 = cr3bp_derivative(state, mu)
-    k2 = cr3bp_derivative(state + 0.5 * dt * k1, mu)
-    k3 = cr3bp_derivative(state + 0.5 * dt * k2, mu)
-    k4 = cr3bp_derivative(state + dt * k3, mu)
-    state = state + (dt / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
-    states[i + 1, ] = state
-  }
-
+  cd_model_scalar(T, "T")
+  cd_model_scalar(N, "N")
+  if (N != floor(N)) stop("N must be a positive integer.")
+  state = cd_cr3bp_rows(state0, 6L)
+  if (nrow(state) != 1L) stop("Supply one six-component initial state.")
+  trajectory = integrate_dynamics(dynamical_model("cr3bp_rotating", list(mu = mu)),
+    list(positions = state[, 1:3, drop = FALSE], velocities = state[, 4:6, drop = FALSE]),
+    "RK4", T, T / N)
+  states = cbind(matrix(trajectory$positions, N + 1, 3), matrix(trajectory$velocities, N + 1, 3))
   colnames(states) = c("x", "y", "z", "vx", "vy", "vz")
-  return(list(t = seq(0, T, length.out = N + 1), states = states, mu = mu))
+  list(t = trajectory$time, states = states, mu = mu)
 }
 
 cr3bp_rotating_to_inertial = function(result) {
@@ -138,9 +92,13 @@ plot_cr3bp_result = function(result, filepath, title, show_lagrange_points = TRU
          bg = cd_colors$panel, cex = 1.4, lwd = 1.4)
   points(tail(states[, "x"], 1), tail(states[, "y"], 1),
          pch = 19, col = cd_colors$blue, cex = 1.2)
-  legend("topright", legend = c("Restricted body path", "Lagrange points"),
-         col = c(cd_colors$blue, cd_colors$black), lty = c(1, NA),
-         pch = c(NA, 4), lwd = c(2, NA), bty = "n", cex = 0.82)
+  legend("topleft", legend = c("Restricted body path", "Primary 1", "Primary 2",
+           if (show_lagrange_points) "Lagrange points"),
+         col = c(cd_colors$blue, cd_colors$orange, cd_colors$gray,
+           if (show_lagrange_points) cd_colors$black),
+         lty = c(1, NA, NA, if (show_lagrange_points) NA),
+         pch = c(NA, 19, 19, if (show_lagrange_points) 4),
+         bty = "n", cex = 0.82)
 
   inertial = cr3bp_rotating_to_inertial(result)
   all_ix = c(inertial$restricted[, "x"], inertial$primary_1[, "x"],

@@ -90,11 +90,13 @@ cd_load_plotting = function() {
 }
 
 cd_load_studio = function() {
+  cd_source("R/dynamics/integrate.R")
+  cd_source("R/dynamics/lyapunov.R")
   cd_load_two_body()
   cd_load_three_body()
   cd_load_n_body()
   cd_source_many(paste0("R/studio/", c("models", "catalog", "runs", "runner", "diagnostics",
-                                     "presets", "history", "plots", "experiments", "jobs", "comparisons", "convergence", "gallery"), ".R"))
+                                     "presets", "history", "plots", "experiments", "jobs", "comparisons", "convergence", "sensitivity", "sweeps", "sweep_plots", "gallery"), ".R"))
   if (!exists(".cd_engine_fingerprint", envir = .GlobalEnv, inherits = FALSE)) {
     assign(".cd_engine_fingerprint", studio_source_fingerprint(cd_project_root()), envir = .GlobalEnv)
   }

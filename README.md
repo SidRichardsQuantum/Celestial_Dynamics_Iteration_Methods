@@ -145,6 +145,28 @@ The [Integrator Lab](docs/INTEGRATOR_LAB.md) adds per-method timesteps, an expli
 reference, separate position/velocity differences, conservation/error plots,
 failure status, and saved comparisons linking normal history runs. Multi-method
 batches open the Lab when finished; every constituent can be opened in the Viewer.
+The [Convergence workflow](docs/CONVERGENCE.md) studies one integrator across
+timesteps with an explicit analytic or numerical reference, error plots,
+empirical orders, reusable results and saved comparisons in Studio.
+The [Sensitivity workflow](docs/LYAPUNOV.md) adds nearby-trajectory analysis with
+periodic renormalisation through `run_lyapunov_analysis()`. Choose epsilon,
+direction or state component, metric scales, reset interval and total time.
+Studio displays separation, log separation, a finite-time Lyapunov estimate and
+base/companion trajectories, with cancellable background execution and RDS/CSV
+downloads. Results are finite-time directional estimates, not asymptotic
+exponents or automatic chaos classifications.
+The [Parameter sweep framework](docs/PARAMETER_SWEEPS.md) runs bounded 1D/2D
+families through the normal experiment runner, with unique run IDs, optional
+history, scalar diagnostics and per-point failure metadata. Studio's **Sweeps**
+tab provides range controls, line plots, heatmaps, cancellation and point-to-run
+inspection. See the [runnable examples](examples/comparisons/parameter_sweeps.R)
+for timestep, mass ratio, initial-state perturbations and CR3BP x/y grids.
+The [dynamical model interface](docs/DYNAMICAL_MODELS.md) separates force
+parameters, initial state and integration settings. N-body RK4/Verlet use its
+shared numerical core while retaining their existing public interfaces.
+The [CR3BP module](docs/CR3BP.md) provides rotating-frame equations, L1–L5,
+Jacobi diagnostics and Earth–Moon/Sun–Earth Studio presets for the idealized
+circular restricted model, with clearly marked primaries and normalized units.
 All methods use fixed timesteps; duration must be an integer multiple of timestep.
 The composer provides a body table for masses, positions and velocities, with
 explicit units and add/remove controls for N-body systems. Advanced JSON editing

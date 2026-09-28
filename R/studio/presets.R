@@ -21,6 +21,7 @@ studio_presets = function() {
   equal_three = function(ic) list(masses = rep(M_EARTH, 3),
     positions = do.call(rbind, ic$positions), velocities = do.call(rbind, ic$velocities))
   mu = M_MOON / (M_EARTH + M_MOON)
+  sun_earth_mu = unname(cr3bp_mass_parameters()["sun_earth"])
   jupiter_mu = M_JUPITER / (M_SUN + M_JUPITER)
   solar = list(masses = c(M_SUN, M_EARTH, M_MARS, M_JUPITER),
     positions = cbind(c(0, 1, 1.524, 5.203) * AU, 0),
@@ -69,6 +70,22 @@ studio_presets = function() {
       "restricted_three_body", list(mu = mu,
         state0 = c(0.5 - mu - 0.015, -sqrt(3) / 2, 0, 0, 0, 0),
         primary_names = c("Earth", "Moon")), 20, 4000),
+    earth_moon_l1 = make("CR3BP Earth-Moon near L1", "Small displacement from unstable L1; idealized circular model, not a periodic orbit or ephemeris.",
+      "restricted_three_body", list(mu = mu, state0 = cr3bp_initial_state(mu, "L1", c(1e-4, 0, 0)),
+        primary_names = c("Earth", "Moon")), 2),
+    earth_moon_l2 = make("CR3BP Earth-Moon near L2", "Small displacement from unstable L2 in the idealized circular model.",
+      "restricted_three_body", list(mu = mu, state0 = cr3bp_initial_state(mu, "L2", c(1e-4, 0, 0)),
+        primary_names = c("Earth", "Moon")), 2),
+    earth_moon_l3 = make("CR3BP Earth-Moon near L3", "Small displacement from unstable L3 in the idealized circular model.",
+      "restricted_three_body", list(mu = mu, state0 = cr3bp_initial_state(mu, "L3", c(1e-4, 0, 0)),
+        primary_names = c("Earth", "Moon")), 2),
+    sun_earth_l1 = make("CR3BP Sun-Earth near L1", "Approximate Sun-Earth mass ratio; an idealized L1 departure, not a spacecraft ephemeris.",
+      "restricted_three_body", list(mu = sun_earth_mu,
+        state0 = cr3bp_initial_state(sun_earth_mu, "L1", c(1e-5, 0, 0)),
+        primary_names = c("Sun", "Earth")), 2),
+    sun_earth_trojan = make("CR3BP Sun-Earth near L4", "Illustrative small L4 displacement in the circular restricted Sun-Earth model.",
+      "restricted_three_body", list(mu = sun_earth_mu, state0 = cr3bp_initial_state(sun_earth_mu, "L4"),
+        primary_names = c("Sun", "Earth")), 20),
     lunar_satellite = make("Retrograde lunar test particle", "Initially circular relative to the Moon at 0.05 primary separations; Earth's gravity perturbs the orbit.",
       "restricted_three_body", list(mu = mu,
         state0 = c(1 - mu + 0.05, 0, 0, 0, -sqrt(mu / 0.05) - 0.05, 0),
