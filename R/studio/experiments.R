@@ -33,11 +33,9 @@ studio_comparison = function(results) {
     stop("Select at least two completed runs with saved trajectories.")
   }
   physical = function(result) {
-    r = result$request
     # Display labels are not part of the physical problem.
-    r$parameters$primary_names = NULL
-    list(system = r$system, parameters = r$parameters, duration = r$duration,
-         units = result$units, G = result$provenance$G)
+    c(studio_physical_request(result$request),
+      list(units = result$units, G = result$provenance$G))
   }
   baseline = physical(results[[1]])
   compatible = vapply(results, function(r) isTRUE(all.equal(physical(r), baseline,

@@ -9,10 +9,13 @@ tests = c(
   "tests/validate_invalid_inputs.R",
   "tests/validate_structure.R",
   "tests/validate_studio.R",
+  "tests/validate_diagnostics.R",
   "tests/validate_studio_runs.R",
   "tests/validate_studio_visuals.R",
   "tests/validate_studio_app.R",
   "tests/validate_studio_experiments.R",
+  "tests/validate_integrator_lab.R",
+  "tests/validate_convergence_study.R",
   "tests/validate_studio_background.R",
   "tests/validate_studio_gallery.R",
   "tests/validate_plot_generation.R"

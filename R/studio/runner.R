@@ -92,11 +92,17 @@ run_simulation = function(request, progress = function(stage) invisible(NULL)) {
     provenance = studio_run_provenance()), trajectory),
     class = "simulation_result")
   progress("computing diagnostics")
-  result$diagnostics = studio_diagnostics(result)
+  result$model = studio_run_model(request, result$provenance$G)
+  # All current adapters complete exactly N fixed steps. Force/RHS evaluations
+  # are not instrumented; do not infer counts from the integrator's name.
+  result$solver_statistics = list(step_count = round(request$duration / request$timestep),
+                                  force_evaluation_count = NA_real_)
+  report = simulation_diagnostics(result)
+  result$diagnostics = report$series
+  result$diagnostic_registry = report$registry
   result$diagnostic_summary = studio_diagnostic_summary(result$diagnostics)
   result$schema_version = 2L
   result$id = id
-  result$model = studio_run_model(request, result$provenance$G)
   result$timestamp = studio_run_timestamp()
   result$timestamps = list(started_at = started_at, completed_at = result$timestamp)
   result$lineage = list(parent_run_id = NULL)
@@ -104,14 +110,7 @@ run_simulation = function(request, progress = function(stage) invisible(NULL)) {
   result
 }
 
-compare_integrators = function(request, integrators) {
-  request = studio_validate_request(request)
-  if (!is.character(integrators) || !length(integrators) || anyNA(integrators) ||
-      anyDuplicated(integrators)) stop("Choose one or more distinct integrators.")
-  requests = lapply(integrators, function(method) {
-    args = unclass(request)
-    args$integrator = method
-    do.call(simulation_request, args)
-  })
+compare_integrators = function(request, integrators, settings = list()) {
+  requests = studio_integrator_requests(request, integrators, settings)
   setNames(lapply(requests, run_simulation), integrators)
 }

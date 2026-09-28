@@ -141,6 +141,10 @@ Pythagorean runs through its first close encounter using 100,000 RK4 steps;
 its default is checked for conservation and timestep convergence. Select multiple compatible integrators to compare
 the same initial conditions, trajectories, applicable conservation errors, and
 elapsed runtimes. These timings are illustrative, not rigorous benchmarks.
+The [Integrator Lab](docs/INTEGRATOR_LAB.md) adds per-method timesteps, an explicit
+reference, separate position/velocity differences, conservation/error plots,
+failure status, and saved comparisons linking normal history runs. Multi-method
+batches open the Lab when finished; every constituent can be opened in the Viewer.
 All methods use fixed timesteps; duration must be an integer multiple of timestep.
 The composer provides a body table for masses, positions and velocities, with
 explicit units and add/remove controls for N-body systems. Advanced JSON editing
@@ -160,7 +164,17 @@ request <- studio_preset("circular_two_body")
 result <- run_simulation(request)
 comparison <- compare_integrators(request, c("RK4", "Verlet"))
 studio_plot_diagnostic(comparison, "energy_relative_drift")
+diagnostics <- simulation_diagnostics(result)
+diagnostics$summary
+diagnostics$performance
+# Persistent workflow (requires jsonlite):
+# lab <- run_integrator_comparison(request, c("RK4", "Verlet"), reference = "RK4")
+# lab$metrics
 ```
+
+The [diagnostics reference](docs/DIAGNOSTICS.md) documents invariant equations,
+momentum and centre-of-mass drift, separations, validity and encounter checks,
+relative-error safeguards, and the machine-readable report used by Studio.
 
 Runs are versioned scientific objects using the existing `simulation_result`
 class. They retain a stable ID, resolved request, trajectory, diagnostics, model

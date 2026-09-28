@@ -109,6 +109,13 @@ prescribed primaries and the vertical particle. Runtime measures one solver call
 (including existing solver summaries), excludes Studio diagnostics and plotting,
 and is not a benchmark.
 
+New runs also include `diagnostic_registry` (metric kinds, units and definitions)
+and `solver_statistics` (completed fixed steps; force evaluations are unavailable
+unless explicitly recorded). `simulation_diagnostics(result)` returns a structured
+report with series, detailed summaries, performance, validity and encounter flags.
+See [Diagnostics](DIAGNOSTICS.md) for the API, equations and assumptions. The
+selected-run Diagnostics tab uses this report, including for old saved runs.
+
 The requested timestep must divide the duration within floating-point tolerance;
 the underlying solver uses `duration / round(duration / timestep)`. The Studio
 limits runs to 100,000 steps, 256 massive bodies, 2 million position values,
@@ -221,12 +228,13 @@ Use conservation plots and timestep refinement to assess a run.
 - Summary `max_absolute_change` is `max(abs(Q(t)-Q(0)))`; for relative-drift
   columns it is the maximum absolute relative drift. JSON stores undefined
   metrics as `null`. Unbound Kepler trajectories can have negative semi-major
-  axis; a parabolic orbit has infinite semi-major axis.
+  axis; near-parabolic energy yields `NA` for the undefined finite semi-major axis.
 
 Spatial models have x-y/x-z/y-z projections and a rotatable orthographic 3D
 camera view. Plots and animation include the prescribed CR3BP primaries as
-context; they are never added to the particle's diagnostics or exported solver
-states. Inertial views rotate both primaries and particle consistently; native
+context. Pair-separation diagnostics include these primaries as geometry, while
+particle invariants and exported solver states retain their original meanings.
+Inertial views rotate both primaries and particle consistently; native
 CR3BP views use the solved rotating coordinates. Named Earth/Moon or Sun/Jupiter
 labels are explicit preset metadata, not inferred from a custom mass ratio.
 
@@ -296,13 +304,20 @@ step refinement remains necessary, especially for close encounters and chaos.
    history identify matching physical initial conditions; they do not override
    the saved numerical request. JSON uses 17 significant digits for round-trips.
 6. **Compare:** select two or more completed cards, then Compare selected runs.
+   The [Integrator Lab](INTEGRATOR_LAB.md) extends this view with an explicit
+   reference, state-difference metrics, dedicated energy/angular-error plots,
+   shared-scale trajectory panels, constituent links, and saved comparison manifests.
+   Composer batches can set timesteps per integrator and open the Lab automatically
+   on completion, retaining failed/cancelled members. Conservation and cost stay
+   separate; no aggregate score or automatic best method is assigned.
    A table reports actual diagnostic summaries, step counts, methods, timesteps
    and runtimes; plots overlay trajectories and any shared diagnostic. Select
    angular-momentum drift or the absolute invariant when relative drift is
    undefined. Run IDs distinguish repeated methods. Comparisons require identical
    system, physical inputs, duration, units and gravitational constant. Display
-   labels may differ. Different timesteps are drawn on their original time grids;
-   no interpolation or arbitrary quality score is introduced.
+   labels may differ. Trajectory and conservation plots retain each run's original
+   time grid. State-difference metrics use explicitly documented linear
+   interpolation on the union of the candidate/reference time grids.
 7. **Favorites:** Favorite/Unfavorite updates the record atomically and survives
    restarts. Favorites can be filtered. No records are automatically pruned, so
    favorites cannot silently age out.

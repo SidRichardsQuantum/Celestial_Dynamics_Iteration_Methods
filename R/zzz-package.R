@@ -36,6 +36,8 @@ cd_package_files = c(
   "R/studio/plots.R",
   "R/studio/experiments.R",
   "R/studio/jobs.R",
+  "R/studio/comparisons.R",
+  "R/studio/convergence.R",
   "R/studio/gallery.R"
 )
 

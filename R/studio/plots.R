@@ -1,5 +1,6 @@
 # Device-independent plots reuse the repository's styling and drawing helpers.
-# Prescribed primaries are display context, never added to particle diagnostics.
+# Prescribed primaries are display context; diagnostic separations explicitly
+# include them, but they are never treated as integrated massive bodies.
 studio_display_state = function(result, frame = "native") {
   frame = match.arg(frame, c("native", "inertial"))
   if (result$request$system != "restricted_three_body") {
@@ -22,7 +23,7 @@ studio_display_state = function(result, frame = "native") {
   list(positions = positions, body_names = c(names, "Test particle"))
 }
 
-studio_plot_trajectories = function(results, axes = c(1L, 2L), frame = "native") {
+studio_plot_trajectories = function(results, axes = c(1L, 2L), frame = "native", limits = NULL) {
   if (inherits(results, "simulation_result")) results = list(results)
   if (length(axes) != 2 || any(!axes %in% seq_len(dim(results[[1]]$positions)[3]))) {
     stop("Choose two available coordinate axes.")
@@ -33,7 +34,11 @@ studio_plot_trajectories = function(results, axes = c(1L, 2L), frame = "native")
   displays = lapply(results, studio_display_state, frame = frame)
   x = unlist(lapply(displays, function(r) r$positions[, , axes[1]] / scale))
   y = unlist(lapply(displays, function(r) r$positions[, , axes[2]] / scale))
-  cd_plot_empty(cd_expand_range(x), cd_expand_range(y),
+  if (is.null(limits)) limits = list(x = cd_expand_range(x), y = cd_expand_range(y))
+  if (!is.list(limits) || !all(c("x", "y") %in% names(limits)) ||
+      !all(vapply(limits[c("x", "y")], function(v) is.numeric(v) && length(v) == 2L &&
+        all(is.finite(v)) && v[1] < v[2], logical(1)))) stop("Plot limits need finite increasing x and y bounds.")
+  cd_plot_empty(limits$x, limits$y,
     paste0(c("x", "y", "z")[axes[1]], " (", unit, ")"),
     paste0(c("x", "y", "z")[axes[2]], " (", unit, ")"), "Trajectories", asp = 1)
   colors = cd_palette(dim(displays[[1]]$positions)[2])
@@ -63,11 +68,17 @@ studio_plot_diagnostic = function(results, diagnostic) {
   values = unlist(lapply(results, function(r) r$diagnostics[[diagnostic]]))
   if (!any(is.finite(values))) {
     graphics::plot.new()
-    graphics::text(0.5, 0.5, "Relative drift is undefined for a zero initial invariant.\nSelect the absolute invariant instead.")
+    graphics::text(0.5, 0.5, "No finite values for this diagnostic.\nRelative drift needs a nonzero reference; near-collision flags need a threshold.")
     return(invisible(NULL))
   }
+  metadata = results[[1]]$diagnostic_registry
+  label = gsub("_", " ", diagnostic, fixed = TRUE)
+  if (!is.null(metadata) && diagnostic %in% metadata$metric) {
+    row = metadata[metadata$metric == diagnostic, ]
+    label = paste0(label, " [", row$units, "; ", row$kind, "]")
+  }
   cd_plot_empty(range(results[[1]]$time), cd_expand_range(values[is.finite(values)]),
-                "Time (system time units)", diagnostic, diagnostic)
+                "Time (system time units)", label, gsub("_", " ", diagnostic, fixed = TRUE))
   colors = cd_palette(length(results))
   for (j in seq_along(results)) {
     graphics::lines(results[[j]]$time, results[[j]]$diagnostics[[diagnostic]],

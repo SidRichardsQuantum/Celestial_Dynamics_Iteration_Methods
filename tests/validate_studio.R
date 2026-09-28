@@ -56,7 +56,7 @@ for (preset in studio_presets()) {
   output = run_simulation(r)
   stopifnot(dim(output$positions)[1] == 11,
             all(is.finite(output$positions)), all(is.finite(output$velocities)),
-            identical(names(output$diagnostics)[-1], catalog[[r$system]]$diagnostics))
+            all(catalog[[r$system]]$diagnostics %in% names(output$diagnostics)))
 }
 
 request$timestep = request$duration / 1000

@@ -32,7 +32,7 @@ Newtonian solvers, with diagnostics, presets, plotting and optional JSON history
 cd_load_studio()
 simulation_request(system, integrator, parameters, duration, timestep)
 run_simulation(request, progress = function(stage) invisible(NULL))
-compare_integrators(request, integrators)
+compare_integrators(request, integrators, settings = list())
 studio_start_job(requests, directory = ".studio/history", root = NULL)
 studio_poll_job(job)
 studio_cancel_job(job, reason = "Cancelled by user.")
@@ -51,7 +51,8 @@ studio_gallery_metadata(record, presets = studio_presets())
 studio_load_history(path)
 studio_history(directory = ".studio/history")
 studio_export_trajectory(result, path)
-studio_plot_trajectories(results, axes = c(1L, 2L), frame = "native")
+studio_plot_trajectories(results, axes = c(1L, 2L), frame = "native",
+                         limits = NULL)
 studio_plot_diagnostic(results, diagnostic)
 studio_plot_3d(result, azimuth = 35, elevation = 25, frame = "native")
 studio_animation(result, path, axes = NULL, frame = "auto")
@@ -76,6 +77,8 @@ and 10 million pair-steps (steps times the number of distinct body pairs).}
 \item{presets}{Preset catalogue used for metadata labels.}
 \item{request}{A validated simulation_request object.}
 \item{integrators}{Distinct compatible integrator identifiers for comparison.}
+\item{settings}{Optional named list of per-integrator settings; currently only timestep.
+See \code{\link{run_integrator_comparison}} for the persistent comparison workflow.}
 \item{name}{Preset identifier from \code{studio_presets()}.}
 \item{text}{JSON request text, never executable R code.}
 \item{result}{A simulation_result object.}
@@ -84,10 +87,14 @@ and 10 million pair-steps (steps times the number of distinct body pairs).}
 \item{path}{Input or output file path.}
 \item{axes}{Two coordinate indices for the displayed projection. Animation defaults to x-z
 for Sitnikov and x-y otherwise.}
+\item{limits}{Optional list with increasing finite two-element x and y plot bounds,
+in displayed units (AU for SI systems, normalized coordinates for CR3BP).
+Used to share scales in comparison panels.}
 \item{frame}{Display frame: native or inertial. CR3BP native coordinates rotate with
 the primaries. Animation auto selects inertial for CR3BP and native otherwise.
 Display context includes prescribed CR3BP primaries without altering solver states.}
-\item{diagnostic}{Applicable diagnostic column name from the catalog.}
+\item{diagnostic}{Applicable diagnostic column name from the result or its diagnostic registry.
+See \code{\link{simulation_diagnostics}} for the structured diagnostics interface.}
 \item{azimuth, elevation}{Orthographic camera angles in degrees.}
 }
 \value{Catalog and preset functions return named lists. The request constructor returns a validated
