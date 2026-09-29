@@ -11,6 +11,13 @@ if (!file.exists("R/load.R")) {
   source("R/load.R")
 }
 cd_load_studio()
+cd_load_periodic_orbits()
+cd_source("R/studio/periodic_orbits.R")
+planning_enabled = identical(Sys.getenv("CELESTIAL_STUDIO_PLANNING"), "1")
+if (planning_enabled) {
+  cd_load_experiment_planning()
+  cd_source("R/studio/experiment_planner.R")
+}
 library(shiny)
 
 catalog = studio_catalog()
@@ -95,6 +102,7 @@ ui = fluidPage(
     mainPanel(width = 8,
       tags$div(role = "status", `aria-live` = "polite", textOutput("status")),
       tabsetPanel(id = "workspace", selected = "Gallery",
+        if (planning_enabled) tabPanel("Experiment planner", value = "Planner", studio_plan_ui("planner")),
         tabPanel("Catalogue", textInput("catalogue_search", "Find a preset"), uiOutput("catalogue_cards")),
         tabPanel("Gallery",
           h3("Experiment gallery"),
@@ -183,6 +191,8 @@ ui = fluidPage(
         plotOutput("sensitivity_trajectories", height = "420px"),
         h4("Renormalisation history (last 12 intervals)"),
         tableOutput("sensitivity_history")),
+      tabPanel("Advanced: periodic orbits", value = "Periodic",
+        studio_periodic_ui("periodic")),
       tabPanel("Sweeps", value = "Sweeps",
         helpText("Run a Cartesian family from the composer using its first selected integrator. Each point starts from the same base experiment. Offsets are relative to that base; other inputs stay fixed."),
         selectInput("sweep_dimensions", "Sweep dimensions", c("One parameter" = "1", "Two parameters" = "2")),
@@ -211,6 +221,7 @@ ui = fluidPage(
 
 server = function(input, output, session) {
   configuration = reactiveVal(studio_preset("circular_two_body"))
+  planned_selection = reactiveVal(NULL)
   preset_selection = reactiveVal("custom")
   runs = reactiveVal(NULL)
   viewed_path = reactiveVal(NULL)
@@ -354,7 +365,8 @@ server = function(input, output, session) {
     }
     tagList(p(spec$description), helpText(spec$units),
       selectInput("integrators", "Integrator(s); select several to compare",
-                  choices = spec$integrators, selected = config$integrator, multiple = TRUE),
+                  choices = spec$integrators, selected = if (identical(planned_selection()$request, config))
+                    planned_selection()$integrators else config$integrator, multiple = TRUE),
       uiOutput("error_integrators"),
       helpText(paste(vapply(studio_integrators()[spec$integrators], function(m) {
         paste0(m$name, ": order ", m$order, ", ",
@@ -462,6 +474,20 @@ server = function(input, output, session) {
     list(errors = errors, steps = steps, requests = requests,
          valid = !length(errors) && length(requests) > 0)
   })
+  studio_periodic_server("periodic", configuration, configuration_validation)
+  if (planning_enabled) studio_plan_server("planner", provider = getOption("celestial.experiment_provider"),
+    on_confirm = function(plan, requests) {
+      if (!is.null(active_job())) stop("Wait for the running batch or cancel it before loading a plan.")
+      freezeReactiveValue(input, "preset")
+      freezeReactiveValue(input, "system")
+      preset_selection("custom")
+      planned_selection(list(request = requests[[1]], integrators = names(requests)))
+      configuration(requests[[1]])
+      updateSelectInput(session, "system", selected = requests[[1]]$system)
+      updateSelectInput(session, "preset", selected = "custom")
+      status(paste("Confirmed plan loaded. Review the composer and press Run. Requested views:",
+        paste(unlist(plan$plots), collapse = ", ")))
+    })
   for (name in unique(c("duration", "timestep", "integrators", unlist(lapply(catalog, function(s) names(s$parameters)))))) {
     local({
       field_name = name

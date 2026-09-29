@@ -2,6 +2,10 @@
 .Rhistory
 .RData
 .Ruserdata
+.Renviron
+.Renviron.*
+.env
+.env.*
 Rplots.pdf
 .Rproj.user/
 .Rproj

@@ -3,6 +3,7 @@ cd_package_files = c(
   "R/dynamics/models.R",
   "R/dynamics/integrate.R",
   "R/dynamics/lyapunov.R",
+  "R/experimental/periodic_orbits.R",
   "R/methods/euler_method.R",
   "R/methods/heuns_method.R",
   "R/methods/midpoint_method.R",
@@ -45,7 +46,8 @@ cd_package_files = c(
   "R/studio/sensitivity.R",
   "R/studio/sweeps.R",
   "R/studio/sweep_plots.R",
-  "R/studio/gallery.R"
+  "R/studio/gallery.R",
+  "R/planning/experiment_plans.R"
 )
 
 for (cd_package_file in cd_package_files) {

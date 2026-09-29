@@ -107,6 +107,18 @@ generated artifact details, see [docs/USAGE.md](docs/USAGE.md).
 
 ## Celestial Dynamics Studio
 
+An [optional experiment planner](docs/EXPERIMENT_PLANNING.md) accepts
+provider-neutral natural-language proposals or plan JSON, validates them against
+the actual catalogue, and requires review before loading the composer. It is
+disabled by default. Only the existing numerical engine computes trajectories
+and diagnostics; no AI provider or generated code runs as part of normal Studio.
+
+The opt-in [experimental periodic-orbit workflow](docs/PERIODIC_ORBITS.md)
+adds safeguarded shooting correction, full iteration history and independent
+resolution checks. Start with the known figure-eight example through the R API
+or **Advanced: periodic orbits** in Studio. It makes no new-orbit discovery claims
+and does not change the core simulation runner.
+
 An optional interactive R Shiny app wraps the existing numerical physics with a
 simulation catalog, editable initial conditions, integrator comparisons,
 diagnostics, animations, exports, and local run history. Shiny keeps the app in

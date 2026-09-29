@@ -16,3 +16,5 @@
 ^.*\.Rcheck$
 ^app$
 ^\.studio$
+^\.Renviron(\..*)?$
+^\.env(\..*)?$

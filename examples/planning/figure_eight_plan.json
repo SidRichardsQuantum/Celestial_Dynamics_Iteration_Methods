@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "kind": "compare",
+  "system": "n_body",
+  "model": "newtonian_gravity",
+  "preset": "figure_eight",
+  "parameters": {},
+  "integrators": ["Verlet", "RK4"],
+  "duration": {"value": 20, "unit": "preset_periods"},
+  "timestep": {"value": 0.001, "unit": "preset_periods"},
+  "plots": ["energy_relative_drift"]
+}

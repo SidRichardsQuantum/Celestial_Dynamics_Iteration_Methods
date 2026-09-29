@@ -89,6 +89,17 @@ cd_load_plotting = function() {
   cd_source("R/systems/plotting/plot_style.R")
 }
 
+# Opt-in experimental analysis; never called by the simulation runner.
+cd_load_periodic_orbits = function() {
+  cd_source("R/dynamics/integrate.R")
+  cd_source("R/experimental/periodic_orbits.R")
+}
+
+cd_load_experiment_planning = function() {
+  cd_load_studio()
+  cd_source("R/planning/experiment_plans.R")
+}
+
 cd_load_studio = function() {
   cd_source("R/dynamics/integrate.R")
   cd_source("R/dynamics/lyapunov.R")
