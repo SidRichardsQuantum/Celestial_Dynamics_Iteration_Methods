@@ -8,7 +8,15 @@ local({
   for (name in names(baseline)) {
     request = studio_preset(name); request$duration = 8 * request$timestep
     result = run_simulation(request)
-    stopifnot(isTRUE(all.equal(result$raw$states[9, ], baseline[[name]], tolerance = 1e-13)))
+    actual = result$raw$states[9, ]
+    expected = baseline[[name]]
+    # These states are nondimensional. Bound each component's absolute error:
+    # all.equal's default relative scale uses only unequal entries, so tiny
+    # velocities can turn platform roundoff into a spurious baseline failure.
+    stopifnot(identical(names(actual), names(expected)), all(is.finite(actual)))
+    error = max(abs(actual - expected))
+    if (error > 1e-13)
+      stop(sprintf("CR3BP baseline %s: maximum absolute error %.17g exceeds 1e-13.", name, error))
   }
   ratios = cr3bp_mass_parameters()
   stopifnot(is.null(names(cr3bp_initial_state(ratios["earth_moon"]))))
